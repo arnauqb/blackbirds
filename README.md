@@ -1,2 +1,2 @@
-# birds
-Bayesian Inference foR Differentiable Simulators
+![](./logo.png)
+
