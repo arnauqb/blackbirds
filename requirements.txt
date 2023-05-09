@@ -1,0 +1,4 @@
+nflows==0.14
+torch==2.1.0
+torch-geometric==2.3
+tqdm==4.65.0
