@@ -67,3 +67,4 @@ def compute_forecast_loss(
     if n_samples_not_nan == 0:
         return torch.nan
     return loss / n_samples_not_nan
+

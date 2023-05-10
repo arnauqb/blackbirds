@@ -4,7 +4,6 @@ import torch
 
 from birds.forecast import compute_loss, compute_forecast_loss
 
-
 class TestForecast:
     def test__compute_loss(self):
         loss_fn = torch.nn.MSELoss()
