@@ -2,7 +2,7 @@ def compute_regularisation(posterior_estimator, prior, n_samples):
     r"""Estimates the KL divergence between the posterior and the prior using n_samples through Monte Carlo.
     The formula is:
     .. math::
-        \mathbb{E}_{q(z|x)}[\log q(z|x) - \log p(z)] \approx \frac{1}{N} \sum_{i=1}^N \log q(z_i|x) - \log p(z_i)
+    \mathbb{E}_{q(z|x)}[\log q(z|x) - \log p(z)] \approx \frac{1}{N} \sum_{i=1}^N \log q(z_i|x) - \log p(z_i)
     Arguments:
         posterior_estimator (torch.distributions.Distribution): The posterior distribution.
         prior (torch.distributions.Distribution): The prior distribution.
@@ -27,4 +27,3 @@ def compute_regularisation(posterior_estimator, prior, n_samples):
     # compute the Monte Carlo estimate of the KL divergence
     kl_divergence = (log_prob_posterior - log_prob_prior).mean()
     return kl_divergence
-
