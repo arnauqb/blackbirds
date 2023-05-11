@@ -84,8 +84,8 @@ html_css_files = [
     "custom.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
 ]
-html_favicon = "_static/logo.png"
-html_logo = "_static/logo.png"
+html_favicon = "_static/logo.jpg"
+html_logo = "_static/logo.jpg"
 html_show_sourcelink = False
 html_sourcelink_suffix = ""
 html_static_path = ["_static"]
