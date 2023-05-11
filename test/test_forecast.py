@@ -34,15 +34,15 @@ class TestForecast:
         observed_outputs = [torch.tensor(4.0)]
         assert compute_forecast_loss(
             loss_fn, model, parameter_generator, 5, observed_outputs
-        ) == 0
+        ) == (0,0)
         parameter_generator = lambda: torch.tensor(float("nan"))
         assert np.isnan(
             compute_forecast_loss(
                 loss_fn, model, parameter_generator, 5, observed_outputs
-            )
+            )[0]
         )
         parameter_generator = lambda: torch.tensor(2.0)
         model = lambda x: [x ** 3]
         assert compute_forecast_loss(
             loss_fn, model, parameter_generator, 5, observed_outputs
-        ) == (8-4)**2
+        ) == (16,16)

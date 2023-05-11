@@ -65,6 +65,8 @@ def compute_forecast_loss(
         loss += loss_i
         n_samples_not_nan += 1
     if n_samples_not_nan == 0:
-        return torch.nan
-    return loss / n_samples_not_nan
+        loss = torch.nan
+    else:
+        loss = loss / n_samples_not_nan
+    return loss, loss # need to return it twice for the jacobian calculation
 
