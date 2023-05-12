@@ -83,9 +83,13 @@ def compute_forecast_loss_and_jacobian(
         jacobian_diff_mode = torch.func.jacrev
     else:
         jacobian_diff_mode = lambda **kwargs: jacfwd(randomness="same", **kwargs)
-    loss_f = lambda x: compute_loss(
-        loss_fn=loss_fn, observed_outputs=observed_outputs, simulated_outputs=x
-    )
+
+    # define loss to differentiate
+    def loss_f(params):
+        simulated_outputs = model(params)
+        loss = compute_loss(loss_fn, observed_outputs, simulated_outputs)
+        return loss
+
     jacobian_calculator = jacobian_diff_mode(
         func=loss_f,
         argnums=0,
@@ -95,15 +99,14 @@ def compute_forecast_loss_and_jacobian(
     # make each rank compute the loss for its parameters
     loss = 0
     jacobians_per_rank = []
-    indices_per_rank = []
+    indices_per_rank = []  # need to keep track of which parameter has which jacobian
     for i in range(mpi_rank, len(params_list_comm), mpi_size):
-        params = params_list_comm[i]
-        simulated_outputs = model(torch.tensor(params, device=device))
-        jacobian, loss_i = jacobian_calculator(simulated_outputs)
+        params = torch.tensor(params_list_comm[i], device=device)
+        jacobian, loss_i = jacobian_calculator(params)
         if np.isnan(loss):
             continue
         loss += loss_i
-        jacobians_per_rank.append(torch.tensor(jacobian[0].cpu().numpy()))
+        jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:

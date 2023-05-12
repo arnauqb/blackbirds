@@ -42,3 +42,16 @@ class TestForecast:
         assert len(jacobians) == 5
         for jacob in jacobians:
             assert torch.allclose(jacob, torch.tensor([0.0, 0.0]))
+
+
+        observed_outputs = [torch.tensor([2.0, 3.0])]
+        parameters, loss, jacobians = compute_forecast_loss_and_jacobian(
+            loss_fn, model, parameter_generator, 5, observed_outputs
+        )
+        assert len(parameters) == 5
+        for param in parameters:
+            assert torch.allclose(param, torch.tensor([2.0, 2.0]))
+        assert loss == torch.tensor(2.5)
+        assert len(jacobians) == 5
+        for jacob in jacobians:
+            assert torch.allclose(jacob, torch.tensor([8.0, 4.0]))
