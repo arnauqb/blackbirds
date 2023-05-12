@@ -1,3 +1,4 @@
+networkx==3.0
 nflows==0.14
 torch==2.0
 torch-geometric==2.3
