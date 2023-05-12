@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import warnings
+from itertools import chain
 
 from birds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 from birds.jacfwd import jacfwd
@@ -94,31 +95,31 @@ def compute_forecast_loss_and_jacobian(
     # make each rank compute the loss for its parameters
     loss = 0
     jacobians_per_rank = []
-    parameters_per_rank = []
-    for params in params_list_comm[mpi_rank::mpi_size]:
+    indices_per_rank = []
+    for i in range(mpi_rank, len(params_list_comm), mpi_size):
+        params = params_list_comm[i]
         simulated_outputs = model(torch.tensor(params, device=device))
         jacobian, loss_i = jacobian_calculator(simulated_outputs)
         if np.isnan(loss):
             continue
         loss += loss_i
-        jacobians_per_rank.append(jacobian[0].cpu().numpy())
-        parameters_per_rank.append(params)
-
+        jacobians_per_rank.append(torch.tensor(jacobian[0].cpu().numpy()))
+        indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
         jacobians_per_rank = mpi_comm.gather(jacobians_per_rank, root=0)
-        parameters_per_rank = mpi_comm.gather(parameters_per_rank, root=0)
+        indices_per_rank = mpi_comm.gather(indices_per_rank, root=0)
+    else:
+        jacobians_per_rank = [jacobians_per_rank]
+        indices_per_rank = [indices_per_rank]
     if mpi_rank == 0:
         jacobians = []
-        parameters = []
-        for jacobians_rank, parameters_rank in zip(
-            jacobians_per_rank, parameters_per_rank
-        ):
-            jacobians.append(torch.tensor(jacobians_rank))
-            parameters.append(torch.tensor(parameters_rank))
+        jacobians = list(chain(*jacobians_per_rank))
         if mpi_comm is not None:
             loss = sum(mpi_comm.gather(loss, root=0))
     if mpi_rank == 0:
+        indices = list(chain(*indices_per_rank))
+        parameters = params_list[indices]
         loss = loss / len(parameters)
         return parameters, loss, jacobians
     else:
