@@ -23,6 +23,8 @@ class Calibrator:
         optimizer=None,
         n_samples_per_epoch=5,
         n_samples_regularisation=10_000,
+        diff_mode="reverse",
+        device="cpu",
         progress_bar=True,
     ):
         """
@@ -55,6 +57,8 @@ class Calibrator:
         self.n_samples_per_epoch = n_samples_per_epoch
         self.n_samples_regularisation = n_samples_regularisation
         self.progress_bar = progress_bar
+        self.diff_mode = diff_mode
+        self.device = device
 
     def _differentiate_loss(
         self, forecast_parameters, forecast_jacobians, regularisation_loss
@@ -78,7 +82,7 @@ class Calibrator:
         # then we differentiate the parameters through the flows but also tkaing into account the jacobians of the simulator
         to_diff = torch.zeros(1)
         for i in range(len(forecast_jacobians)):
-            to_diff += torch.dot(forecast_jacobians[i], forecast_parameters[i,:])
+            to_diff += torch.dot(forecast_jacobians[i], forecast_parameters[i, :])
         to_diff.backward()
 
     def step(self):
@@ -96,6 +100,8 @@ class Calibrator:
             parameter_generator=lambda x: self.posterior_estimator.rsample((x,)),
             observed_outputs=self.data,
             n_samples=self.n_samples_per_epoch,
+            diff_mode=self.diff_mode,
+            device=self.device,
         )
         regularisation_loss = self.w * compute_regularisation_loss(
             posterior_estimator=self.posterior_estimator,
