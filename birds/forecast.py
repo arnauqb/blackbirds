@@ -116,7 +116,8 @@ def compute_forecast_loss_and_jacobian(
         ):
             jacobians.append(torch.tensor(jacobians_rank))
             parameters.append(torch.tensor(parameters_rank))
-        loss = sum(mpi_comm.gather(loss, root=0))
+        if mpi_comm is not None:
+            loss = sum(mpi_comm.gather(loss, root=0))
     if mpi_rank == 0:
         loss = loss / len(parameters)
         return parameters, loss, jacobians
