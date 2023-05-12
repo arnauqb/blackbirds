@@ -45,7 +45,7 @@ class TestInfer:
                     optimizer=optimizer,
                     diff_mode=diff_mode,
                 )
-                _, best_model_state_dict =  calib.run(1000)
+                _, best_model_state_dict = calib.run(1000)
                 posterior_estimator.load_state_dict(best_model_state_dict)
                 assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)
                 assert posterior_estimator.sigma.item() < 1e-2
