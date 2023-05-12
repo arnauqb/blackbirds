@@ -3,6 +3,7 @@ import torch
 
 from birds.forecast import compute_loss, compute_forecast_loss_and_jacobian
 
+
 class TestForecast:
     def test__compute_loss(self):
         loss_fn = torch.nn.MSELoss()
@@ -28,7 +29,7 @@ class TestForecast:
 
     def test__compute_forecast_loss(self):
         loss_fn = torch.nn.MSELoss()
-        model = lambda x: [x ** 2]
+        model = lambda x: [x**2]
         parameter_generator = lambda x: 2.0 * torch.ones((x, 2))
         observed_outputs = [torch.tensor([4.0, 4.0])]
         parameters, loss, jacobians = compute_forecast_loss_and_jacobian(
@@ -41,4 +42,3 @@ class TestForecast:
         assert len(jacobians) == 5
         for jacob in jacobians:
             assert torch.allclose(jacob, torch.tensor([0.0, 0.0]))
-

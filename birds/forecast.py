@@ -2,7 +2,6 @@ import torch
 import numpy as np
 import warnings
 
-
 from birds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 from birds.jacfwd import jacfwd
 
@@ -76,7 +75,8 @@ def compute_forecast_loss_and_jacobian(
     else:
         params_list_comm = None
     # scatter the parameters to all ranks
-    params_list_comm = mpi_comm.bcast(params_list_comm, root=0)
+    if mpi_comm is not None:
+        params_list_comm = mpi_comm.bcast(params_list_comm, root=0)
     # select forward or reverse jacobian calculator
     if diff_mode == "reverse":
         jacobian_diff_mode = torch.func.jacrev
