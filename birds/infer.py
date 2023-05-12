@@ -1,7 +1,9 @@
 import numpy as np
+from copy import deepcopy
 import torch
 from tqdm import tqdm
 import logging
+from collections import defaultdict
 
 from birds.mpi_setup import mpi_rank
 from birds.forecast import compute_forecast_loss_and_jacobian
@@ -124,14 +126,20 @@ class Calibrator:
             max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
         """
         best_loss = np.inf
+        best_model_state_dict = None
         num_epochs_without_improvement = 0
         iterator = range(n_epochs)
         if self.progress_bar and mpi_rank == 0:
             iterator = tqdm(iterator)
+        losses_hist = defaultdict(list)
         for _ in tqdm(range(n_epochs)):
             loss, forecast_loss, regularisation_loss = self.step()
+            losses_hist["total"].append(loss.item())
+            losses_hist["forecast"].append(forecast_loss.item())
+            losses_hist["regularisation"].append(regularisation_loss.item())
             if loss < best_loss:
                 best_loss = loss
+                best_model_state_dict = deepcopy(self.posterior_estimator.state_dict())
                 num_epochs_without_improvement = 0
             else:
                 num_epochs_without_improvement += 1
@@ -152,3 +160,5 @@ class Calibrator:
                     )
                 )
                 break
+
+        return losses_hist, best_model_state_dict

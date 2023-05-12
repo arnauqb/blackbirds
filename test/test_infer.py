@@ -36,7 +36,7 @@ class TestInfer:
             for true_p in true_ps:
                 data = rw(torch.tensor([true_p]))
                 posterior_estimator = TrainableGaussian()
-                optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-2)
+                optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=5e-2)
                 calib = Calibrator(
                     model=rw,
                     posterior_estimator=posterior_estimator,
@@ -45,6 +45,7 @@ class TestInfer:
                     optimizer=optimizer,
                     diff_mode=diff_mode,
                 )
-                calib.run(1000)
+                _, best_model_state_dict =  calib.run(1000)
+                posterior_estimator.load_state_dict(best_model_state_dict)
                 assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)
                 assert posterior_estimator.sigma.item() < 1e-2
