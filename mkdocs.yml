@@ -59,7 +59,7 @@ extra_javascript:
 plugins:
   - search
   - mkdocstrings
-  - mknotebooks
+  - mkdocs-jupyter
 
 nav:
   - index.md

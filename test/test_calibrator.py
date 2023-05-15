@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from birds.models.random_walk import RandomWalk
-from birds.infer import Calibrator
+from birds.calibrator import Calibrator
 
 
 class TrainableGaussian(torch.nn.Module):
@@ -24,7 +24,7 @@ class TrainableGaussian(torch.nn.Module):
         return torch.distributions.Normal(self.mu, sigma).sample(x)
 
 
-class TestInfer:
+class TestCalibrator:
     def test_random_walk(self):
         """
         Tests inference in a random walk model.
