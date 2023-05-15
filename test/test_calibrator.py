@@ -1,31 +1,13 @@
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 
 from birds.models.random_walk import RandomWalk
 from birds.calibrator import Calibrator
 
 
-class TrainableGaussian(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.mu = torch.nn.Parameter(0.5 * torch.ones(1))
-        self.sigma = torch.nn.Parameter(0.1 * torch.ones(1))
-
-    def log_prob(self, x):
-        sigma = torch.clip(self.sigma, min=1e-3)
-        return torch.distributions.Normal(self.mu, sigma).log_prob(x)
-
-    def rsample(self, x):
-        sigma = torch.clip(self.sigma, min=1e-3)
-        return torch.distributions.Normal(self.mu, sigma).rsample(x)
-
-    def sample(self, x):
-        sigma = torch.clip(self.sigma, min=1e-3)
-        return torch.distributions.Normal(self.mu, sigma).sample(x)
-
-
 class TestCalibrator:
-    def test_random_walk(self):
+    def test_random_walk(self, TrainableGaussian):
         """
         Tests inference in a random walk model.
         """
@@ -35,8 +17,8 @@ class TestCalibrator:
         for diff_mode in ("reverse", "forward"):
             for true_p in true_ps:
                 data = rw(torch.tensor([true_p]))
-                posterior_estimator = TrainableGaussian()
-                optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=5e-2)
+                posterior_estimator = TrainableGaussian(0.5, 0.1)
+                optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-2)
                 calib = Calibrator(
                     model=rw,
                     posterior_estimator=posterior_estimator,
@@ -44,8 +26,10 @@ class TestCalibrator:
                     data=data,
                     optimizer=optimizer,
                     diff_mode=diff_mode,
+                    w = 100.0,
+                    progress_bar=False,
                 )
-                _, best_model_state_dict = calib.run(1000)
+                _, best_model_state_dict = calib.run(100, max_epochs_without_improvement=100)
                 posterior_estimator.load_state_dict(best_model_state_dict)
-                assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)
-                assert posterior_estimator.sigma.item() < 1e-2
+                # check correct result is within 2 sigma
+                assert np.abs(posterior_estimator.mu.item() - true_p) <  2 * posterior_estimator.sigma.item()

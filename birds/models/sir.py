@@ -40,9 +40,10 @@ class SIR(torch.nn.Module):
         Runs the model forward
 
         Arguments:
-            params (torch.Tensor) : a tensor of shape (3,) containing the fraction of infected, beta, and gamma
+            params (torch.Tensor) : a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
         """
         # Initialize the parameters
+        params = 10 ** params
         initial_infected = params[0]
         beta = params[1]
         gamma = params[2]

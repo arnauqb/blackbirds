@@ -102,7 +102,7 @@ class Calibrator:
         ) = compute_forecast_loss_and_jacobian(
             loss_fn=self.forecast_loss,
             model=self.model,
-            parameter_generator=lambda x: self.posterior_estimator.rsample((x,)),
+            parameter_generator=lambda x: self.posterior_estimator.sample(x)[0],
             observed_outputs=self.data,
             n_samples=self.n_samples_per_epoch,
             diff_mode=self.diff_mode,

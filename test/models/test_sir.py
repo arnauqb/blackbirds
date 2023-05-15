@@ -68,9 +68,9 @@ class TestSIR:
 
         """
         N = 1000
-        beta = 0.05
-        gamma = 0.10
-        fraction_infected = 0.05
+        beta = np.log10(0.05)
+        gamma = np.log10(0.10)
+        fraction_infected = np.log10(0.05)
         n_timesteps = 10  # we do one more...
         graph = networkx.erdos_renyi_graph(N, 0.01)
         model = SIR(graph=graph, n_timesteps=n_timesteps)
@@ -97,9 +97,9 @@ class TestSIR:
         Checks that the gradient propagates through the model.
         """
         N = 1000
-        beta = 0.05
-        gamma = 0.10
-        fraction_infected = 0.05
+        beta = -2.
+        gamma = -1.
+        fraction_infected = -2.
         n_timesteps = 10
         graph = networkx.erdos_renyi_graph(N, 0.01)
         model = SIR(graph=graph, n_timesteps=n_timesteps)
