@@ -63,5 +63,7 @@ plugins:
 
 nav:
   - index.md
+  - Examples:
+    - examples/01-random_walk.ipynb
   - API:
     - api/infer.md

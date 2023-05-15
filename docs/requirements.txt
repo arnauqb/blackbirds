@@ -1,7 +1,7 @@
 mkdocs==1.4.3
 mkdocs-material==9.1.12
 mkdocstrings==0.21.2
-mknotebooks==0.7.1
+mkdocs-jupyter==0.24.1
 mkdocstrings-python==0.10.1
 
 

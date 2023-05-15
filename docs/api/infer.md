@@ -1,3 +1,3 @@
 # Infer
 
-:::birds.infer
+:::birds.calibrator.Calibrator

@@ -40,8 +40,11 @@ class Calibrator:
             w (float): The weight of the regularisation loss in the total loss.
             gradient_clipping_norm (float): The norm to which the gradients are clipped.
             forecast_loss (function): The loss function to use for the forecast loss.
+            optimizer (torch.optim.Optimizer): The optimizer to use for training.
             n_samples_per_epoch (int): The number of samples to draw from the variational distribution per epoch.
             n_samples_regularisation (int): The number of samples used to evaluate the regularisation loss.
+            diff_mode (str): The differentiation mode to use. Can be either 'reverse' or 'forward'.
+            device (str): The device to use for training.
             progress_bar (bool): Whether to display a progress bar during training.
         """
         self.model = model
@@ -132,7 +135,7 @@ class Calibrator:
         if self.progress_bar and mpi_rank == 0:
             iterator = tqdm(iterator)
         losses_hist = defaultdict(list)
-        for _ in tqdm(range(n_epochs)):
+        for _ in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
             losses_hist["total"].append(loss.item())
             losses_hist["forecast"].append(forecast_loss.item())
