@@ -1,5 +1,5 @@
 networkx==3.0
-nflows==1.6.2
+normflows==1.6.2
 torch==2.0
 torch-geometric==2.3
 tqdm==4.65.0
