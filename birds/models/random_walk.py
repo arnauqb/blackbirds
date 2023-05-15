@@ -4,11 +4,18 @@ class RandomWalk(torch.nn.Module):
     def __init__(self, n_timesteps, tau_softmax=0.1):
         r"""Implements a differentiable random walk.
 
-        .. math:: X_t = \sum_{i=1}^t (2U_i - 1) where :math:`U_i \sim \text{Bernoulli}(p)`.
+        $$
+            X_t = \sum_{i=1}^t (2\eta - 1),
+        $$
+
+        where 
+
+        $$
+        \eta \sim \text{Bernoulli}(p).
+        $$
 
         Arguments:
             n_timesteps (int): Number of timesteps to simulate.
-            p (float): Probability of moving right at each timestep.
             tau_softmax (float): Temperature parameter for the Gumbel-Softmax
         """
         super().__init__()
@@ -17,9 +24,9 @@ class RandomWalk(torch.nn.Module):
 
     def forward(self, p):
         r"""Simulates a random walk using the Gumbel-Softmax trick.
-        Returns:
-            torch.Tensor: Random walk trajectory of shape
-                ``(n_timesteps, )``.
+
+        Arguments:
+            p (torch.Tensor): Probability of moving forward at each timestep.
         """
         p = torch.clip(p, min=0.0, max=1.0) #torch.nn.functional.softmax(p[0])
         probs = p * torch.ones(self.n_timesteps)
