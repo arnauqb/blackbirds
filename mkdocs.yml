@@ -66,4 +66,8 @@ nav:
   - Examples:
     - examples/01-random_walk.ipynb
   - API:
-    - api/infer.md
+    - api/calibrator.md
+    - api/forecast.md
+    - api/regularisation.md
+    - Models:
+      - api/models/random_walk.md
