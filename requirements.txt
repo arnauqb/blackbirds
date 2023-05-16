@@ -1,5 +1,6 @@
 networkx==3.0
 normflows==1.6.2
+tensorboard==2.12.1
 torch==2.0
 torch-geometric==2.3
 tqdm==4.65.0
