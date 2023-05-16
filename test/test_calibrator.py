@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
 
 from birds.models.random_walk import RandomWalk
 from birds.calibrator import Calibrator
@@ -26,10 +25,15 @@ class TestCalibrator:
                     data=data,
                     optimizer=optimizer,
                     diff_mode=diff_mode,
-                    w = 100.0,
+                    w=100.0,
                     progress_bar=False,
                 )
-                _, best_model_state_dict = calib.run(100, max_epochs_without_improvement=100)
+                _, best_model_state_dict = calib.run(
+                    100, max_epochs_without_improvement=100
+                )
                 posterior_estimator.load_state_dict(best_model_state_dict)
                 # check correct result is within 2 sigma
-                assert np.abs(posterior_estimator.mu.item() - true_p) <  2 * posterior_estimator.sigma.item()
+                assert (
+                    np.abs(posterior_estimator.mu.item() - true_p)
+                    < 2 * posterior_estimator.sigma.item()
+                )

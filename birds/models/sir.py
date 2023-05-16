@@ -1,6 +1,8 @@
 import torch
 import torch_geometric
 
+from birds.utils import soft_minimum, soft_maximum
+
 class SIRMessagePassing(torch_geometric.nn.conv.MessagePassing):
     def forward(self, edge_index, infected, susceptible):
         return self.propagate(edge_index, x=infected, y=susceptible)
@@ -43,7 +45,9 @@ class SIR(torch.nn.Module):
             params (torch.Tensor) : a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
         """
         # Initialize the parameters
+        params = soft_minimum(params, torch.tensor(0.0), 1)
         params = 10 ** params
+
         initial_infected = params[0]
         beta = params[1]
         gamma = params[2]
@@ -58,6 +62,7 @@ class SIR(torch.nn.Module):
         infected += new_infected
         susceptible -= new_infected
 
+
         infected_hist = infected.sum().reshape((1,))
         recovered_hist = torch.zeros((1,))
 
@@ -66,11 +71,14 @@ class SIR(torch.nn.Module):
             # Get number of infected neighbors per node, return 0 if node is not susceptible.
             n_infected_neighbors = self.mp(self.graph.edge_index, infected, susceptible)
             # each contact has a beta chance of infecting a susceptible node
+            n_infected_neighbors = torch.clip(n_infected_neighbors, min=0.0, max=5.0)
             prob_infection = 1 - (1 - beta) ** n_infected_neighbors
+            prob_infection = torch.clip(prob_infection, min=1e-10, max=1.0)
             # sample the infected nodes
             new_infected = self.sample_bernoulli_gs(prob_infection)
             # sample recoverd people
             prob_recovery = gamma * infected
+            prob_recovery = torch.clip(prob_recovery, min=1e-10, max=1.0)
             new_recovered = self.sample_bernoulli_gs(prob_recovery)
             # update the state of the agents
             infected = infected + new_infected - new_recovered

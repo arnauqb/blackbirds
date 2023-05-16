@@ -1,6 +1,7 @@
 import numpy as np
 from copy import deepcopy
 import torch
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import logging
 from collections import defaultdict
@@ -28,6 +29,7 @@ class Calibrator:
         diff_mode="reverse",
         device="cpu",
         progress_bar=True,
+        tensorboard_log_dir=None,
     ):
         """
         Class that handles the training of the posterior_estimator given the model, data, and prior.
@@ -46,6 +48,7 @@ class Calibrator:
             diff_mode (str): The differentiation mode to use. Can be either 'reverse' or 'forward'.
             device (str): The device to use for training.
             progress_bar (bool): Whether to display a progress bar during training.
+            tensorboard_log_dir (str): The directory to log tensorboard data to.
         """
         self.model = model
         self.prior = prior
@@ -64,6 +67,7 @@ class Calibrator:
         self.progress_bar = progress_bar
         self.diff_mode = diff_mode
         self.device = device
+        self.tensorboard_log_dir = tensorboard_log_dir
 
     def _differentiate_loss(
         self, forecast_parameters, forecast_jacobians, regularisation_loss
@@ -116,6 +120,10 @@ class Calibrator:
         self._differentiate_loss(
             forecast_parameters, forecast_jacobians, regularisation_loss
         )
+        # clip gradients
+        torch.nn.utils.clip_grad_norm_(
+            self.posterior_estimator.parameters(), self.gradient_clipping_norm
+        )
         self.optimizer.step()
         loss = forecast_loss + regularisation_loss
         return loss, forecast_loss, regularisation_loss
@@ -128,21 +136,27 @@ class Calibrator:
             n_epochs (int): The number of epochs to run the calibrator for.
             max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
         """
-        best_loss = np.inf
-        best_model_state_dict = None
+        self.best_loss = torch.tensor(np.inf)
+        self.best_model_state_dict = None
+        self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         num_epochs_without_improvement = 0
         iterator = range(n_epochs)
         if self.progress_bar and mpi_rank == 0:
             iterator = tqdm(iterator)
-        losses_hist = defaultdict(list)
-        for _ in iterator:
+        self.losses_hist = defaultdict(list)
+        for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
-            losses_hist["total"].append(loss.item())
-            losses_hist["forecast"].append(forecast_loss.item())
-            losses_hist["regularisation"].append(regularisation_loss.item())
-            if loss < best_loss:
-                best_loss = loss
-                best_model_state_dict = deepcopy(self.posterior_estimator.state_dict())
+            self.losses_hist["total"].append(loss.item())
+            self.losses_hist["forecast"].append(forecast_loss.item())
+            self.losses_hist["regularisation"].append(regularisation_loss.item())
+            self.writer.add_scalar("Loss/total", loss, epoch)
+            self.writer.add_scalar("Loss/forecast", forecast_loss, epoch)
+            self.writer.add_scalar("Loss/regularisation", regularisation_loss, epoch)
+            if loss < self.best_loss:
+                self.best_loss = loss
+                self.best_model_state_dict = deepcopy(
+                    self.posterior_estimator.state_dict()
+                )
                 num_epochs_without_improvement = 0
             else:
                 num_epochs_without_improvement += 1
@@ -152,7 +166,7 @@ class Calibrator:
                         "Forecast": forecast_loss.item(),
                         "Reg.": regularisation_loss.item(),
                         "total": loss.item(),
-                        "best loss": best_loss,
+                        "best loss": self.best_loss.item(),
                         "epochs since improv.": num_epochs_without_improvement,
                     }
                 )
@@ -163,5 +177,5 @@ class Calibrator:
                     )
                 )
                 break
-
-        return losses_hist, best_model_state_dict
+        self.writer.flush()
+        self.writer.close()
