@@ -28,8 +28,9 @@ class RandomWalk(torch.nn.Module):
         Arguments:
             p (torch.Tensor): Probability of moving forward at each timestep.
         """
+        device = p.device
         p = torch.clip(p, min=0.0, max=1.0) #torch.nn.functional.softmax(p[0])
-        probs = p * torch.ones(self.n_timesteps)
+        probs = p * torch.ones(self.n_timesteps, device)
         logits = torch.vstack((probs, 1 - probs)).log()
         steps = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True

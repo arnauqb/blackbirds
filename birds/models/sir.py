@@ -46,8 +46,10 @@ class SIR(torch.nn.Module):
         Arguments:
             params (torch.Tensor) : a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
         """
+        device = params.device
+        self.mp = self.mp.to(device)
         # Initialize the parameters
-        params = soft_minimum(params, torch.tensor(0.0), 2)
+        params = soft_minimum(params, torch.tensor(0.0, device=device), 2)
         params = 10**params
 
         initial_infected = params[0]
@@ -55,11 +57,11 @@ class SIR(torch.nn.Module):
         gamma = params[2]
         n_agents = self.graph.num_nodes
         # Initialize the state
-        infected = torch.zeros(n_agents)
-        susceptible = torch.ones(n_agents)
-        recovered = torch.zeros(n_agents)
+        infected = torch.zeros(n_agents, device=device)
+        susceptible = torch.ones(n_agents, device=device)
+        recovered = torch.zeros(n_agents, device=device)
         # sample the initial infected nodes
-        probs = initial_infected * torch.ones(n_agents)
+        probs = initial_infected * torch.ones(n_agents, device=device)
         new_infected = self.sample_bernoulli_gs(probs)
         infected += new_infected
         susceptible -= new_infected
