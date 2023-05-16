@@ -13,15 +13,17 @@ import numpy as np
 
 from birds.models.sir import SIR
 from birds.calibrator import Calibrator
+from birds.mpi_setup import mpi_rank
 
 
-def make_model(n_agents, n_timesteps, device):
+def make_model(n_agents, n_timesteps):
     graph = networkx.watts_strogatz_graph(n_agents, 10, 0.1)
-    return SIR(graph=graph, n_timesteps=n_timesteps, device=device)
+    return SIR(graph=graph, n_timesteps=n_timesteps)
 
 
-def make_flow():
+def make_flow(device):
     # Define flows
+    torch.manual_seed(0)
     K = 4
     latent_size = 3
     hidden_units = 64
@@ -41,13 +43,13 @@ def make_flow():
 
     # Construct flow model
     flow = nf.NormalizingFlow(q0=q0, flows=flows)
-    return flow
+    return flow.to(device)
 
 
-def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch):
-
+def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch, device):
+    torch.manual_seed(0)
     # Define a prior
-    prior = torch.distributions.MultivariateNormal(-2.0 * torch.ones(3), torch.eye(3))
+    prior = torch.distributions.MultivariateNormal(-2.0 * torch.ones(3, device=device), torch.eye(3, device=device))
 
     optimizer = torch.optim.AdamW(flow.parameters(), lr=1e-3)
 
@@ -64,10 +66,11 @@ def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch):
         optimizer=optimizer,
         w=w,
         n_samples_per_epoch=n_samples_per_epoch,
+        device=device,
+
     )
 
     # and we run for 500 epochs without early stopping.
-
     calibrator.run(n_epochs=n_epochs, max_epochs_without_improvement=np.inf)
 
 
@@ -78,16 +81,16 @@ if __name__ == "__main__":
     parser.add_argument("--n_agents", type=int, default=1000)
     parser.add_argument("--n_timesteps", type=int, default=100)
     parser.add_argument("--n_samples_per_epoch", type=int, default=5)
-    parser.add_argument("--device_ids", type=list, default=["cpu"])
+    parser.add_argument("--device_ids", default=["cpu"], nargs="+")
     args = parser.parse_args()
 
     # device of this rank
     device = args.device_ids[mpi_rank]
 
-    model = make_model(args.n_agents, args.n_timesteps, device=device)
+    model = make_model(args.n_agents, args.n_timesteps)
     true_parameters = torch.tensor(
         [0.05, 0.05, 0.05], device=device
     ).log10()  # SIR takes log parameters
     true_data = model(true_parameters)
-    flow = make_flow()
-    train_flow(flow, model, true_data, args.n_epochs, args.n_samples_per_epoch)
+    flow = make_flow(device)
+    train_flow(flow, model, true_data, args.n_epochs, args.n_samples_per_epoch, device=device)

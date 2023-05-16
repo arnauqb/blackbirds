@@ -48,6 +48,7 @@ class SIR(torch.nn.Module):
         """
         device = params.device
         self.mp = self.mp.to(device)
+        self.graph = self.graph.to(device)
         # Initialize the parameters
         params = soft_minimum(params, torch.tensor(0.0, device=device), 2)
         params = 10**params
@@ -67,7 +68,7 @@ class SIR(torch.nn.Module):
         susceptible -= new_infected
 
         infected_hist = infected.sum().reshape((1,))
-        recovered_hist = torch.zeros((1,))
+        recovered_hist = torch.zeros((1,), device=device)
 
         # Run the model forward
         for _ in range(self.n_timesteps):

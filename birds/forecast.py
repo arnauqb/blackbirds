@@ -103,7 +103,7 @@ def compute_forecast_loss_and_jacobian(
     for i in range(mpi_rank, len(params_list_comm), mpi_size):
         params = torch.tensor(params_list_comm[i], device=device)
         jacobian, loss_i = jacobian_calculator(params)
-        if np.isnan(loss):
+        if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
         loss += loss_i
         jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
@@ -118,7 +118,7 @@ def compute_forecast_loss_and_jacobian(
     if mpi_comm is not None:
         losses = mpi_comm.gather(loss, root=0)
         if mpi_rank == 0:
-            loss = sum(losses)
+            loss = sum([l.cpu() for l in losses if l != 0])
     if mpi_rank == 0:
         jacobians = list(chain(*jacobians_per_rank))
         indices = list(chain(*indices_per_rank))

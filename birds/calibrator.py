@@ -88,10 +88,11 @@ class Calibrator:
         """
         # first we just differentiate the loss through reverse-diff
         regularisation_loss.backward()
-        # then we differentiate the parameters through the flows but also tkaing into account the jacobians of the simulator
-        to_diff = torch.zeros(1)
+        # then we differentiate the parameters through the flow also tkaing into account the jacobians of the simulator
+        device = forecast_parameters.device
+        to_diff = torch.zeros(1, device=device)
         for i in range(len(forecast_jacobians)):
-            to_diff += torch.dot(forecast_jacobians[i], forecast_parameters[i, :])
+            to_diff += torch.dot(forecast_jacobians[i].to(device), forecast_parameters[i, :])
         to_diff.backward()
 
     def step(self):
