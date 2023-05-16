@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from birds.models.random_walk import RandomWalk
 
+
 class TestRandomWalk:
     def test__result(self):
         rw = RandomWalk(1000)
@@ -20,5 +21,3 @@ class TestRandomWalk:
         assert result.shape == (10,)
         result[-1].backward()
         assert p.grad is not None
-
-

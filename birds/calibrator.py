@@ -92,7 +92,9 @@ class Calibrator:
         device = forecast_parameters.device
         to_diff = torch.zeros(1, device=device)
         for i in range(len(forecast_jacobians)):
-            to_diff += torch.dot(forecast_jacobians[i].to(device), forecast_parameters[i, :])
+            to_diff += torch.dot(
+                forecast_jacobians[i].to(device), forecast_parameters[i, :]
+            )
         to_diff.backward()
 
     def step(self):

@@ -43,7 +43,6 @@ class TestForecast:
         for jacob in jacobians:
             assert torch.allclose(jacob, torch.tensor([0.0, 0.0]))
 
-
         observed_outputs = [torch.tensor([2.0, 3.0])]
         parameters, loss, jacobians = compute_forecast_loss_and_jacobian(
             loss_fn, model, parameter_generator, 5, observed_outputs

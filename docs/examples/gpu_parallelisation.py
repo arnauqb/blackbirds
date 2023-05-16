@@ -49,7 +49,9 @@ def make_flow(device):
 def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch, device):
     torch.manual_seed(0)
     # Define a prior
-    prior = torch.distributions.MultivariateNormal(-2.0 * torch.ones(3, device=device), torch.eye(3, device=device))
+    prior = torch.distributions.MultivariateNormal(
+        -2.0 * torch.ones(3, device=device), torch.eye(3, device=device)
+    )
 
     optimizer = torch.optim.AdamW(flow.parameters(), lr=1e-3)
 
@@ -67,7 +69,6 @@ def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch, device):
         w=w,
         n_samples_per_epoch=n_samples_per_epoch,
         device=device,
-
     )
 
     # and we run for 500 epochs without early stopping.
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument("--device_ids", default=["cpu"], nargs="+")
     args = parser.parse_args()
 
-    # device of this rank
+    # device of this rank
     device = args.device_ids[mpi_rank]
 
     model = make_model(args.n_agents, args.n_timesteps)
@@ -93,4 +94,6 @@ if __name__ == "__main__":
     ).log10()  # SIR takes log parameters
     true_data = model(true_parameters)
     flow = make_flow(device)
-    train_flow(flow, model, true_data, args.n_epochs, args.n_samples_per_epoch, device=device)
+    train_flow(
+        flow, model, true_data, args.n_epochs, args.n_samples_per_epoch, device=device
+    )

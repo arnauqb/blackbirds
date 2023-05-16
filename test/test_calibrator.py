@@ -28,9 +28,7 @@ class TestCalibrator:
                     w=10.0,
                     progress_bar=False,
                 )
-                calib.run(
-                    100, max_epochs_without_improvement=100
-                )
+                calib.run(100, max_epochs_without_improvement=100)
                 posterior_estimator.load_state_dict(calib.best_model_state_dict)
                 # check correct result is within 2 sigma
                 assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)

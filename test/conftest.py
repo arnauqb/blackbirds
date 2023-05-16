@@ -3,6 +3,7 @@ import numpy as np
 import random
 import torch
 
+
 @fixture(autouse=True)
 def set_random_seed(seed=999):
     """
@@ -14,8 +15,9 @@ def set_random_seed(seed=999):
     torch.cuda.manual_seed(seed)
     return
 
+
 class TrainableGaussian(torch.nn.Module):
-    def __init__(self, mu = 0.0, sigma=1.0):
+    def __init__(self, mu=0.0, sigma=1.0):
         super().__init__()
         self.mu = torch.nn.Parameter(mu * torch.ones(1))
         self.sigma = torch.nn.Parameter(sigma * torch.ones(1))
@@ -27,10 +29,10 @@ class TrainableGaussian(torch.nn.Module):
     def sample(self, x):
         sigma = torch.clip(self.sigma, min=1e-3)
         dist = torch.distributions.Normal(self.mu, sigma)
-        sample = dist.rsample((x,)) 
+        sample = dist.rsample((x,))
         return sample, dist.log_prob(sample)
+
 
 @fixture(name="TrainableGaussian")
 def make_trainable_gaussian():
     return TrainableGaussian
-
