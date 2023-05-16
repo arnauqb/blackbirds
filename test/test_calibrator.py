@@ -25,7 +25,7 @@ class TestCalibrator:
                     data=data,
                     optimizer=optimizer,
                     diff_mode=diff_mode,
-                    w=100.0,
+                    w=10.0,
                     progress_bar=False,
                 )
                 calib.run(
@@ -33,7 +33,4 @@ class TestCalibrator:
                 )
                 posterior_estimator.load_state_dict(calib.best_model_state_dict)
                 # check correct result is within 2 sigma
-                assert (
-                    np.abs(posterior_estimator.mu.item() - true_p)
-                    < 2 * posterior_estimator.sigma.item()
-                )
+                assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)

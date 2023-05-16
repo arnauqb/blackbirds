@@ -30,7 +30,7 @@ class RandomWalk(torch.nn.Module):
         """
         device = p.device
         p = torch.clip(p, min=0.0, max=1.0) #torch.nn.functional.softmax(p[0])
-        probs = p * torch.ones(self.n_timesteps, device)
+        probs = p * torch.ones(self.n_timesteps, device=device)
         logits = torch.vstack((probs, 1 - probs)).log()
         steps = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True
