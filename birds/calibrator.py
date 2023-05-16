@@ -98,7 +98,8 @@ class Calibrator:
         """
         Performs one training step.
         """
-        self.optimizer.zero_grad()
+        if mpi_rank == 0:
+            self.optimizer.zero_grad()
         (
             forecast_parameters,
             forecast_loss,
@@ -112,33 +113,36 @@ class Calibrator:
             diff_mode=self.diff_mode,
             device=self.device,
         )
-        regularisation_loss = self.w * compute_regularisation_loss(
-            posterior_estimator=self.posterior_estimator,
-            prior=self.prior,
-            n_samples=self.n_samples_regularisation,
-        )
-        self._differentiate_loss(
-            forecast_parameters, forecast_jacobians, regularisation_loss
-        )
-        # clip gradients
-        torch.nn.utils.clip_grad_norm_(
-            self.posterior_estimator.parameters(), self.gradient_clipping_norm
-        )
-        self.optimizer.step()
-        loss = forecast_loss + regularisation_loss
-        return loss, forecast_loss, regularisation_loss
+        if mpi_rank == 0:
+            regularisation_loss = self.w * compute_regularisation_loss(
+                posterior_estimator=self.posterior_estimator,
+                prior=self.prior,
+                n_samples=self.n_samples_regularisation,
+            )
+            self._differentiate_loss(
+                forecast_parameters, forecast_jacobians, regularisation_loss
+            )
+            # clip gradients
+            torch.nn.utils.clip_grad_norm_(
+                self.posterior_estimator.parameters(), self.gradient_clipping_norm
+            )
+            self.optimizer.step()
+            loss = forecast_loss + regularisation_loss
+            return loss, forecast_loss, regularisation_loss
+        return None, None, None
 
     def run(self, n_epochs, max_epochs_without_improvement=20):
         """
         Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.
 
         Arguments:
-            n_epochs (int): The number of epochs to run the calibrator for.
+            n_epochs (int | np.inf): The number of epochs to run the calibrator for.
             max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
         """
         self.best_loss = torch.tensor(np.inf)
         self.best_model_state_dict = None
-        self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
+        if mpi_rank == 0:
+            self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         num_epochs_without_improvement = 0
         iterator = range(n_epochs)
         if self.progress_bar and mpi_rank == 0:
@@ -146,36 +150,40 @@ class Calibrator:
         self.losses_hist = defaultdict(list)
         for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
-            self.losses_hist["total"].append(loss.item())
-            self.losses_hist["forecast"].append(forecast_loss.item())
-            self.losses_hist["regularisation"].append(regularisation_loss.item())
-            self.writer.add_scalar("Loss/total", loss, epoch)
-            self.writer.add_scalar("Loss/forecast", forecast_loss, epoch)
-            self.writer.add_scalar("Loss/regularisation", regularisation_loss, epoch)
-            if loss < self.best_loss:
-                self.best_loss = loss
-                self.best_model_state_dict = deepcopy(
-                    self.posterior_estimator.state_dict()
+            if mpi_rank == 0:
+                self.losses_hist["total"].append(loss.item())
+                self.losses_hist["forecast"].append(forecast_loss.item())
+                self.losses_hist["regularisation"].append(regularisation_loss.item())
+                self.writer.add_scalar("Loss/total", loss, epoch)
+                self.writer.add_scalar("Loss/forecast", forecast_loss, epoch)
+                self.writer.add_scalar(
+                    "Loss/regularisation", regularisation_loss, epoch
                 )
-                num_epochs_without_improvement = 0
-            else:
-                num_epochs_without_improvement += 1
-            if self.progress_bar:
-                iterator.set_postfix(
-                    {
-                        "Forecast": forecast_loss.item(),
-                        "Reg.": regularisation_loss.item(),
-                        "total": loss.item(),
-                        "best loss": self.best_loss.item(),
-                        "epochs since improv.": num_epochs_without_improvement,
-                    }
-                )
-            if num_epochs_without_improvement >= max_epochs_without_improvement:
-                logger.info(
-                    "Stopping early because the loss did not improve for {} epochs.".format(
-                        max_epochs_without_improvement
+                if loss < self.best_loss:
+                    self.best_loss = loss
+                    self.best_model_state_dict = deepcopy(
+                        self.posterior_estimator.state_dict()
                     )
-                )
-                break
-        self.writer.flush()
-        self.writer.close()
+                    num_epochs_without_improvement = 0
+                else:
+                    num_epochs_without_improvement += 1
+                if self.progress_bar:
+                    iterator.set_postfix(
+                        {
+                            "Forecast": forecast_loss.item(),
+                            "Reg.": regularisation_loss.item(),
+                            "total": loss.item(),
+                            "best loss": self.best_loss.item(),
+                            "epochs since improv.": num_epochs_without_improvement,
+                        }
+                    )
+                if num_epochs_without_improvement >= max_epochs_without_improvement:
+                    logger.info(
+                        "Stopping early because the loss did not improve for {} epochs.".format(
+                            max_epochs_without_improvement
+                        )
+                    )
+                    break
+        if mpi_rank == 0:
+            self.writer.flush()
+            self.writer.close()

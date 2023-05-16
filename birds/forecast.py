@@ -115,12 +115,12 @@ def compute_forecast_loss_and_jacobian(
     else:
         jacobians_per_rank = [jacobians_per_rank]
         indices_per_rank = [indices_per_rank]
+    if mpi_comm is not None:
+        losses = mpi_comm.gather(loss, root=0)
+        if mpi_rank == 0:
+            loss = sum(losses)
     if mpi_rank == 0:
-        jacobians = []
         jacobians = list(chain(*jacobians_per_rank))
-        if mpi_comm is not None:
-            loss = sum(mpi_comm.gather(loss, root=0))
-    if mpi_rank == 0:
         indices = list(chain(*indices_per_rank))
         parameters = params_list[indices]
         loss = loss / len(parameters)

@@ -28,10 +28,10 @@ class TestCalibrator:
                     w=100.0,
                     progress_bar=False,
                 )
-                _, best_model_state_dict = calib.run(
+                calib.run(
                     100, max_epochs_without_improvement=100
                 )
-                posterior_estimator.load_state_dict(best_model_state_dict)
+                posterior_estimator.load_state_dict(calib.best_model_state_dict)
                 # check correct result is within 2 sigma
                 assert (
                     np.abs(posterior_estimator.mu.item() - true_p)

@@ -3,11 +3,14 @@ import torch_geometric
 
 from birds.utils import soft_minimum, soft_maximum
 
+
 class SIRMessagePassing(torch_geometric.nn.conv.MessagePassing):
     def forward(self, edge_index, infected, susceptible):
         return self.propagate(edge_index, x=infected, y=susceptible)
+
     def message(self, x_j, y_i):
-        return x_j * y_i 
+        return x_j * y_i
+
 
 class SIR(torch.nn.Module):
     def __init__(self, graph, n_timesteps):
@@ -22,20 +25,19 @@ class SIR(torch.nn.Module):
         self.n_timesteps = n_timesteps
         # convert graph from networkx to pytorch geometric
         self.graph = torch_geometric.utils.convert.from_networkx(graph)
-        self.mp = SIRMessagePassing(aggr='add', node_dim=-1)
+        self.mp = SIRMessagePassing(aggr="add", node_dim=-1)
 
     def sample_bernoulli_gs(self, probs, tau=0.1):
         """
         Samples from a Bernoulli distribution in a diferentiable way using Gumble-Softmax
-        
+
         Arguments:
             probs (torch.Tensor) : a tensor of shape (n,) containing the probabilities of success for each trial
             tau (float) : the temperature of the Gumble-Softmax distribution
         """
         logits = torch.vstack((probs, 1 - probs)).T.log()
         gs_samples = torch.nn.functional.gumbel_softmax(logits, tau=tau, hard=True)
-        return gs_samples[:,0]
-        
+        return gs_samples[:, 0]
 
     def forward(self, params):
         """
@@ -45,8 +47,8 @@ class SIR(torch.nn.Module):
             params (torch.Tensor) : a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
         """
         # Initialize the parameters
-        params = soft_minimum(params, torch.tensor(0.0), 1)
-        params = 10 ** params
+        params = soft_minimum(params, torch.tensor(0.0), 2)
+        params = 10**params
 
         initial_infected = params[0]
         beta = params[1]
@@ -61,7 +63,6 @@ class SIR(torch.nn.Module):
         new_infected = self.sample_bernoulli_gs(probs)
         infected += new_infected
         susceptible -= new_infected
-
 
         infected_hist = infected.sum().reshape((1,))
         recovered_hist = torch.zeros((1,))
@@ -84,8 +85,21 @@ class SIR(torch.nn.Module):
             infected = infected + new_infected - new_recovered
             susceptible -= new_infected
             recovered += new_recovered
-            infected_hist = torch.hstack((infected_hist, infected.sum().reshape(1,)))
-            recovered_hist = torch.hstack((recovered_hist, recovered.sum().reshape(1,)))
+            infected_hist = torch.hstack(
+                (
+                    infected_hist,
+                    infected.sum().reshape(
+                        1,
+                    ),
+                )
+            )
+            recovered_hist = torch.hstack(
+                (
+                    recovered_hist,
+                    recovered.sum().reshape(
+                        1,
+                    ),
+                )
+            )
 
         return infected_hist, recovered_hist
-

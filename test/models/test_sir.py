@@ -68,9 +68,9 @@ class TestSIR:
 
         """
         N = 1000
+        fraction_infected = np.log10(0.05)
         beta = np.log10(0.05)
         gamma = np.log10(0.10)
-        fraction_infected = np.log10(0.05)
         n_timesteps = 10  # we do one more...
         graph = networkx.erdos_renyi_graph(N, 0.01)
         model = SIR(graph=graph, n_timesteps=n_timesteps)
