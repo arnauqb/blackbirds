@@ -35,6 +35,7 @@ class Calibrator:
     - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.
     - `device`: The device to use for training.
     - `progress_bar`: Whether to display a progress bar during training.
+    - `log_tensorboard`: Whether to log tensorboard data.
     - `tensorboard_log_dir`: The directory to log tensorboard data to.
     """
 
@@ -52,8 +53,10 @@ class Calibrator:
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
+        jacobian_chunk_size: int | None = None,
         device: str = "cpu",
         progress_bar: bool = True,
+        log_tensorboard: bool = False,
         tensorboard_log_dir: str | None = None,
     ):
         self.model = model
@@ -76,6 +79,7 @@ class Calibrator:
         self.jacobian_chunk_size = jacobian_chunk_size
         self.device = device
         self.tensorboard_log_dir = tensorboard_log_dir
+        self.log_tensorboard = log_tensorboard
 
     def step(self):
         """
@@ -123,7 +127,7 @@ class Calibrator:
         """
         self.best_loss = torch.tensor(np.inf)
         self.best_model_state_dict = None
-        if mpi_rank == 0:
+        if mpi_rank == 0 and self.log_tensorboard:
             self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         num_epochs_without_improvement = 0
         iterator = range(n_epochs)
@@ -133,14 +137,16 @@ class Calibrator:
         for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
             if mpi_rank == 0:
+                print(self.posterior_estimator.mu)
                 self.losses_hist["total"].append(loss.item())
                 self.losses_hist["forecast"].append(forecast_loss.item())
                 self.losses_hist["regularisation"].append(regularisation_loss.item())
-                self.writer.add_scalar("Loss/total", loss, epoch)
-                self.writer.add_scalar("Loss/forecast", forecast_loss, epoch)
-                self.writer.add_scalar(
-                    "Loss/regularisation", regularisation_loss, epoch
-                )
+                if self.log_tensorboard:
+                    self.writer.add_scalar("Loss/total", loss, epoch)
+                    self.writer.add_scalar("Loss/forecast", forecast_loss, epoch)
+                    self.writer.add_scalar(
+                        "Loss/regularisation", regularisation_loss, epoch
+                    )
                 if loss < self.best_loss:
                     self.best_loss = loss
                     self.best_model_state_dict = deepcopy(
@@ -166,6 +172,6 @@ class Calibrator:
                         )
                     )
                     break
-        if mpi_rank == 0:
+        if mpi_rank == 0 and self.log_tensorboard:
             self.writer.flush()
             self.writer.close()

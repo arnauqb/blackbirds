@@ -186,8 +186,6 @@ def compute_and_differentiate_forecast_loss_score(
     posterior_estimator: torch.nn.Module,
     n_samples: int,
     observed_outputs: list[torch.Tensor],
-    diff_mode: str = "reverse",
-    jacobian_chunk_size: int | None = None,
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
@@ -208,8 +206,6 @@ def compute_and_differentiate_forecast_loss_score(
     - `posterior_estimator`: posterior estimator, must implement a sample and a log_prob method
     - `n_samples`: number of samples
     - `observed_outputs`: observed outputs
-    - `diff_mode`: differentiation mode can be "reverse" or "forward"
-    - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
     - `device`: device to use for the computation
     """
     # sample parameters and scatter them across devices
@@ -293,6 +289,7 @@ def compute_and_differentiate_forecast_loss(
             n_samples=n_samples,
             diff_mode=diff_mode,
             device=device,
+            jacobian_chunk_size=jacobian_chunk_size,
         )
         if mpi_rank == 0:
             _differentiate_forecast_loss_pathwise(
@@ -305,7 +302,6 @@ def compute_and_differentiate_forecast_loss(
             posterior_estimator=posterior_estimator,
             observed_outputs=observed_outputs,
             n_samples=n_samples,
-            diff_mode=diff_mode,
             device=device,
         )
     else:
