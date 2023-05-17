@@ -1,25 +1,19 @@
 import torch
+import networkx
 import torch_geometric
 
 from birds.utils import soft_minimum, soft_maximum
 
 
-class SIRMessagePassing(torch_geometric.nn.conv.MessagePassing):
-    def forward(self, edge_index, infected, susceptible):
-        return self.propagate(edge_index, x=infected, y=susceptible)
-
-    def message(self, x_j, y_i):
-        return x_j * y_i
-
-
 class SIR(torch.nn.Module):
-    def __init__(self, graph, n_timesteps):
+    def __init__(self, graph: networkx.Graph, n_timesteps: int):
         """
         Implements a differentiable SIR model on a graph.
 
-        Arguments:
-            graph (networkx.Graph) : a networkx graph
-            n_timesteps (int) : the number of timesteps to run the model for
+        **Arguments:**
+
+        - graph: a networkx graph
+        - n_timesteps: the number of timesteps to run the model for
         """
         super().__init__()
         self.n_timesteps = n_timesteps
@@ -27,24 +21,29 @@ class SIR(torch.nn.Module):
         self.graph = torch_geometric.utils.convert.from_networkx(graph)
         self.mp = SIRMessagePassing(aggr="add", node_dim=-1)
 
-    def sample_bernoulli_gs(self, probs, tau=0.1):
+    def sample_bernoulli_gs(self, probs: torch.Tensor, tau:float =0.1):
         """
         Samples from a Bernoulli distribution in a diferentiable way using Gumble-Softmax
 
-        Arguments:
-            probs (torch.Tensor) : a tensor of shape (n,) containing the probabilities of success for each trial
-            tau (float) : the temperature of the Gumble-Softmax distribution
+        **Arguments:**
+
+        - probs: a tensor of shape (n,) containing the probabilities of success for each trial
+        - tau: the temperature of the Gumble-Softmax distribution
         """
         logits = torch.vstack((probs, 1 - probs)).T.log()
         gs_samples = torch.nn.functional.gumbel_softmax(logits, tau=tau, hard=True)
         return gs_samples[:, 0]
 
-    def forward(self, params):
+    def forward(self, params: torch.Tensor):
         """
         Runs the model forward
 
-        Arguments:
-            params (torch.Tensor) : a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
+        **Arguments**:
+        
+        - params: a tensor of shape (3,) containing the **log10** of the fraction of infected, beta, and gamma
+
+        !!! danger
+            The parameters are assumed to be in log10 space. 
         """
         device = params.device
         self.mp = self.mp.to(device)
@@ -106,3 +105,29 @@ class SIR(torch.nn.Module):
             )
 
         return infected_hist, recovered_hist
+
+
+class SIRMessagePassing(torch_geometric.nn.conv.MessagePassing):
+    """
+    Class used to pass messages between agents about their infected status.
+    """
+
+    def forward(
+        self,
+        edge_index: torch.Tensor,
+        infected: torch.Tensor,
+        susceptible: torch.Tensor,
+    ):
+        """
+        Computes the sum of the product between the node's susceptibility and the neighbors' infected status.
+
+        **Arguments**:
+
+        - edge_index: a tensor of shape (2, n_edges) containing the edge indices
+        - infected: a tensor of shape (n_nodes,) containing the infected status of each node
+        - susceptible: a tensor of shape (n_nodes,) containing the susceptible status of each node
+        """
+        return self.propagate(edge_index, x=infected, y=susceptible)
+
+    def message(self, x_j, y_i):
+        return x_j * y_i

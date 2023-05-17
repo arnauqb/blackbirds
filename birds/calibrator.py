@@ -83,11 +83,13 @@ class Calibrator:
             forecast_jacobians (List[torch.Tensor]): The jacobians of the simulator that are differentiated through.
             regularisation_loss (torch.Tensor): The regularisation loss that is differentiated through.
 
-        Example:
-            >>> forecast_parameters = [torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0])]
-            >>> forecast_jacobians = [torch.tensor([[1.0, 2.0], [3.0, 4.0]]), torch.tensor([[5.0, 6.0], [7.0, 8.0]])]
-            >>> regularisation_loss = torch.tensor(1.0)
-            >>> _differentiate_loss(forecast_parameters, forecast_jacobians, regularisation_loss)
+        !!! example
+            ```python
+            forecast_parameters = [torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0])]
+            forecast_jacobians = [torch.tensor([[1.0, 2.0], [3.0, 4.0]]), torch.tensor([[5.0, 6.0], [7.0, 8.0]])]
+            regularisation_loss = torch.tensor(1.0)
+            _differentiate_loss(forecast_parameters, forecast_jacobians, regularisation_loss)
+            ```
         """
         # first we just differentiate the loss through reverse-diff
         regularisation_loss.backward()
