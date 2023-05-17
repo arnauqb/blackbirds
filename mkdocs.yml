@@ -66,6 +66,7 @@ nav:
   - Examples:
     - examples/01-random_walk.ipynb
     - examples/02-SIR.ipynb
+    - examples/gpu_parallelisation.py
   - API:
     - api/calibrator.md
     - api/forecast.md
