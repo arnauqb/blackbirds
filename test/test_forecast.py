@@ -14,10 +14,14 @@ class MockPosteriorEstimator(torch.nn.Module):
         self.p = torch.tensor(1.0, requires_grad=True)
 
     def sample(self, n):
-        # Needs to return sample and log prob of the sample.
         x = 2 * self.p * torch.ones((n, 2))
-        log_prob = (x * 1/n).sum() * torch.ones(n)
-        return x, log_prob
+        return x, self.log_prob(x)
+
+    def log_prob(self, x):
+        if len(x.shape) == 1:
+            return torch.zeros(1) * self.p
+        else:
+            return torch.zeros(x.shape[0]) * self.p
 
     def forward(self, n):
         return self.sample(n)

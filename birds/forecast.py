@@ -63,7 +63,7 @@ def _sample_and_scatter_parameters(
     """
     # Rank 0 samples from the flow
     if mpi_rank == 0:
-        params_list = posterior_estimator.rsample(n_samples)
+        params_list, logprobs_list = posterior_estimator.sample(n_samples)
         params_list_comm = params_list.detach().cpu().numpy()
     else:
         params_list = None
@@ -72,7 +72,7 @@ def _sample_and_scatter_parameters(
     # scatter the parameters to all ranks
     if mpi_comm is not None:
         params_list_comm = mpi_comm.bcast(params_list_comm, root=0)
-    return params_list, params_list_comm
+    return params_list, params_list_comm, logprobs_list
 
 
 def _differentiate_forecast_loss_pathwise(forecast_parameters, forecast_jacobians):
@@ -311,5 +311,4 @@ def compute_and_differentiate_forecast_loss(
         raise ValueError(
             f"Unknown gradient estimation method {gradient_estimation_method}."
         )
-    print([p.grad for p in posterior_estimator.parameters()])
     return forecast_loss
