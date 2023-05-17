@@ -8,7 +8,7 @@ from collections import defaultdict
 from typing import Callable, List
 
 from birds.mpi_setup import mpi_rank
-from birds.forecast import compute_forecast_loss_and_jacobian
+from birds.forecast import compute_and_differentiate_forecast_loss
 from birds.regularisation import compute_regularisation_loss
 
 logger = logging.getLogger("calibrator")
@@ -31,6 +31,8 @@ class Calibrator:
     - `n_samples_per_epoch`: The number of samples to draw from the variational distribution per epoch.
     - `n_samples_regularisation`: The number of samples used to evaluate the regularisation loss.
     - `diff_mode`: The differentiation mode to use. Can be either 'reverse' or 'forward'.
+    - `gradient_estimation_method`: The method to use for estimating the gradients of the forecast loss. Can be either 'pathwise' or 'score'.
+    - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.
     - `device`: The device to use for training.
     - `progress_bar`: Whether to display a progress bar during training.
     - `tensorboard_log_dir`: The directory to log tensorboard data to.
@@ -49,6 +51,7 @@ class Calibrator:
         n_samples_per_epoch: int = 5,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
+        gradient_estimation_method: str = "pathwise",
         device: str = "cpu",
         progress_bar: bool = True,
         tensorboard_log_dir: str | None = None,
@@ -69,38 +72,10 @@ class Calibrator:
         self.n_samples_regularisation = n_samples_regularisation
         self.progress_bar = progress_bar
         self.diff_mode = diff_mode
+        self.gradient_estimation_method = gradient_estimation_method
+        self.jacobian_chunk_size = jacobian_chunk_size
         self.device = device
         self.tensorboard_log_dir = tensorboard_log_dir
-
-    def _differentiate_loss(
-        self, forecast_parameters, forecast_jacobians, regularisation_loss
-    ):
-        """
-        Differentiates forecast loss and regularisation loss through the flows and the simulator.
-
-        Arguments:
-            forecast_parameters (List[torch.Tensor]): The parameters of the simulator that are differentiated through.
-            forecast_jacobians (List[torch.Tensor]): The jacobians of the simulator that are differentiated through.
-            regularisation_loss (torch.Tensor): The regularisation loss that is differentiated through.
-
-        !!! example
-            ```python
-            forecast_parameters = [torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0])]
-            forecast_jacobians = [torch.tensor([[1.0, 2.0], [3.0, 4.0]]), torch.tensor([[5.0, 6.0], [7.0, 8.0]])]
-            regularisation_loss = torch.tensor(1.0)
-            _differentiate_loss(forecast_parameters, forecast_jacobians, regularisation_loss)
-            ```
-        """
-        # first we just differentiate the loss through reverse-diff
-        regularisation_loss.backward()
-        # then we differentiate the parameters through the flow also tkaing into account the jacobians of the simulator
-        device = forecast_parameters.device
-        to_diff = torch.zeros(1, device=device)
-        for i in range(len(forecast_jacobians)):
-            to_diff += torch.dot(
-                forecast_jacobians[i].to(device), forecast_parameters[i, :]
-            )
-        to_diff.backward()
 
     def step(self):
         """
@@ -108,28 +83,27 @@ class Calibrator:
         """
         if mpi_rank == 0:
             self.optimizer.zero_grad()
-        (
-            forecast_parameters,
-            forecast_loss,
-            forecast_jacobians,
-        ) = compute_forecast_loss_and_jacobian(
+        # compute and differentiate forecast loss
+        forecast_loss = compute_and_differentiate_forecast_loss(
             loss_fn=self.forecast_loss,
             model=self.model,
-            parameter_generator=lambda x: self.posterior_estimator.sample(x)[0],
-            observed_outputs=self.data,
+            posterior_estimator=self.posterior_estimator,
             n_samples=self.n_samples_per_epoch,
+            observed_outputs=self.data,
             diff_mode=self.diff_mode,
-            device=self.device,
+            gradient_estimation_method=self.gradient_estimation_method,
+            jacobian_chunk_size=self.jacobian_chunk_size,
+            device = self.device
         )
+        # compute and differentiate regularisation loss
         if mpi_rank == 0:
             regularisation_loss = self.w * compute_regularisation_loss(
                 posterior_estimator=self.posterior_estimator,
                 prior=self.prior,
                 n_samples=self.n_samples_regularisation,
             )
-            self._differentiate_loss(
-                forecast_parameters, forecast_jacobians, regularisation_loss
-            )
+            # differentiate regularisation
+            regularisation_loss.backward()
             # clip gradients
             torch.nn.utils.clip_grad_norm_(
                 self.posterior_estimator.parameters(), self.gradient_clipping_norm
