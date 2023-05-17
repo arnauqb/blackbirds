@@ -77,13 +77,14 @@ plugins:
             show_source: false  # don't include source code
             members_order: source  # order methods according to their order of definition in the source code, not alphabetical order
             heading_level: 4  #
-  - mkdocs-jupyter
+  -  mkdocs-jupyter
 
 nav:
   - index.md
   - Examples:
     - examples/01-random_walk.ipynb
     - examples/02-SIR.ipynb
+    - examples/score_vs_pathwise_gradient.ipynb
     - examples/gpu_parallelisation.py
   - API:
     - api/calibrator.md
