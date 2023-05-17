@@ -137,7 +137,6 @@ class Calibrator:
         for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
             if mpi_rank == 0:
-                print(self.posterior_estimator.mu)
                 self.losses_hist["total"].append(loss.item())
                 self.losses_hist["forecast"].append(forecast_loss.item())
                 self.losses_hist["regularisation"].append(regularisation_loss.item())

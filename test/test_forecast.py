@@ -11,11 +11,11 @@ from birds.forecast import (
 class MockPosteriorEstimator(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.p = torch.tensor(2.0, requires_grad=True)
+        self.p = torch.tensor(1.0, requires_grad=True)
 
     def sample(self, n):
         # Needs to return sample and log prob of the sample.
-        x = self.p * torch.ones((n, 2))
+        x = 2 * self.p * torch.ones((n, 2))
         log_prob = (x * 1/n).sum() * torch.ones(n)
         return x, log_prob
 
@@ -110,3 +110,6 @@ class TestForecast:
             gradient_estimation_method=gradient_estimation_method,
         )
         assert np.isclose(forecast_loss, 2.5)
+        if gradient_estimation_method == "pathwise":
+            # for score since the mock one is constant this is 0...
+            assert np.isclose(mock_estimator.p.grad.item(), 24.0)

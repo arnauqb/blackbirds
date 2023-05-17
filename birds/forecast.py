@@ -63,7 +63,7 @@ def _sample_and_scatter_parameters(
     """
     # Rank 0 samples from the flow
     if mpi_rank == 0:
-        params_list, logprobs_list = posterior_estimator.sample(n_samples)
+        params_list = posterior_estimator.rsample(n_samples)
         params_list_comm = params_list.detach().cpu().numpy()
     else:
         params_list = None
@@ -72,7 +72,7 @@ def _sample_and_scatter_parameters(
     # scatter the parameters to all ranks
     if mpi_comm is not None:
         params_list_comm = mpi_comm.bcast(params_list_comm, root=0)
-    return params_list, params_list_comm, logprobs_list
+    return params_list, params_list_comm
 
 
 def _differentiate_forecast_loss_pathwise(forecast_parameters, forecast_jacobians):
@@ -90,6 +90,7 @@ def _differentiate_forecast_loss_pathwise(forecast_parameters, forecast_jacobian
         to_diff += torch.dot(
             forecast_jacobians[i].to(device), forecast_parameters[i, :]
         )
+    to_diff = to_diff / len(forecast_jacobians)
     to_diff.backward()
 
 
@@ -233,14 +234,16 @@ def compute_and_differentiate_forecast_loss_score(
         loss_per_parameter = list(chain(*loss_per_parameter))
         indices = list(chain(*indices_per_rank))
         logprobs_list = logprobs_list[indices]
+        params_list_comm = params_list_comm[indices]
         to_backprop = 0.0
         total_loss = 0.0
         n_samples_non_nan = 0
-        for loss_i, param_logprob in zip(loss_per_parameter, logprobs_list):
+        for param, loss_i, param_logprob in zip(params_list_comm, loss_per_parameter, logprobs_list):
             loss_i = torch.tensor(loss_i, device=device)
             if np.isnan(loss_i):  # no parameter was non-nan
                 continue
-            to_backprop += loss_i * param_logprob
+            lp = posterior_estimator.log_prob(torch.tensor(param))
+            to_backprop += loss_i * lp 
             total_loss += loss_i
             n_samples_non_nan += 1
         to_backprop = to_backprop / n_samples_non_nan
@@ -308,4 +311,5 @@ def compute_and_differentiate_forecast_loss(
         raise ValueError(
             f"Unknown gradient estimation method {gradient_estimation_method}."
         )
+    print([p.grad for p in posterior_estimator.parameters()])
     return forecast_loss
