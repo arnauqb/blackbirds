@@ -1,26 +1,33 @@
 import torch
 import numpy as np
 import warnings
+from typing import Callable
 from itertools import chain
 
 from birds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 from birds.jacfwd import jacfwd
 
 
-def compute_loss(loss_fn, observed_outputs, simulated_outputs):
-    r"""Compute the loss between observed and simulated outputs.
+def compute_loss(
+    loss_fn: Callable,
+    observed_outputs: list[torch.Tensor],
+    simulated_outputs: list[torch.Tensor],
+) -> torch.Tensor:
+    """Compute the loss between observed and simulated outputs.
 
-    Arguments:
-        loss_fn : callable
-        observed_outputs : list of torch.Tensor
-        simulated_outputs : list of torch.Tensor
+    **Arguments:**
 
-    Example:
-        >>> loss_fn = torch.nn.MSELoss()
-        >>> observed_outputs = [torch.tensor([1, 2, 3]), torch.tensor([4, 5, 6])]
-        >>> simulated_outputs = [torch.tensor([1, 2, 3]), torch.tensor([4, 5, 6])]
-        >>> compute_loss(loss_fn, observed_outputs, simulated_outputs)
-        tensor(0.)
+    - loss_fn : loss function
+    - observed_outputs : list of data tensors to calibrate to
+    - simulated_outputs: list of simulated outputs
+
+    !!! example
+        ```python
+        loss_fn = torch.nn.MSELoss()
+        observed_outputs = [torch.tensor([1, 2, 3]), torch.tensor([4, 5, 6])]
+        simulated_outputs = [torch.tensor([1, 2, 3]), torch.tensor([4, 5, 6])]
+        compute_loss(loss_fn, observed_outputs, simulated_outputs) # tensor(0.)
+        ```
     """
     try:
         assert len(observed_outputs) == len(simulated_outputs)
@@ -40,34 +47,38 @@ def compute_loss(loss_fn, observed_outputs, simulated_outputs):
 
 
 def compute_forecast_loss_and_jacobian(
-    loss_fn,
-    model,
-    parameter_generator,
-    n_samples,
-    observed_outputs,
-    diff_mode="reverse",
-    jacobian_chunk_size=None,
-    device="cpu",
+    loss_fn: Callable,
+    model: torch.nn.Module,
+    parameter_generator: Callable,
+    n_samples: int,
+    observed_outputs: list[torch.Tensor],
+    diff_mode: str = "reverse",
+    jacobian_chunk_size: int | None = None,
+    device: str = "cpu",
 ):
-    r"""Computes the loss and the jacobian of the loss for each sample.
+    """Computes the loss and the jacobian of the loss for each sample.
     The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized
     across the available devices.
-    Arguments:
-        loss_fn (callable) : loss function
-        model (callable) : PyTorch model
-        parameter_generator (callable) : parameter generator
-        n_samples (int) : number of samples
-        observed_outputs (list of torch.Tensor) : observed outputs
-        diff_mode (str) : differentiation mode can be "reverse" or "forward"
-        jacobian_chunk_size (int) : chunk size for the Jacobian computation (set None to get maximum chunk size)
-        device (str) : device to use for the computation
-    Example:
-        >>> loss_fn = torch.nn.MSELoss()
-        >>> model = lambda x: [x**2]
-        >>> parameter_generator = lambda: torch.tensor(2.0)
-        >>> observed_outputs = [toch.tensor(4.0)]
-        >>> compute_forecast_loss(loss_fn, model, parameter_generator, 5, observed_outputs)
-        tensor(0.)
+
+    **Arguments:**
+
+    - `loss_fn`: loss function
+    - `model`: PyTorch model
+    - `parameter_generator`: parameter generator
+    - `n_samples`: number of samples
+    - `observed_outputs`: observed outputs
+    - `diff_mode`: differentiation mode can be "reverse" or "forward"
+    - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
+    - `device`: device to use for the computation
+
+    !!! example
+        ```python
+            loss_fn = torch.nn.MSELoss()
+            model = lambda x: [x**2]
+            parameter_generator = lambda: torch.tensor(2.0)
+            observed_outputs = [toch.tensor(4.0)]
+            compute_forecast_loss(loss_fn, model, parameter_generator, 5, observed_outputs) # torch.tensor(0.)
+        ```
     """
     # Rank 0 samples from the flow
     if mpi_rank == 0:

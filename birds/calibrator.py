@@ -5,6 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import logging
 from collections import defaultdict
+from typing import Callable, List
 
 from birds.mpi_setup import mpi_rank
 from birds.forecast import compute_forecast_loss_and_jacobian
@@ -14,42 +15,44 @@ logger = logging.getLogger("calibrator")
 
 
 class Calibrator:
+    """
+    Class that handles the training of the posterior_estimator given the model, data, and prior.
+
+    **Arguments:**
+
+    - `model`: The simulator model.
+    - `prior`: The prior distribution.
+    - `posterior_estimator`: The variational distribution that approximates the generalised posterior.
+    - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
+    - `w`: The weight of the regularisation loss in the total loss.
+    - `gradient_clipping_norm`: The norm to which the gradients are clipped.
+    - `forecast_loss`: The loss function to use for the forecast loss.
+    - `optimizer`: The optimizer to use for training.
+    - `n_samples_per_epoch`: The number of samples to draw from the variational distribution per epoch.
+    - `n_samples_regularisation`: The number of samples used to evaluate the regularisation loss.
+    - `diff_mode`: The differentiation mode to use. Can be either 'reverse' or 'forward'.
+    - `device`: The device to use for training.
+    - `progress_bar`: Whether to display a progress bar during training.
+    - `tensorboard_log_dir`: The directory to log tensorboard data to.
+    """
+
     def __init__(
         self,
-        model,
-        prior,
-        posterior_estimator,
-        data,
-        w=0.0,
-        gradient_clipping_norm=np.inf,
-        forecast_loss=None,
-        optimizer=None,
-        n_samples_per_epoch=5,
-        n_samples_regularisation=10_000,
-        diff_mode="reverse",
-        device="cpu",
-        progress_bar=True,
-        tensorboard_log_dir=None,
+        model: torch.nn.Module,
+        prior: torch.distributions.Distribution,
+        posterior_estimator: torch.nn.Module,
+        data: List[torch.Tensor],
+        w: float = 0.0,
+        gradient_clipping_norm: float = np.inf,
+        forecast_loss: Callable | None = None,
+        optimizer: torch.optim.Optimizer | None = None,
+        n_samples_per_epoch: int = 5,
+        n_samples_regularisation: int = 10_000,
+        diff_mode: str = "reverse",
+        device: str = "cpu",
+        progress_bar: bool = True,
+        tensorboard_log_dir: str | None = None,
     ):
-        """
-        Class that handles the training of the posterior_estimator given the model, data, and prior.
-
-        Arguments:
-            model (torch.nn.Module): The simulator model.
-            prior (torch.distributions.Distribution): The prior distribution.
-            posterior_estimator (torch.distributions.Distribution): The variational distribution that approximates the generalised posterior.
-            data (List[torch.Tensor]): The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
-            w (float): The weight of the regularisation loss in the total loss.
-            gradient_clipping_norm (float): The norm to which the gradients are clipped.
-            forecast_loss (function): The loss function to use for the forecast loss.
-            optimizer (torch.optim.Optimizer): The optimizer to use for training.
-            n_samples_per_epoch (int): The number of samples to draw from the variational distribution per epoch.
-            n_samples_regularisation (int): The number of samples used to evaluate the regularisation loss.
-            diff_mode (str): The differentiation mode to use. Can be either 'reverse' or 'forward'.
-            device (str): The device to use for training.
-            progress_bar (bool): Whether to display a progress bar during training.
-            tensorboard_log_dir (str): The directory to log tensorboard data to.
-        """
         self.model = model
         self.prior = prior
         self.posterior_estimator = posterior_estimator

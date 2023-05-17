@@ -55,10 +55,28 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+    
+extra_css:
+    - _static/custom_css.css
 
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import pytkdocs_tweaks
+            - pytkdocs_tweaks.main()
+          selection:
+            inherited_members: true  # Allow looking up inherited methods
+          rendering:
+            show_root_heading: true  # actually display anything at all...
+            show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            show_source: false  # don't include source code
+            members_order: source  # order methods according to their order of definition in the source code, not alphabetical order
+            heading_level: 4  #
   - mkdocs-jupyter
 
 nav:
