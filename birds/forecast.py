@@ -194,13 +194,17 @@ def compute_and_differentiate_forecast_loss_score(
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
+
     $$
     \eta = \nabla_\psi \mathbb{E}_{\psi \sim p(\theta)} \left[ \mathcal{L}(\theta) \right],
     $$
+
     by performing the score gradient
+
     $$
     \eta \approx \frac{1}{N} \sum_{i=1}^N \mathcal{L}(\theta_i) \nabla_\psi \log p\left(\theta_i | \psi\right).
     $$
+
     The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized
     across the available devices.
 
