@@ -105,13 +105,17 @@ def compute_forecast_loss_and_jacobian_pathwise(
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
+
     $$
     \eta = \nabla_\psi \mathbb{E}_{\psi \sim p(\theta)} \left[ \mathcal{L}(\theta) \right],
     $$
+
     by performing the pathwise gradient (reparameterization trick),
+
     $$
     \eta \approx \frac{1}{N} \sum_{i=1}^N \nabla_\psi \mathcal{L}(\theta_i(\psi)).
     $$
+
     The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized
     across the available devices.
 
