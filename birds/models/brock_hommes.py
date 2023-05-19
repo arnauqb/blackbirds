@@ -1,5 +1,4 @@
 import torch
-import torch.distributions as distributions
 
 from birds.models.model import Model
 
@@ -16,7 +15,7 @@ class BrockHommes(Model):
     def __init__(self, n_timesteps=100, device="cpu"):
         super().__init__()
         self.n_timesteps = n_timesteps
-        self._eps = distributions.normal.Normal(
+        self._eps = torch.distributions.normal.Normal(
             torch.tensor([0.0], device=device), torch.tensor([1.0], device=device)
         )
         self.device = device

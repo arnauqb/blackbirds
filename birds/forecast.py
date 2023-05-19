@@ -29,8 +29,18 @@ def simulate_and_observe_model(
     time_series = model.initialize(params)
     # Simulate forward in batches
     observations = None
+    for i in range(len(time_series)):
+        x = time_series[i]
+        if observations is None:
+            observations = model.observe(x)
+        else:
+            observation = model.observe(x)
+            observations = [
+                torch.hstack((observations[i], observation[i]))
+                for i in range(len(observation))
+            ]
     for t in range(model.n_timesteps):
-        if (gradient_horizon == 0) or ((t + 1) % gradient_horizon == 0):
+        if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
             # reset the gradient
             x = model(params, time_series.detach())
         else:
@@ -44,8 +54,7 @@ def simulate_and_observe_model(
                 torch.hstack((observations[i], observation[i]))
                 for i in range(len(observation))
             ]
-    return observations
-
+    return [time_series] #observations
 
 def compute_loss(
     loss_fn: Callable,
@@ -71,10 +80,16 @@ def compute_loss(
     try:
         assert len(observed_outputs) == len(simulated_outputs)
     except AssertionError:
-        raise ValueError("Observed and simulated outputs must be the same length")
+        raise ValueError("Number of observed and simulated outputs must be the same.")
     loss = 0
     is_nan = True
     for observed_output, simulated_output in zip(observed_outputs, simulated_outputs):
+        try:
+            assert observed_output.shape == simulated_output.shape
+        except AssertionError:
+            raise ValueError(
+                "Observed and simulated outputs must have the same shape"
+            )
         if torch.isnan(simulated_output).any():
             warnings.warn("Simulation produced nan -- ignoring")
             continue
