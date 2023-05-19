@@ -155,6 +155,7 @@ class Calibrator:
                     self.best_model_state_dict = deepcopy(
                         self.posterior_estimator.state_dict()
                     )
+                    torch.save(self.best_model_state_dict, "best_model.pt")
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1

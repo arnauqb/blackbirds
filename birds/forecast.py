@@ -54,7 +54,7 @@ def simulate_and_observe_model(
                 torch.hstack((observations[i], observation[i]))
                 for i in range(len(observation))
             ]
-    return [time_series] #observations
+    return observations
 
 def compute_loss(
     loss_fn: Callable,
@@ -93,10 +93,11 @@ def compute_loss(
         if torch.isnan(simulated_output).any():
             warnings.warn("Simulation produced nan -- ignoring")
             continue
-        loss += loss_fn(simulated_output, observed_output)
+        mask = ~torch.isnan(simulated_output)
+        loss += loss_fn(simulated_output[mask], observed_output[mask])
         is_nan = False
     if is_nan:
-        return torch.nan, torch.nan
+        return torch.tensor(torch.nan), torch.tensor(torch.nan)
     return loss, loss  # need to return it twice for jac calculation
 
 

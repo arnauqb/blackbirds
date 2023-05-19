@@ -1,6 +1,7 @@
 import torch
 
 from birds.models.model import Model
+from birds.utils import soft_maximum, soft_minimum
 
 
 class BrockHommes(Model):
@@ -41,6 +42,7 @@ class BrockHommes(Model):
         sigma = torch.exp(params[-2])
         r = torch.exp(params[-1])
         R = 1.0 + r
+        g = soft_maximum(soft_minimum(g, torch.tensor(1.), 2), torch.tensor(1e-3), 2)
         
         epsilon = self._eps.rsample()
         exponent = (
