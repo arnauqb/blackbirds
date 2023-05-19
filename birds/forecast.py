@@ -8,6 +8,45 @@ from birds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 from birds.jacfwd import jacfwd
 
 
+def simulate_and_observe_model(
+    model: torch.nn.Module,
+    params: torch.Tensor,
+    gradient_horizon: int = 0,
+):
+    """Runs the simulator for the given parameters and calls the model's observe method.
+    To avoid gradient instabilities, the `gradient_horizon` argument limits the number of past time-steps
+    that are taken into account for the gradient's calculation. That is, if `gradient_horizon` is 10, then
+    only the last 10 time-steps are used to calculate the gradient.
+
+    **Arguments:**
+
+    - `model`: A torch.nn.Module implemnting the `initialize`, `forward` and `observe` methods.
+    - `params`: The parameters taken by the model's `forward` method.
+    - `n_timesteps`: Number of timesteps to simulate.
+    - `gradient_horizon`: Gradient window, if 0 then all time-steps are used to calculate the gradient.
+    """
+    # Initialize the model
+    time_series = model.initialize(params)
+    # Simulate forward in batches
+    observations = None
+    for t in range(model.n_timesteps):
+        if (gradient_horizon == 0) or ((t + 1) % gradient_horizon == 0):
+            # reset the gradient
+            x = model(params, time_series.detach())
+        else:
+            x = model(params, time_series)
+        time_series = torch.hstack((time_series, x))
+        if observations is None:
+            observations = model.observe(x)
+        else:
+            observation = model.observe(x)
+            observations = [
+                torch.hstack((observations[i], observation[i]))
+                for i in range(len(observation))
+            ]
+    return observations
+
+
 def compute_loss(
     loss_fn: Callable,
     observed_outputs: list[torch.Tensor],
@@ -102,6 +141,7 @@ def compute_forecast_loss_and_jacobian_pathwise(
     observed_outputs: list[torch.Tensor],
     diff_mode: str = "reverse",
     jacobian_chunk_size: int | None = None,
+    gradient_horizon: int = 0,
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
@@ -128,6 +168,7 @@ def compute_forecast_loss_and_jacobian_pathwise(
     - `observed_outputs`: observed outputs
     - `diff_mode`: differentiation mode can be "reverse" or "forward"
     - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
+    - `gradient_horizon`: horizon for the gradient computation
     - `device`: device to use for the computation
     """
     # sample parameters and scatter them across devices
@@ -142,7 +183,9 @@ def compute_forecast_loss_and_jacobian_pathwise(
 
     # define loss to differentiate
     def loss_f(params):
-        simulated_outputs = model(params)
+        simulated_outputs = simulate_and_observe_model(
+            model, params, gradient_horizon
+        )
         loss = compute_loss(loss_fn, observed_outputs, simulated_outputs)
         return loss
 
@@ -226,7 +269,9 @@ def compute_and_differentiate_forecast_loss_score(
     indices_per_rank = []  # need to keep track of which parameter has which loss
     for i in range(mpi_rank, len(params_list_comm), mpi_size):
         params = torch.tensor(params_list_comm[i], device=device)
-        simulated_outputs = model(params)
+        simulated_outputs = simulate_and_observe_model(
+            model, params, gradient_horizon=0
+        )
         loss_i, _ = compute_loss(loss_fn, observed_outputs, simulated_outputs)
         loss_per_parameter.append(loss_i.detach().cpu().numpy())
         indices_per_rank.append(i)
@@ -246,12 +291,14 @@ def compute_and_differentiate_forecast_loss_score(
         to_backprop = 0.0
         total_loss = 0.0
         n_samples_non_nan = 0
-        for param, loss_i, param_logprob in zip(params_list_comm, loss_per_parameter, logprobs_list):
+        for param, loss_i, param_logprob in zip(
+            params_list_comm, loss_per_parameter, logprobs_list
+        ):
             loss_i = torch.tensor(loss_i, device=device)
             if np.isnan(loss_i):  # no parameter was non-nan
                 continue
-            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1,-1)))
-            to_backprop += loss_i * lp 
+            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1)))
+            to_backprop += loss_i * lp
             total_loss += loss_i
             n_samples_non_nan += 1
         to_backprop = to_backprop / n_samples_non_nan
@@ -271,6 +318,7 @@ def compute_and_differentiate_forecast_loss(
     diff_mode: str = "reverse",
     gradient_estimation_method: str = "pathwise",
     jacobian_chunk_size: int | None = None,
+    gradient_horizon: int = 0,
     device: str = "cpu",
 ):
     r"""Computes and differentiates the forecast loss according to the chosen gradient estimation method
@@ -285,6 +333,7 @@ def compute_and_differentiate_forecast_loss(
     - `diff_mode`: differentiation mode can be "reverse" or "forward"
     - `gradient_estimation_method`: gradient estimation method can be "pathwise" or "score"
     - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
+    - `gradient_horizon`: horizon for the gradient computation
     - `device`: device to use for the computation
     """
     if gradient_estimation_method == "pathwise":
@@ -301,6 +350,7 @@ def compute_and_differentiate_forecast_loss(
             diff_mode=diff_mode,
             device=device,
             jacobian_chunk_size=jacobian_chunk_size,
+            gradient_horizon=gradient_horizon,
         )
         if mpi_rank == 0:
             _differentiate_forecast_loss_pathwise(

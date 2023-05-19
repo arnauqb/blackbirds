@@ -1,8 +1,10 @@
 import torch
 import torch.distributions as distributions
 
+from birds.models.model import Model
 
-class BrockHommes(torch.nn.Module):
+
+class BrockHommes(Model):
     r"""Differentiable implementation of the Brock and Hommes (1998) model. See equations (39) and (40)
     of https://arxiv.org/pdf/2202.00625.pdf for reference.
 
@@ -19,9 +21,17 @@ class BrockHommes(torch.nn.Module):
         )
         self.device = device
 
-    def forward(self, params):
-        """
-        Runs the model forward. Parameters follow the order: log_beta, g1, g2, g3, g4, b1, b2, b3, b4, log_sigma, log_r
+    def initialize(self, params):
+        return torch.zeros(3)
+
+    def step(self, params, x):
+        r"""
+        Runs the model forward for one time-step. Parameters follow the order: log_beta, g1, g2, g3, g4, b1, b2, b3, b4, log_sigma, log_r
+
+        **Arguments:**
+
+        - `params`: A list of parameters. Parameters follow the order: log_beta, g1, g2, g3, g4, b1, b2, b3, b4, log_sigma, log_r
+        - `x`: The current state of the model.
 
         !!! danger
         beta, sigma, and r are given in log.
@@ -32,15 +42,15 @@ class BrockHommes(torch.nn.Module):
         sigma = torch.exp(params[-2])
         r = torch.exp(params[-1])
         R = 1.0 + r
+        
+        epsilon = self._eps.rsample()
+        exponent = (
+            beta * (x[-1] - R * x[-2]) * (g * x[-3] + b - R * x[-2])
+        )
+        norm_exponentiated = torch.nn.Softmax(dim=-1)(exponent)
+        mean = (norm_exponentiated * (g * x[-1] + b)).sum()
+        x_t = (mean + epsilon * sigma) / R
+        return x_t
 
-        epsilons = self._eps.rsample((self.n_timesteps,))
-        x = torch.zeros(3)
-        for t in range(self.n_timesteps):
-            exponent = (
-                beta * (x[t - 1] - R * x[t - 2]) * (g * x[t - 3] + b - R * x[t - 2])
-            )
-            norm_exponentiated = torch.nn.Softmax(dim=-1)(exponent)
-            mean = (norm_exponentiated * (g * x[t - 1] + b)).sum()
-            x_t = (mean + epsilons[t] * sigma) / R
-            x = torch.hstack((x, x_t))
-        return [x[3:]]
+    def observe(self, x):
+        return [x]

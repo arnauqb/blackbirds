@@ -33,6 +33,7 @@ class Calibrator:
     - `diff_mode`: The differentiation mode to use. Can be either 'reverse' or 'forward'.
     - `gradient_estimation_method`: The method to use for estimating the gradients of the forecast loss. Can be either 'pathwise' or 'score'.
     - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.
+    - `gradient_horizon`: The number of timesteps to use for the gradient horizon. Set 0 to use the full trajectory.
     - `device`: The device to use for training.
     - `progress_bar`: Whether to display a progress bar during training.
     - `log_tensorboard`: Whether to log tensorboard data.
@@ -54,6 +55,7 @@ class Calibrator:
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
         jacobian_chunk_size: int | None = None,
+        gradient_horizon: int = 0,
         device: str = "cpu",
         progress_bar: bool = True,
         log_tensorboard: bool = False,
@@ -77,6 +79,7 @@ class Calibrator:
         self.diff_mode = diff_mode
         self.gradient_estimation_method = gradient_estimation_method
         self.jacobian_chunk_size = jacobian_chunk_size
+        self.gradient_horizon = gradient_horizon
         self.device = device
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
@@ -97,6 +100,7 @@ class Calibrator:
             diff_mode=self.diff_mode,
             gradient_estimation_method=self.gradient_estimation_method,
             jacobian_chunk_size=self.jacobian_chunk_size,
+            gradient_horizon=self.gradient_horizon,
             device = self.device
         )
         # compute and differentiate regularisation loss
