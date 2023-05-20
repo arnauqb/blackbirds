@@ -80,6 +80,8 @@ def compute_loss(
         if torch.isnan(simulated_output).any():
             warnings.warn("Simulation produced nan -- ignoring")
             continue
+        print("observed_output", observed_output)
+        print("simulated_output", simulated_output)
         loss += loss_fn(simulated_output, observed_output)
         is_nan = False
     if is_nan:
