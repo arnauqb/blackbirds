@@ -74,9 +74,12 @@ class TestSIR:
         n_timesteps = 10  # we do one more...
         graph = networkx.erdos_renyi_graph(N, 0.01)
         model = SIR(graph=graph, n_timesteps=n_timesteps)
-        infected, recovered = model(
+        x = model.run(
             torch.tensor([fraction_infected, beta, gamma])
-        )  # fraction infected, beta, and gamma
+        )  # final fraction infected, beta, and gamma
+        assert x.shape == (n_timesteps + 1, 3, N)
+        observation = model.observe(x)
+        infected, recovered = observation
         exp_infected = torch.tensor(
             [50, 100, 114, 135, 174, 217, 260, 304, 329, 377, 407], dtype=torch.float
         )
@@ -103,7 +106,7 @@ class TestSIR:
         n_timesteps = 10
         graph = networkx.erdos_renyi_graph(N, 0.01)
         model = SIR(graph=graph, n_timesteps=n_timesteps)
-        probs = torch.tensor([fraction_infected, beta, gamma], requires_grad=True)
-        infected, _ = model(probs)
+        params = torch.tensor([fraction_infected, beta, gamma], requires_grad=True)
+        infected, recovered = model.observe(model.run(params))
         infected.sum().backward()
-        assert probs.grad is not None
+        assert params.grad is not None

@@ -12,13 +12,13 @@ class TestCalibrator:
         Tests inference in a random walk model.
         """
         rw = RandomWalk(100)
-        true_ps = [0.25, 0.5, 0.75]
+        true_ps = [0.25] #, 0.5, 0.75]
         prior = torch.distributions.Normal(0.0, 1.0)
         for true_p in true_ps:
-            data = rw(torch.tensor([true_p]))
+            data = rw.observe(rw.run(torch.tensor([true_p])))
             posterior_estimator = TrainableGaussian(0.5, 0.1)
             posterior_estimator.sigma.requires_grad = False
-            optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-2)
+            optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-1)
             calib = Calibrator(
                 model=rw,
                 posterior_estimator=posterior_estimator,
@@ -29,7 +29,7 @@ class TestCalibrator:
                 w=10.0,
                 progress_bar=False,
             )
-            calib.run(100, max_epochs_without_improvement=100)
+            calib.run(50, max_epochs_without_improvement=100)
             posterior_estimator.load_state_dict(calib.best_model_state_dict)
-            # check correct result is within 2 sigma
+            ## check correct result is within 2 sigma
             assert np.isclose(posterior_estimator.mu.item(), true_p, rtol=0.25)

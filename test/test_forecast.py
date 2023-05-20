@@ -3,10 +3,13 @@ import torch
 import pytest
 
 from birds.forecast import (
+    simulate_and_observe_model,
     compute_loss,
     compute_forecast_loss_and_jacobian_pathwise,
     compute_and_differentiate_forecast_loss,
 )
+from birds.models.model import Model
+
 
 class MockPosteriorEstimator(torch.nn.Module):
     def __init__(self):
@@ -26,13 +29,27 @@ class MockPosteriorEstimator(torch.nn.Module):
     def forward(self, n):
         return self.sample(n)
 
-class MockModel(torch.nn.Module):
-    def forward(self, x):
-        return [x**2]
+
+class MockModel(Model):
+    def __init__(self):
+        super().__init__()
+        self.n_timesteps = 2
+
+    def initialize(self, params):
+        x = (params**2).reshape(1, -1)
+        return x
+
+    def step(self, params, x):
+        return (params**2).reshape(1, -1)
+
+    def observe(self, x):
+        return [x]
+
 
 @pytest.fixture(name="mock_estimator")
 def make_mock_posterior():
     return MockPosteriorEstimator()
+
 
 @pytest.fixture(name="mock_model")
 def make_mock_model():
@@ -40,6 +57,18 @@ def make_mock_model():
 
 
 class TestForecast:
+    def test__simulate_and_observe_model(self, mock_model):
+        params = torch.tensor([2.0], requires_grad=True)
+        observations = simulate_and_observe_model(
+            model=mock_model, params=params, gradient_horizon=0
+        )
+        assert len(observations) == 1
+        assert (observations[0] == torch.tensor([4.0, 4.0, 4.0])).all()
+        y = torch.ones(3)
+        loss = torch.nn.MSELoss()(observations[0], y)
+        loss.backward()
+        assert params.grad is not None
+
     def test__compute_loss(self):
         loss_fn = torch.nn.MSELoss()
         observed_outputs = [torch.tensor([1.0, 2, 3]), torch.tensor([4.0, 5, 6])]
@@ -64,35 +93,39 @@ class TestForecast:
 
     def test__compute_forecast_loss_pathwise(self, mock_estimator, mock_model):
         loss_fn = torch.nn.MSELoss()
-        observed_outputs = [torch.tensor([4.0, 4.0])]
+        observed_outputs = [4 * torch.ones(3, 2)]
         parameters, loss, jacobians = compute_forecast_loss_and_jacobian_pathwise(
             loss_fn, mock_model, mock_estimator, 5, observed_outputs
         )
         assert len(parameters) == 5
         for param in parameters:
-            assert torch.allclose(param, torch.tensor([2.0, 2.0]))
+            assert torch.allclose(param, 2.0 * torch.ones(2))
         assert loss == torch.tensor(0.0)
         assert len(jacobians) == 5
         for jacob in jacobians:
             assert torch.allclose(jacob, torch.tensor([0.0, 0.0]))
 
-        observed_outputs = [torch.tensor([2.0, 3.0])]
+        observed_outputs = [
+            torch.tensor([2.0, 3.0, 4.0]).reshape(-1, 1) * torch.ones(3, 2)
+        ]
         parameters, loss, jacobians = compute_forecast_loss_and_jacobian_pathwise(
             loss_fn, mock_model, mock_estimator, 5, observed_outputs
         )
         assert len(parameters) == 5
         for param in parameters:
             assert torch.allclose(param, torch.tensor([2.0, 2.0]))
-        assert loss == torch.tensor(2.5)
+        assert loss == torch.tensor(5 / 3)
         assert len(jacobians) == 5
         for jacob in jacobians:
-            assert torch.allclose(jacob, torch.tensor([8.0, 4.0]))
+            assert torch.allclose(jacob, torch.tensor([4.0, 4.0]))
 
     @pytest.mark.parametrize("diff_mode", ["forward", "reverse"])
     @pytest.mark.parametrize("gradient_estimation_method", ["score", "pathwise"])
-    def test__compute_forecast_loss(self, mock_estimator, mock_model, diff_mode, gradient_estimation_method):
+    def test__compute_forecast_loss(
+        self, mock_estimator, mock_model, diff_mode, gradient_estimation_method
+    ):
         loss_fn = torch.nn.MSELoss()
-        observed_outputs = [torch.tensor([4.0, 4.0])]
+        observed_outputs = [4 * torch.ones(3, 2)]
         forecast_loss = compute_and_differentiate_forecast_loss(
             loss_fn,
             mock_model,
@@ -103,7 +136,9 @@ class TestForecast:
             gradient_estimation_method=gradient_estimation_method,
         )
         assert np.isclose(forecast_loss, 0.0)
-        observed_outputs = [torch.tensor([2.0, 3.0])]
+        observed_outputs = [
+            torch.tensor([2.0, 3.0, 4.0]).reshape(-1, 1) * torch.ones(3, 2)
+        ]
         forecast_loss = compute_and_differentiate_forecast_loss(
             loss_fn,
             mock_model,
@@ -113,7 +148,7 @@ class TestForecast:
             diff_mode=diff_mode,
             gradient_estimation_method=gradient_estimation_method,
         )
-        assert np.isclose(forecast_loss, 2.5)
+        assert np.isclose(forecast_loss, 5 / 3)
         if gradient_estimation_method == "pathwise":
             # for score since the mock one is constant this is 0...
-            assert np.isclose(mock_estimator.p.grad.item(), 24.0)
+            assert np.isclose(mock_estimator.p.grad.item(), 16, rtol=1e-3)

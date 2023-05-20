@@ -5,19 +5,25 @@ from birds.models.random_walk import RandomWalk
 
 class TestRandomWalk:
     def test__result(self):
-        rw = RandomWalk(1000)
-        assert rw.n_timesteps == 1000
-        result = rw(torch.tensor(0.3))[0]
-        avg_steps_forward = 0.3 * 1000
-        avg_steps_backward = 0.7 * 1000
-        assert np.isclose(result[-1], avg_steps_forward - avg_steps_backward, rtol=1e-1)
+        n_timesteps = 1000
+        rw = RandomWalk(n_timesteps)
+        assert rw.n_timesteps == n_timesteps
+        x = rw.run(torch.tensor(0.3))
+        assert x.shape == (n_timesteps + 1,1)
+        trajectory = rw.observe(x)[0]
+        avg_steps_forward = 0.3 * n_timesteps
+        avg_steps_backward = 0.7 * n_timesteps
+        assert np.isclose(
+            trajectory[-1], avg_steps_forward - avg_steps_backward, rtol=1e-1
+        )
 
     def test__gradient(self):
         p = torch.tensor(0.4, requires_grad=True)
-        rw = RandomWalk(10)
-        assert rw.n_timesteps == 10
+        n_timesteps = 10
+        rw = RandomWalk(n_timesteps)
+        assert rw.n_timesteps == n_timesteps
         assert rw.tau_softmax == 0.1
-        result = rw(p)[0]
-        assert result.shape == (10,)
-        result[-1].backward()
+        x = rw.observe(rw.run(p))[0]
+        assert x.shape == (n_timesteps + 1,1)
+        x[-1].backward()
         assert p.grad is not None

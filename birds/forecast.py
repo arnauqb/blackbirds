@@ -27,7 +27,7 @@ def simulate_and_observe_model(
     """
     # Initialize the model
     time_series = model.initialize(params)
-    # Simulate forward in batches
+    # Get initial observations
     observations = None
     for i in range(len(time_series)):
         x = time_series[i]
@@ -36,7 +36,7 @@ def simulate_and_observe_model(
         else:
             observation = model.observe(x)
             observations = [
-                torch.hstack((observations[i], observation[i]))
+                torch.vstack((observations[i], observation[i]))
                 for i in range(len(observation))
             ]
     for t in range(model.n_timesteps):
@@ -45,13 +45,13 @@ def simulate_and_observe_model(
             x = model(params, time_series.detach())
         else:
             x = model(params, time_series)
-        time_series = torch.hstack((time_series, x))
+        time_series = torch.cat((time_series, x))
         if observations is None:
             observations = model.observe(x)
         else:
             observation = model.observe(x)
             observations = [
-                torch.hstack((observations[i], observation[i]))
+                torch.vstack((observations[i], observation[i]))
                 for i in range(len(observation))
             ]
     return observations

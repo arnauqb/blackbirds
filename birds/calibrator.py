@@ -8,8 +8,9 @@ from collections import defaultdict
 from typing import Callable, List
 
 from birds.mpi_setup import mpi_rank
-from birds.forecast import compute_and_differentiate_forecast_loss
+from birds.models.model import Model
 from birds.regularisation import compute_regularisation_loss
+from birds.forecast import compute_and_differentiate_forecast_loss
 
 logger = logging.getLogger("calibrator")
 
@@ -42,7 +43,7 @@ class Calibrator:
 
     def __init__(
         self,
-        model: torch.nn.Module,
+        model: Model,
         prior: torch.distributions.Distribution,
         posterior_estimator: torch.nn.Module,
         data: List[torch.Tensor],

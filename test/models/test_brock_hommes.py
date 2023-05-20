@@ -9,6 +9,6 @@ class TestBrockHomes:
         params = torch.tensor(
             [0.5, 0.5, 0.5, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.1, 0.01], requires_grad=True
         )
-        x = model(params)[0]
+        x = model.run(params)[-1]
         x.sum().backward()
         assert params.grad is not None

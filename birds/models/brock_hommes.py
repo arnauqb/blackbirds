@@ -22,7 +22,7 @@ class BrockHommes(Model):
         self.device = device
 
     def initialize(self, params):
-        return torch.zeros(3)
+        return torch.zeros((3,1))
 
     def step(self, params, x):
         r"""
@@ -42,16 +42,14 @@ class BrockHommes(Model):
         sigma = torch.exp(params[-2])
         r = torch.exp(params[-1])
         R = 1.0 + r
-        g = soft_maximum(soft_minimum(g, torch.tensor(1.), 2), torch.tensor(1e-3), 2)
-        
+        g = soft_maximum(soft_minimum(g, torch.tensor(1.0), 2), torch.tensor(1e-3), 2)
+
         epsilon = self._eps.rsample()
-        exponent = (
-            beta * (x[-1] - R * x[-2]) * (g * x[-3] + b - R * x[-2])
-        )
+        exponent = beta * (x[-1] - R * x[-2]) * (g * x[-3] + b - R * x[-2])
         norm_exponentiated = torch.nn.Softmax(dim=-1)(exponent)
         mean = (norm_exponentiated * (g * x[-1] + b)).sum()
         x_t = (mean + epsilon * sigma) / R
-        return x_t
+        return x_t.reshape(1, -1)
 
     def observe(self, x):
         return [x]
