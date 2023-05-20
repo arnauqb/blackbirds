@@ -22,7 +22,10 @@ class BrockHommes(Model):
         self.device = device
 
     def initialize(self, params):
-        return torch.zeros((3,1))
+        return torch.zeros((3, 1))
+
+    def trim_time_series(self, x):
+        return x[-3:]
 
     def step(self, params, x):
         r"""

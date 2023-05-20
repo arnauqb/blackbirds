@@ -102,7 +102,7 @@ class Calibrator:
             gradient_estimation_method=self.gradient_estimation_method,
             jacobian_chunk_size=self.jacobian_chunk_size,
             gradient_horizon=self.gradient_horizon,
-            device = self.device
+            device=self.device,
         )
         # compute and differentiate regularisation loss
         if mpi_rank == 0:

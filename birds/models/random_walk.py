@@ -26,7 +26,10 @@ class RandomWalk(Model):
         self.tau_softmax = tau_softmax
 
     def initialize(self, params):
-        return torch.zeros(1)
+        return torch.zeros(1).reshape(1, 1)
+
+    def trim_time_series(self, x):
+        return x[-1:]
 
     def step(self, params, x):
         """Simulates a random walk step using the Gumbel-Softmax trick.
@@ -41,7 +44,7 @@ class RandomWalk(Model):
         step = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True
         )
-        return step[0] - step[1]
+        return (x[-1] + step[0] - step[1]).reshape(1, 1)
 
     def observe(self, x):
-        return [x.cumsum(dim=0).flatten()]
+        return [x]

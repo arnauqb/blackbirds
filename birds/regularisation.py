@@ -33,4 +33,3 @@ def compute_regularisation_loss(posterior_estimator, prior, n_samples):
     # compute the Monte Carlo estimate of the KL divergence
     kl_divergence = (log_prob_posterior - log_prob_prior).mean()
     return kl_divergence
-

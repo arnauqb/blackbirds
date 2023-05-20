@@ -35,6 +35,9 @@ class MockModel(Model):
         super().__init__()
         self.n_timesteps = 2
 
+    def trim_time_series(self, x):
+        return x[-1:]
+
     def initialize(self, params):
         x = (params**2).reshape(1, -1)
         return x

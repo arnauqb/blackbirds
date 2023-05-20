@@ -24,6 +24,6 @@ class TestRandomWalk:
         assert rw.n_timesteps == n_timesteps
         assert rw.tau_softmax == 0.1
         x = rw.observe(rw.run(p))[0]
-        assert x.shape == (n_timesteps + 1,)
+        assert x.shape == (n_timesteps + 1,1)
         x[-1].backward()
         assert p.grad is not None

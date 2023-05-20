@@ -22,7 +22,7 @@ class SIR(Model):
         self.graph = torch_geometric.utils.convert.from_networkx(graph)
         self.mp = SIRMessagePassing(aggr="add", node_dim=-1)
 
-    def sample_bernoulli_gs(self, probs: torch.Tensor, tau:float =0.1):
+    def sample_bernoulli_gs(self, probs: torch.Tensor, tau: float = 0.1):
         """
         Samples from a Bernoulli distribution in a diferentiable way using Gumble-Softmax
 
@@ -34,6 +34,9 @@ class SIR(Model):
         logits = torch.vstack((probs, 1 - probs)).T.log()
         gs_samples = torch.nn.functional.gumbel_softmax(logits, tau=tau, hard=True)
         return gs_samples[:, 0]
+
+    def trim_time_series(self, x):
+        return x[-1:]
 
     def initialize(self, params: torch.Tensor):
         """
@@ -98,7 +101,7 @@ class SIR(Model):
 
         - x: a tensor of shape (3, n_agents) containing the infected, susceptible, and recovered counts.
         """
-        return [x[:,0,:].sum(1), x[:,2,:].sum(1)]
+        return [x[:, 0, :].sum(1), x[:, 2, :].sum(1)]
 
 
 class SIRMessagePassing(torch_geometric.nn.conv.MessagePassing):

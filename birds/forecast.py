@@ -27,14 +27,22 @@ def simulate_and_observe_model(
     """
     # Initialize the model
     time_series = model.initialize(params)
+    observed_outputs = model.observe(time_series)
     for t in range(model.n_timesteps):
+        time_series = model.trim_time_series(
+            time_series
+        )  # gets past time-steps needed to compute the next one.
         if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
             # reset the gradient
             x = model(params, time_series.detach())
         else:
             x = model(params, time_series)
+        observed_outputs = [
+            torch.cat((observed_output, output))
+            for observed_output, output in zip(observed_outputs, model.observe(x))
+        ]
         time_series = torch.cat((time_series, x))
-    return model.observe(time_series)
+    return observed_outputs
 
 
 def compute_loss(
