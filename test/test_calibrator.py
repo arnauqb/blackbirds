@@ -18,7 +18,7 @@ class TestCalibrator:
             data = rw.observe(rw.run(torch.tensor([true_p])))
             posterior_estimator = TrainableGaussian(0.5, 0.1)
             posterior_estimator.sigma.requires_grad = False
-            optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-1)
+            optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-2)
             calib = Calibrator(
                 model=rw,
                 posterior_estimator=posterior_estimator,

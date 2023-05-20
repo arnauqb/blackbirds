@@ -41,20 +41,7 @@ class RandomWalk(Model):
         step = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True
         )
-        return x[-1] + step[0] - step[1]
-
-    def run(self, params):
-        p = torch.clip(params, min=0.0, max=1.0)
-        p = p * torch.ones(self.n_timesteps)
-        logits = torch.vstack((p, 1 - p)).log()
-        steps = torch.nn.functional.gumbel_softmax(
-            logits, dim=0, tau=self.tau_softmax, hard=True
-        )
-        forward_steps = steps[0,:]
-        backward_steps = steps[1,:]
-        x = forward_steps - backward_steps
-        x = torch.hstack((torch.zeros([1]), x))
-        return x.reshape(-1, 1)
+        return step[0] - step[1]
 
     def observe(self, x):
-        return [x.cumsum(dim=0)]
+        return [x.cumsum(dim=0).flatten()]

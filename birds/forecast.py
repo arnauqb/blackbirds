@@ -27,18 +27,6 @@ def simulate_and_observe_model(
     """
     # Initialize the model
     time_series = model.initialize(params)
-    # Get initial observations
-    observations = None
-    for i in range(len(time_series)):
-        x = time_series[i]
-        if observations is None:
-            observations = model.observe(x)
-        else:
-            observation = model.observe(x)
-            observations = [
-                torch.vstack((observations[i], observation[i]))
-                for i in range(len(observation))
-            ]
     for t in range(model.n_timesteps):
         if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
             # reset the gradient
@@ -46,15 +34,37 @@ def simulate_and_observe_model(
         else:
             x = model(params, time_series)
         time_series = torch.cat((time_series, x))
-        if observations is None:
-            observations = model.observe(x)
-        else:
-            observation = model.observe(x)
-            observations = [
-                torch.vstack((observations[i], observation[i]))
-                for i in range(len(observation))
-            ]
-    return observations
+    return model.observe(time_series)
+
+    # old
+    # Get initial observations
+    #observations = None
+    #for i in range(len(time_series)):
+    #    x = time_series[i]
+    #    if observations is None:
+    #        observations = model.observe(x)
+    #    else:
+    #        observation = model.observe(x)
+    #        observations = [
+    #            torch.vstack((observations[i], observation[i]))
+    #            for i in range(len(observation))
+    #        ]
+    #for t in range(model.n_timesteps):
+    #    if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
+    #        # reset the gradient
+    #        x = model(params, time_series.detach())
+    #    else:
+    #        x = model(params, time_series)
+    #    time_series = torch.cat((time_series, x))
+    #    if observations is None:
+    #        observations = model.observe(x)
+    #    else:
+    #        observation = model.observe(x)
+    #        observations = [
+    #            torch.vstack((observations[i], observation[i]))
+    #            for i in range(len(observation))
+    #        ]
+    #return observations
 
 def compute_loss(
     loss_fn: Callable,
@@ -93,8 +103,7 @@ def compute_loss(
         if torch.isnan(simulated_output).any():
             warnings.warn("Simulation produced nan -- ignoring")
             continue
-        mask = ~torch.isnan(simulated_output)
-        loss += loss_fn(simulated_output[mask], observed_output[mask])
+        loss += loss_fn(simulated_output, observed_output)
         is_nan = False
     if is_nan:
         return torch.tensor(torch.nan), torch.tensor(torch.nan)
