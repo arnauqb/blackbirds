@@ -36,35 +36,6 @@ def simulate_and_observe_model(
         time_series = torch.cat((time_series, x))
     return model.observe(time_series)
 
-    # old
-    # Get initial observations
-    #observations = None
-    #for i in range(len(time_series)):
-    #    x = time_series[i]
-    #    if observations is None:
-    #        observations = model.observe(x)
-    #    else:
-    #        observation = model.observe(x)
-    #        observations = [
-    #            torch.vstack((observations[i], observation[i]))
-    #            for i in range(len(observation))
-    #        ]
-    #for t in range(model.n_timesteps):
-    #    if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
-    #        # reset the gradient
-    #        x = model(params, time_series.detach())
-    #    else:
-    #        x = model(params, time_series)
-    #    time_series = torch.cat((time_series, x))
-    #    if observations is None:
-    #        observations = model.observe(x)
-    #    else:
-    #        observation = model.observe(x)
-    #        observations = [
-    #            torch.vstack((observations[i], observation[i]))
-    #            for i in range(len(observation))
-    #        ]
-    #return observations
 
 def compute_loss(
     loss_fn: Callable,
@@ -97,9 +68,7 @@ def compute_loss(
         try:
             assert observed_output.shape == simulated_output.shape
         except AssertionError:
-            raise ValueError(
-                "Observed and simulated outputs must have the same shape"
-            )
+            raise ValueError("Observed and simulated outputs must have the same shape")
         if torch.isnan(simulated_output).any():
             warnings.warn("Simulation produced nan -- ignoring")
             continue
@@ -208,9 +177,7 @@ def compute_forecast_loss_and_jacobian_pathwise(
 
     # define loss to differentiate
     def loss_f(params):
-        simulated_outputs = simulate_and_observe_model(
-            model, params, gradient_horizon
-        )
+        simulated_outputs = simulate_and_observe_model(model, params, gradient_horizon)
         loss = compute_loss(loss_fn, observed_outputs, simulated_outputs)
         return loss
 

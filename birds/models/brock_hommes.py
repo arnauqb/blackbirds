@@ -52,4 +52,4 @@ class BrockHommes(Model):
         return x_t.reshape(1, -1)
 
     def observe(self, x):
-        return [x]
+        return [x.flatten()]
