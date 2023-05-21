@@ -1,3 +1,5 @@
+import torch
+
 def compute_regularisation_loss(posterior_estimator, prior, n_samples):
     r"""Estimates the KL divergence between the posterior and the prior using n_samples through Monte Carlo using
 
