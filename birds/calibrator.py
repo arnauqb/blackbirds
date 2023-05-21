@@ -37,6 +37,7 @@ class Calibrator:
     - `gradient_horizon`: The number of timesteps to use for the gradient horizon. Set 0 to use the full trajectory.
     - `device`: The device to use for training.
     - `progress_bar`: Whether to display a progress bar during training.
+    - `progress_info` : Whether to display loss data during training.
     - `log_tensorboard`: Whether to log tensorboard data.
     - `tensorboard_log_dir`: The directory to log tensorboard data to.
     """
@@ -59,6 +60,7 @@ class Calibrator:
         gradient_horizon: int = 0,
         device: str = "cpu",
         progress_bar: bool = True,
+        progress_info: bool = False,
         log_tensorboard: bool = False,
         tensorboard_log_dir: str | None = None,
     ):
@@ -77,6 +79,7 @@ class Calibrator:
         self.n_samples_per_epoch = n_samples_per_epoch
         self.n_samples_regularisation = n_samples_regularisation
         self.progress_bar = progress_bar
+        self.progress_info = progress_info
         self.diff_mode = diff_mode
         self.gradient_estimation_method = gradient_estimation_method
         self.jacobian_chunk_size = jacobian_chunk_size
@@ -160,7 +163,7 @@ class Calibrator:
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
-                if self.progress_bar:
+                if self.progress_info:
                     iterator.set_postfix(
                         {
                             "Forecast": forecast_loss.item(),
