@@ -218,6 +218,8 @@ def compute_forecast_loss_and_jacobian_pathwise(
         losses = mpi_comm.gather(loss, root=0)
         if mpi_rank == 0:
             loss = sum([l.cpu() for l in losses if l != 0])
+            if type(loss) == int:
+                loss = torch.tensor(loss, device=device)
     if mpi_rank == 0:
         jacobians = list(chain(*jacobians_per_rank))
         indices = list(chain(*indices_per_rank))
