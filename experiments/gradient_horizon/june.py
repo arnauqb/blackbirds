@@ -94,6 +94,7 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         log_tensorboard=True,
         gradient_estimation_method="pathwise",
         gradient_horizon=1,
+        gradient_clipping_norm=1.0,
         diff_mode="reverse",
         device=device,
         # gradient_clipping_norm=0.1,
@@ -124,7 +125,7 @@ if __name__ == "__main__":
 
     # device of this rank
     device = args.device_ids[mpi_rank]
-    true_parameters = 0.4 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+    true_parameters = 0.25 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
     n_parameters = len(true_parameters)
     config_file = "./examples/june_config.yaml"
     model = make_model(config_file, device)

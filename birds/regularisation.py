@@ -29,7 +29,8 @@ def compute_regularisation_loss(posterior_estimator, prior, n_samples):
         ```
     """
     # sample from the posterior
-    z, _ = posterior_estimator.sample(n_samples)
+    with torch.no_grad():
+        z, _ = posterior_estimator.sample(n_samples)
     # compute the log probability of the samples under the prior
     log_prob_posterior = posterior_estimator.log_prob(z)
     log_prob_prior = prior.log_prob(z)
