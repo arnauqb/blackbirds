@@ -60,7 +60,7 @@ class Calibrator:
         gradient_horizon: int = 0,
         device: str = "cpu",
         progress_bar: bool = True,
-        progress_info: bool = False,
+        progress_info: bool = True,
         log_tensorboard: bool = False,
         tensorboard_log_dir: str | None = None,
     ):
@@ -163,7 +163,7 @@ class Calibrator:
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
-                if self.progress_info:
+                if self.progress_bar and self.progress_info:
                     iterator.set_postfix(
                         {
                             "Forecast": forecast_loss.item(),
