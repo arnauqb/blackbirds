@@ -29,11 +29,11 @@ def compute_regularisation_loss(posterior_estimator, prior, n_samples):
         ```
     """
     # sample from the posterior
-    with torch.no_grad():
-        z, _ = posterior_estimator.sample(n_samples)
+    z, log_prob_posterior = posterior_estimator.sample(n_samples)
     # compute the log probability of the samples under the prior
-    log_prob_posterior = posterior_estimator.log_prob(z.detach())
+    #log_prob_posterior = posterior_estimator.log_prob(z)
     log_prob_prior = prior.log_prob(z)
     # compute the Monte Carlo estimate of the KL divergence
     kl_divergence = (log_prob_posterior - log_prob_prior).mean()
+    #kl_divergence = torch.clamp(kl_divergence, min=0.0, max=1)
     return kl_divergence

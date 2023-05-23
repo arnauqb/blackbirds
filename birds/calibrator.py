@@ -154,6 +154,7 @@ class Calibrator:
                     self.writer.add_scalar(
                         "Loss/regularisation", regularisation_loss, epoch
                     )
+                torch.save(self.best_model_state_dict, "last_model.pt")
                 if loss < self.best_loss:
                     self.best_loss = loss
                     self.best_model_state_dict = deepcopy(
