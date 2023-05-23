@@ -11,7 +11,7 @@ from birds.jacfwd import jacfwd
 def simulate_and_observe_model(
     model: torch.nn.Module,
     params: torch.Tensor,
-    gradient_horizon: int = 0,
+    gradient_horizon: int | None = None,
 ):
     """Runs the simulator for the given parameters and calls the model's observe method.
     To avoid gradient instabilities, the `gradient_horizon` argument limits the number of past time-steps
@@ -23,8 +23,10 @@ def simulate_and_observe_model(
     - `model`: A torch.nn.Module implemnting the `initialize`, `forward` and `observe` methods.
     - `params`: The parameters taken by the model's `forward` method.
     - `n_timesteps`: Number of timesteps to simulate.
-    - `gradient_horizon`: Gradient window, if 0 then all time-steps are used to calculate the gradient.
+    - `gradient_horizon`: Gradient window, if None then all time-steps are used to calculate the gradient.
     """
+    if gradient_horizon is None:
+        gradient_horizon = model.n_timesteps
     # Initialize the model
     time_series = model.initialize(params)
     observed_outputs = model.observe(time_series)
@@ -32,11 +34,15 @@ def simulate_and_observe_model(
         time_series = model.trim_time_series(
             time_series
         )  # gets past time-steps needed to compute the next one.
-        if (gradient_horizon != 0) and ((t + 1) % gradient_horizon == 0):
-            # reset the gradient
-            x = model(params, time_series.detach())
-        else:
-            x = model(params, time_series)
+        # only consider the past gradient_horizon time-steps to calculate the gradient
+        if t > gradient_horizon:
+            # detach past time-steps from the computational graph
+            no_gradient_time_series = time_series[:len(time_series) - gradient_horizon].detach()
+            # stack with the last gradient_horizon time-steps
+            time_series = torch.cat(
+                (no_gradient_time_series, time_series[len(time_series) - gradient_horizon:])
+            )
+        x = model(params, time_series)
         observed_outputs = [
             torch.cat((observed_output, output))
             for observed_output, output in zip(observed_outputs, model.observe(x))
