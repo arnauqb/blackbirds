@@ -29,7 +29,7 @@ _all_no_seed_parameters = [
     "beta_care_home",
 ]
 
-true_parameters = 0.5 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+true_parameters = 0.4 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
 
 class MMDLoss:
     def __init__(self, y):
@@ -89,7 +89,7 @@ def make_flow2(n_parameters, device):
 def make_prior(n_parameters, device):
     prior = torch.distributions.MultivariateNormal(
         0.0 * torch.ones(n_parameters, device=device),
-        0.5 * torch.eye(n_parameters, device=device),
+        1.0 * torch.eye(n_parameters, device=device),
     )
     return prior
 
@@ -113,10 +113,10 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         gradient_estimation_method="pathwise",
         gradient_horizon=0,
         gradient_clipping_norm=1.0,
-        diff_mode="reverse",
+        diff_mode="forward",
         device=device,
+        jacobian_chunk_size=None,
     )
-
     calibrator.run(n_epochs=100000, max_epochs_without_improvement=np.inf)
     return calibrator
 
@@ -126,7 +126,7 @@ def make_model(config_file, device):
     config["system"]["device"] = device
     config[
         "data_path"
-    ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/camden_leisure_1.pkl"
+        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
     model = June(
         config,
         parameters_to_calibrate=_all_no_seed_parameters #("beta_household", "beta_company", "beta_school"),

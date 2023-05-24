@@ -7,14 +7,15 @@ from birds.models import Model
 
 
 class SIR(Model):
-    def __init__(self, graph: networkx.Graph, n_timesteps: int):
+    def __init__(self, graph: networkx.Graph, n_timesteps: int, device:str ="cpu"):
         """
         Implements a differentiable SIR model on a graph.
 
         **Arguments:**
 
-        - graph: a networkx graph
-        - n_timesteps: the number of timesteps to run the model for
+        - `graph`: a networkx graph
+        - `n_timesteps`: the number of timesteps to run the model for
+        - `device` : device to use (eg. "cpu" or "cuda:0")
         """
         super().__init__()
         self.n_timesteps = n_timesteps
@@ -52,12 +53,12 @@ class SIR(Model):
         initial_infected = params[0]
         n_agents = self.graph.num_nodes
         # sample the initial infected nodes
-        probs = initial_infected * torch.ones(n_agents)
+        probs = initial_infected * torch.ones(n_agents, device=params.device)
         new_infected = self.sample_bernoulli_gs(probs)
         # set the initial state
         infected = new_infected
         susceptible = 1 - new_infected
-        recovered = torch.zeros(n_agents)
+        recovered = torch.zeros(n_agents, device=params.device)
         x = torch.vstack((infected, susceptible, recovered))
         return x.reshape(1, 3, n_agents)
 
