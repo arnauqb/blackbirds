@@ -28,8 +28,11 @@ _all_no_seed_parameters = [
     "beta_care_visit",
     "beta_care_home",
 ]
+_all_parameters = ["seed"]# + _all_no_seed_parameters
 
-true_parameters = 0.4 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+#true_parameters = 0.4 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+#true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
+true_parameters = torch.tensor([-3.5, 0.9, 0.3, 0.6])
 
 class MMDLoss:
     def __init__(self, y):
@@ -73,12 +76,13 @@ def make_flow(n_parameters, device):
 
 def make_flow2(n_parameters, device):
     base = nf.distributions.base.DiagGaussian(n_parameters)
+    base.loc = torch.nn.Parameter(torch.tensor([-3.0, 0.0, 0.0, 0.0]))
     num_layers = 5
     flows = []
     for i in range(num_layers):
         # Neural network with two hidden layers having 64 units each
         # Last layer is initialized by zeros making training more stable
-        param_map = nf.nets.MLP([n_parameters//2 + 1, 50, 50, 2], init_zeros=True)
+        param_map = nf.nets.MLP([n_parameters//2, 50, 50, 2], init_zeros=True)
         # Add flow layer
         flows.append(nf.flows.AffineCouplingBlock(param_map))
         # Swap dimensions
@@ -87,8 +91,10 @@ def make_flow2(n_parameters, device):
     return flow
 
 def make_prior(n_parameters, device):
+    means = torch.hstack((torch.tensor([-3.]), torch.zeros(n_parameters-1)))
+    means = means.to(device)
     prior = torch.distributions.MultivariateNormal(
-        0.0 * torch.ones(n_parameters, device=device),
+        means,
         1.0 * torch.eye(n_parameters, device=device),
     )
     return prior
@@ -106,14 +112,14 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         data=true_data,
         optimizer=optimizer,
         n_samples_per_epoch=n_samples_per_epoch,
-        w=1e-3,
+        w=0,
         n_samples_regularisation=10_000,
         forecast_loss=loss_fn,
         log_tensorboard=True,
         gradient_estimation_method="pathwise",
         gradient_horizon=0,
         gradient_clipping_norm=1.0,
-        diff_mode="forward",
+        diff_mode="reverse",
         device=device,
         jacobian_chunk_size=None,
     )
@@ -126,10 +132,10 @@ def make_model(config_file, device):
     config["system"]["device"] = device
     config[
         "data_path"
-        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
+        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/camden_leisure_1.pkl"
     model = June(
         config,
-        parameters_to_calibrate=_all_no_seed_parameters #("beta_household", "beta_company", "beta_school"),
+        parameters_to_calibrate=("seed", "beta_household", "beta_company", "beta_school"),
     )
     return model
 

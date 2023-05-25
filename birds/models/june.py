@@ -2,6 +2,7 @@ import torch
 from grad_june import Runner
 
 from birds.models.model import Model
+from birds.utils import soft_minimum
 
 
 class June(Model):
@@ -38,7 +39,8 @@ class June(Model):
         self.runner.timer.reset()
         self.runner.restore_initial_data()
         if "seed" in self.parameters_to_calibrate:
-            self.runner.log_fraction_initial_cases = params[0]
+            seed = soft_minimum(torch.tensor(-0.1, device=params.device), params[0], 3)
+            self.runner.log_fraction_initial_cases = seed
         self.runner.set_initial_cases()
         x = self.get_x()
         return x.reshape(1, 7, -1)
