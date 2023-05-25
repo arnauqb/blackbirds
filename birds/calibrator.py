@@ -26,6 +26,7 @@ class Calibrator:
     - `posterior_estimator`: The variational distribution that approximates the generalised posterior.
     - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
     - `w`: The weight of the regularisation loss in the total loss.
+    - `initialize_flow_to_prior`: Whether to fit the posterior estimator to the prior before training the forecast term.
     - `gradient_clipping_norm`: The norm to which the gradients are clipped.
     - `forecast_loss`: The loss function to use for the forecast loss.
     - `optimizer`: The optimizer to use for training.
@@ -49,10 +50,11 @@ class Calibrator:
         posterior_estimator: torch.nn.Module,
         data: List[torch.Tensor],
         w: float = 0.0,
+        initialize_flow_to_prior: bool = False,
         gradient_clipping_norm: float = np.inf,
         forecast_loss: Callable | None = None,
         optimizer: torch.optim.Optimizer | None = None,
-        n_samples_per_epoch: int = 5,
+        n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
@@ -69,6 +71,7 @@ class Calibrator:
         self.posterior_estimator = posterior_estimator
         self.data = data
         self.w = w
+        self.initialize_flow_to_prior = initialize_flow_to_prior 
         self.gradient_clipping_norm = gradient_clipping_norm
         if forecast_loss is None:
             forecast_loss = torch.nn.MSELoss()
@@ -125,6 +128,32 @@ class Calibrator:
             return loss, forecast_loss, regularisation_loss
         return None, None, None
 
+    def initialize_flow(self, max_epochs_without_improvement=50):
+        """
+        Initialization step where the flow is fitted to just the prior.
+        """
+        if mpi_rank == 0:
+            optimizer = torch.optim.Adam(self.posterior_estimator.parameters(), lr = 1e-3)
+            best_loss = torch.tensor(np.inf)
+            while True:
+                optimizer.zero_grad()
+                loss = compute_regularisation_loss(
+                    posterior_estimator=self.posterior_estimator,
+                    prior=self.prior,
+                    n_samples=self.n_samples_regularisation,
+                )
+                #loss = self.posterior_estimator.forward_kld(self.prior.sample((self.n_samples_regularisation,)))
+                loss.backward()
+                optimizer.step()
+                if loss < best_loss:
+                    best_loss = loss.item()
+                    num_epochs_without_improvement = 0
+                else:
+                    num_epochs_without_improvement += 1
+                if num_epochs_without_improvement >= max_epochs_without_improvement:
+                    break
+
+
     def run(self, n_epochs, max_epochs_without_improvement=20):
         """
         Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.
@@ -133,6 +162,9 @@ class Calibrator:
             n_epochs (int | np.inf): The number of epochs to run the calibrator for.
             max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
         """
+        if self.initialize_flow_to_prior:
+            self.initialize_flow()
+            torch.save(self.posterior_estimator.state_dict(), "model_fit_to_prior.pt")
         self.best_loss = torch.tensor(np.inf)
         self.best_model_state_dict = None
         if mpi_rank == 0 and self.log_tensorboard:

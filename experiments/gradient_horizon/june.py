@@ -28,31 +28,41 @@ _all_no_seed_parameters = [
     "beta_care_visit",
     "beta_care_home",
 ]
-_all_parameters = ["seed"]# + _all_no_seed_parameters
+_all_parameters = ["seed"] + _all_no_seed_parameters
 
-#true_parameters = 0.4 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
-#true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
-true_parameters = torch.tensor([-3.5, 0.9, 0.3, 0.6])
+true_parameters = 0.25 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
+#true_parameters = torch.tensor([-3.5, 0.9, 0.3, 0.6])
 
 class MMDLoss:
     def __init__(self, y):
         self.y = y[0]
         device = self.y.device
-        self.y_matrix = self.y.reshape(1,-1,1)
-        self.y_sigma = torch.median(torch.pow(torch.cdist(self.y_matrix, self.y_matrix), 2))
+        self.y_matrix = self.y.reshape(1, -1, 1)
+        self.y_sigma = torch.median(
+            torch.pow(torch.cdist(self.y_matrix, self.y_matrix), 2)
+        )
         ny = self.y.shape[0]
-        self.kyy = (torch.exp( - torch.pow(torch.cdist(self.y_matrix, self.y_matrix), 2) / self.y_sigma ) - torch.eye(ny, device=device)).sum() / (ny * (ny - 1))
-        
+        self.kyy = (
+            torch.exp(
+                -torch.pow(torch.cdist(self.y_matrix, self.y_matrix), 2) / self.y_sigma
+            )
+            - torch.eye(ny, device=device)
+        ).sum() / (ny * (ny - 1))
+
     def __call__(self, x, y):
         nx = x.shape[0]
-        x_matrix = x.reshape(1,-1,1)
-        kxx = torch.exp( - torch.pow(torch.cdist(x_matrix, x_matrix), 2) / self.y_sigma )
-        #kxx = torch.nan_to_num(kxx, 0.)
+        x_matrix = x.reshape(1, -1, 1)
+        kxx = torch.exp(-torch.pow(torch.cdist(x_matrix, x_matrix), 2) / self.y_sigma)
+        # kxx = torch.nan_to_num(kxx, 0.)
         kxx = (kxx - torch.eye(nx, device=device)).sum() / (nx * (nx - 1))
-        kxy = torch.exp( - torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma )
-        #kxy = torch.nan_to_num(kxy, 0.)
+        kxy = torch.exp(
+            -torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma
+        )
+        # kxy = torch.nan_to_num(kxy, 0.)
         kxy = kxy.mean()
         return kxx + self.kyy - 2 * kxy
+
 
 def loss_fn(x, y):
     mask = (x > 0) & (y > 0)
@@ -68,15 +78,19 @@ def make_flow(n_parameters, device):
     hidden_layers = 3
     flows = []
     for i in range(K):
-        flows += [nf.flows.AutoregressiveRationalQuadraticSpline(n_parameters, hidden_layers, hidden_units)]
+        flows += [
+            nf.flows.AutoregressiveRationalQuadraticSpline(
+                n_parameters, hidden_layers, hidden_units
+            )
+        ]
         flows += [nf.flows.LULinearPermute(n_parameters)]
     q0 = nf.distributions.DiagGaussian(n_parameters, trainable=False)
     flow = nf.NormalizingFlow(q0=q0, flows=flows)
     return flow.to(device)
 
+
 def make_flow2(n_parameters, device):
     base = nf.distributions.base.DiagGaussian(n_parameters)
-    base.loc = torch.nn.Parameter(torch.tensor([-3.0, 0.0, 0.0, 0.0]))
     num_layers = 5
     flows = []
     for i in range(num_layers):
@@ -86,12 +100,35 @@ def make_flow2(n_parameters, device):
         # Add flow layer
         flows.append(nf.flows.AffineCouplingBlock(param_map))
         # Swap dimensions
-        flows.append(nf.flows.Permute(n_parameters, mode='swap'))
+        flows.append(nf.flows.Permute(n_parameters, mode="swap"))
     flow = nf.NormalizingFlow(base, flows).to(device)
     return flow
 
+def make_flow3(n_parameters, device):
+    # Define flows
+    K = 5
+    torch.manual_seed(0)
+
+    latent_size = n_parameters
+    b = torch.Tensor([1 if i % 2 == 0 else 0 for i in range(latent_size)])
+    flows = []
+    for i in range(K):
+        s = nf.nets.MLP([latent_size, 4 * latent_size, latent_size], init_zeros=True)
+        t = nf.nets.MLP([latent_size, 4 * latent_size, latent_size], init_zeros=True)
+        if i % 2 == 0:
+            flows += [nf.flows.MaskedAffineFlow(b, t, s)]
+        else:
+            flows += [nf.flows.MaskedAffineFlow(1 - b, t, s)]
+        flows += [nf.flows.ActNorm(latent_size)]
+    q0 = nf.distributions.DiagGaussian(n_parameters)
+
+    # Construct flow model
+    nfm = nf.NormalizingFlow(q0=q0, flows=flows)
+    return nfm.to(device)
+
+
 def make_prior(n_parameters, device):
-    means = torch.hstack((torch.tensor([-3.]), torch.zeros(n_parameters-1)))
+    means = torch.hstack((torch.tensor([-3.]), -0.25 * torch.ones(n_parameters-1)))
     means = means.to(device)
     prior = torch.distributions.MultivariateNormal(
         means,
@@ -103,7 +140,7 @@ def make_prior(n_parameters, device):
 def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, device):
     torch.manual_seed(0)
     prior = make_prior(n_parameters, device)
-    estimator = make_flow2(n_parameters, device)
+    estimator = make_flow3(n_parameters, device)
     optimizer = torch.optim.AdamW(estimator.parameters(), lr=1e-3)
     calibrator = Calibrator(
         model=model,
@@ -111,15 +148,16 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         prior=prior,
         data=true_data,
         optimizer=optimizer,
+        initialize_flow_to_prior=True,
         n_samples_per_epoch=n_samples_per_epoch,
-        w=0,
+        w=1e-3,
         n_samples_regularisation=10_000,
         forecast_loss=loss_fn,
         log_tensorboard=True,
         gradient_estimation_method="pathwise",
         gradient_horizon=0,
         gradient_clipping_norm=1.0,
-        diff_mode="reverse",
+        diff_mode="forward",
         device=device,
         jacobian_chunk_size=None,
     )
@@ -132,10 +170,10 @@ def make_model(config_file, device):
     config["system"]["device"] = device
     config[
         "data_path"
-        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/camden_leisure_1.pkl"
+        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
     model = June(
         config,
-        parameters_to_calibrate=("seed", "beta_household", "beta_company", "beta_school"),
+        parameters_to_calibrate=_all_parameters, #("seed", "beta_household", "beta_company", "beta_school"),
     )
     return model
 

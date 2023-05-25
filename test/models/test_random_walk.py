@@ -9,7 +9,7 @@ class TestRandomWalk:
         rw = RandomWalk(n_timesteps)
         assert rw.n_timesteps == n_timesteps
         x = rw.run(torch.tensor(0.3))
-        assert x.shape == (n_timesteps + 1,1)
+        assert x.shape == (n_timesteps + 1, 1)
         trajectory = rw.observe(x)[0]
         avg_steps_forward = 0.3 * n_timesteps
         avg_steps_backward = 0.7 * n_timesteps
@@ -24,6 +24,6 @@ class TestRandomWalk:
         assert rw.n_timesteps == n_timesteps
         assert rw.tau_softmax == 0.1
         x = rw.observe(rw.run(p))[0]
-        assert x.shape == (n_timesteps + 1,1)
+        assert x.shape == (n_timesteps + 1, 1)
         x[-1].backward()
         assert p.grad is not None

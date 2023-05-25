@@ -67,7 +67,7 @@ class TestForecast:
         )
         assert len(observations) == 1
         assert (observations[0] == torch.tensor([4.0, 4.0, 4.0])).all()
-        y = torch.ones(3)
+        y = torch.ones(3,1)
         loss = torch.nn.MSELoss()(observations[0], y)
         loss.backward()
         assert params.grad is not None

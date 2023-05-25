@@ -7,7 +7,7 @@ from birds.models import Model
 
 
 class SIR(Model):
-    def __init__(self, graph: networkx.Graph, n_timesteps: int, device:str ="cpu"):
+    def __init__(self, graph: networkx.Graph, n_timesteps: int, device: str = "cpu"):
         """
         Implements a differentiable SIR model on a graph.
 
