@@ -71,7 +71,7 @@ class Calibrator:
         self.posterior_estimator = posterior_estimator
         self.data = data
         self.w = w
-        self.initialize_flow_to_prior = initialize_flow_to_prior 
+        self.initialize_flow_to_prior = initialize_flow_to_prior
         self.gradient_clipping_norm = gradient_clipping_norm
         if forecast_loss is None:
             forecast_loss = torch.nn.MSELoss()
@@ -128,12 +128,13 @@ class Calibrator:
             return loss, forecast_loss, regularisation_loss
         return None, None, None
 
-    def initialize_flow(self, max_epochs_without_improvement=50):
+    def initialize_flow(self, max_epochs_without_improvement=50, atol=1e-2):
         """
         Initialization step where the flow is fitted to just the prior.
         """
+        epoch = 0
         if mpi_rank == 0:
-            optimizer = torch.optim.Adam(self.posterior_estimator.parameters(), lr = 1e-3)
+            optimizer = torch.optim.Adam(self.posterior_estimator.parameters(), lr=1e-3)
             best_loss = torch.tensor(np.inf)
             while True:
                 optimizer.zero_grad()
@@ -142,7 +143,8 @@ class Calibrator:
                     prior=self.prior,
                     n_samples=self.n_samples_regularisation,
                 )
-                #loss = self.posterior_estimator.forward_kld(self.prior.sample((self.n_samples_regularisation,)))
+                self.writer.add_scalar("Loss/init_loss", loss, epoch)
+                # loss = self.posterior_estimator.forward_kld(self.prior.sample((self.n_samples_regularisation,)))
                 loss.backward()
                 optimizer.step()
                 if loss < best_loss:
@@ -150,9 +152,12 @@ class Calibrator:
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
-                if num_epochs_without_improvement >= max_epochs_without_improvement:
+                if (
+                    num_epochs_without_improvement >= max_epochs_without_improvement
+                    or (loss.abs().item() < atol)
+                ):
                     break
-
+                epoch += 1
 
     def run(self, n_epochs, max_epochs_without_improvement=20):
         """
@@ -162,13 +167,13 @@ class Calibrator:
             n_epochs (int | np.inf): The number of epochs to run the calibrator for.
             max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
         """
+        if mpi_rank == 0 and self.log_tensorboard:
+            self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         if self.initialize_flow_to_prior:
             self.initialize_flow()
             torch.save(self.posterior_estimator.state_dict(), "model_fit_to_prior.pt")
         self.best_loss = torch.tensor(np.inf)
         self.best_model_state_dict = None
-        if mpi_rank == 0 and self.log_tensorboard:
-            self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         num_epochs_without_improvement = 0
         iterator = range(n_epochs)
         if self.progress_bar and mpi_rank == 0:
