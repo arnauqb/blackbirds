@@ -52,7 +52,7 @@ class Calibrator:
         gradient_clipping_norm: float = np.inf,
         forecast_loss: Callable | None = None,
         optimizer: torch.optim.Optimizer | None = None,
-        n_samples_per_epoch: int = 5,
+        n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",

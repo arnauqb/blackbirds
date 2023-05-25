@@ -11,9 +11,7 @@ class TrainableGaussian(torch.nn.Module):
     def clamp_sigma(self):
         sigma = self.sigma.clone()
         mask = torch.eye(len(self.mu)).bool()
-        sigma[mask] = torch.clamp(
-            self.sigma[mask], min=1e-3
-        )
+        sigma[mask] = torch.clamp(self.sigma[mask], min=1e-3)
         return sigma
 
     def log_prob(self, x):
@@ -23,9 +21,8 @@ class TrainableGaussian(torch.nn.Module):
     def sample(self, n):
         sigma = self.clamp_sigma()
         dist = torch.distributions.MultivariateNormal(self.mu, sigma)
-        sample = dist.rsample((n,)) 
+        sample = dist.rsample((n,))
         return sample, self.log_prob(sample.detach())
 
     def __call__(self, x=None):
         return self
-
