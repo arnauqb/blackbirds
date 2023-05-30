@@ -2,15 +2,15 @@ import torch
 
 
 class TrainableGaussian(torch.nn.Module):
-    def __init__(self, mu=[0.0], sigma=1.0):
+    def __init__(self, mu=[0.0], sigma=1.0, device="cpu"):
         super().__init__()
-        self.mu = torch.nn.Parameter(torch.tensor(mu))
-        self.sigma = sigma * torch.eye(len(mu))
+        self.mu = torch.nn.Parameter(torch.tensor(mu, device=device))
+        self.sigma = sigma * torch.eye(len(mu), device=device)
         self.sigma = torch.nn.Parameter(self.sigma)
 
     def clamp_sigma(self):
         sigma = self.sigma.clone()
-        mask = torch.eye(len(self.mu)).bool()
+        mask = torch.eye(len(self.mu), device=self.sigma.device).bool()
         sigma[mask] = torch.clamp(self.sigma[mask], min=1e-3)
         return sigma
 
