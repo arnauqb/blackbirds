@@ -25,13 +25,15 @@ _all_no_seed_parameters = [
     "beta_gym",
     "beta_cinema",
     "beta_visit",
-    "beta_care_visit",
+    #"beta_care_visit",
     "beta_care_home",
 ]
 _all_parameters = ["seed"] + _all_no_seed_parameters
 
-true_parameters = 0.25 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
-true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
+true_parameters = torch.tensor([-3.5, 0.6, 0.4, 0.4, 0.4, 0.1, 0.1, 0.1, 0.1, 0.1, 0.6])
+assert len(true_parameters) == len(_all_parameters)
+#true_parameters = 0.35 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
+#true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
 #true_parameters = torch.tensor([-3.5, 0.9, 0.3, 0.6])
 
 class MMDLoss:
@@ -70,6 +72,12 @@ def loss_fn(x, y):
     y = y[mask].log10()
     return torch.nn.MSELoss()(x, y)
 
+def loss_fn2(x, y):
+    mask = y > 0
+    x = x[mask]
+    y = y[mask]
+    return ((x - y)**2 / y**2).mean()
+
 
 def make_flow(n_parameters, device):
     K = 3
@@ -96,7 +104,7 @@ def make_flow2(n_parameters, device):
     for i in range(num_layers):
         # Neural network with two hidden layers having 64 units each
         # Last layer is initialized by zeros making training more stable
-        param_map = nf.nets.MLP([n_parameters//2, 50, 50, 2], init_zeros=True)
+        param_map = nf.nets.MLP([n_parameters//2 + n_parameters % 2 , 50, 50, n_parameters], init_zeros=True)
         # Add flow layer
         flows.append(nf.flows.AffineCouplingBlock(param_map))
         # Swap dimensions
@@ -126,13 +134,25 @@ def make_flow3(n_parameters, device):
     nfm = nf.NormalizingFlow(q0=q0, flows=flows)
     return nfm.to(device)
 
+def make_flow4(n_parameters, device):
+    K = 16
+    torch.manual_seed(0)
+    flows = []
+    for i in range(K):
+        flows.append(nf.flows.MaskedAffineAutoregressive(n_parameters, 20, num_blocks=2))
+        flows.append(nf.flows.Permute(n_parameters, mode="swap"))
+    q0 = nf.distributions.DiagGaussian(n_parameters)
+    nfm = nf.NormalizingFlow(q0=q0, flows=flows)
+    return nfm.to(device)
+
 
 def make_prior(n_parameters, device):
-    means = torch.hstack((torch.tensor([-3.]), -0.25 * torch.ones(n_parameters-1)))
+    means = torch.hstack((torch.tensor([-3.]), 0.0 * torch.ones(n_parameters-1)))
+    #means = 0.0 * torch.ones(n_parameters)
     means = means.to(device)
     prior = torch.distributions.MultivariateNormal(
         means,
-        1.0 * torch.eye(n_parameters, device=device),
+        0.5 * torch.eye(n_parameters, device=device),
     )
     return prior
 
@@ -140,7 +160,8 @@ def make_prior(n_parameters, device):
 def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, device):
     torch.manual_seed(0)
     prior = make_prior(n_parameters, device)
-    estimator = make_flow3(n_parameters, device)
+    estimator = make_flow4(n_parameters, device)
+    #estimator.load_state_dict(torch.load("./london_1.pt"))
     optimizer = torch.optim.AdamW(estimator.parameters(), lr=1e-3)
     calibrator = Calibrator(
         model=model,
@@ -148,9 +169,9 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         prior=prior,
         data=true_data,
         optimizer=optimizer,
-        initialize_flow_to_prior=True,
+        initialize_flow_to_prior=False,
         n_samples_per_epoch=n_samples_per_epoch,
-        w=1e-3,
+        w=1e-4,
         n_samples_regularisation=10_000,
         forecast_loss=loss_fn,
         log_tensorboard=True,
@@ -191,7 +212,8 @@ if __name__ == "__main__":
     model = make_model(config_file, device)
     with torch.no_grad():
         true_data = model.run_and_observe(true_parameters)
-    np.savetxt("./true_data.txt", true_data[0].cpu().numpy())
+    to_save = np.array([data.cpu().numpy() for data in true_data])
+    np.savetxt("./true_data.txt", to_save)
     train_flow(
         model,
         true_data,

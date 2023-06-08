@@ -61,4 +61,18 @@ class June(Model):
 
     def observe(self, x):
         # return cumulative infections.
-        return [x[:, 2, :].sum(1)]
+        return [x[:,2,:].sum(1)]
+        #cases_by_age = self.get_cases_by_age(x).reshape(1,-1)
+        #return [cases_by_age[:,i] for i in range(self.runner.age_bins.shape[0]-1)]
+
+    def get_cases_by_age(self, x):
+        data = self.runner.data
+        age_bins = self.runner.age_bins
+        ret = torch.zeros(age_bins.shape[0] - 1, device=x.device)
+        for i in range(1, age_bins.shape[0]):
+            age_bin = age_bins[i]
+            mask1 = data["agent"].age < age_bins[i]
+            mask2 = data["agent"].age > age_bins[i - 1]
+            mask = mask1 * mask2
+            ret[i - 1] = (data["agent"].is_infected * mask).sum() / self.runner.population_by_age[age_bin.item()]
+        return ret

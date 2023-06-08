@@ -10,7 +10,7 @@ import sys
 sys.path.append("./experiments/gradient_horizon")
 from june import make_model, make_flow4, make_prior, true_parameters, _all_parameters, _all_no_seed_parameters
 
-device = "cpu"
+device = "cuda:1"
 n_parameters = len(true_parameters) 
 means = torch.tensor([-3.5] + list(-1.0 * np.ones(len(_all_parameters)-1)), dtype=torch.float, device=device)
 #means = torch.tensor(list(-1.0 * np.ones(len(_all_parameters)-1)), dtype=torch.float, device=device)
@@ -25,19 +25,22 @@ loss_fn = torch.nn.MSELoss()
 def run():
     config_file = "./examples/june_config.yaml"
     config = yaml.safe_load(open(config_file))
-    for days in [10, 50, 100, 300]:
-        config["timer"]["total_days"] = days
-        #config["data_path"] = "../gradabm-june/worlds/camden_leisure_1.pkl"
-        config["data_path"] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/camden_leisure_1.pkl"
-        config["system"]["device"] = device
-        model = June(config, _all_parameters)
-        true_data = model.run_and_observe(true_parameters)
-        compute_and_differentiate_forecast_loss(loss_fn=loss_fn,
+    days = 200
+    print("Initial allocation")
+    print(torch.cuda.memory_allocated(device)/ 1e6)
+    config["timer"]["total_days"] = days
+    #config["data_path"] = "../gradabm-june/worlds/camden_leisure_1.pkl"
+    config["data_path"] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/camden_leisure_1.pkl"
+    config["system"]["device"] = device
+    model = June(config, _all_parameters)
+    true_data = model.run_and_observe(true_parameters)
+    compute_and_differentiate_forecast_loss(loss_fn=loss_fn,
                                             model=model,
                                             posterior_estimator=flow,
-                                            n_samples = 5,
+                                            n_samples = 1,
                                             observed_outputs=true_data,
-                                            diff_mode="reverse",
+                                            diff_mode="forward",
+                                            device=device
                                            )
 
 run()

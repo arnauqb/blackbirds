@@ -112,13 +112,16 @@ class Calibrator:
         )
         # compute and differentiate regularisation loss
         if mpi_rank == 0:
-            regularisation_loss = self.w * compute_regularisation_loss(
-                posterior_estimator=self.posterior_estimator,
-                prior=self.prior,
-                n_samples=self.n_samples_regularisation,
-            )
-            # differentiate regularisation
-            regularisation_loss.backward()
+            if self.w != 0.0:
+                regularisation_loss = self.w * compute_regularisation_loss(
+                    posterior_estimator=self.posterior_estimator,
+                    prior=self.prior,
+                    n_samples=self.n_samples_regularisation,
+                )
+                # differentiate regularisation
+                regularisation_loss.backward()
+            else:
+                regularisation_loss = torch.zeros(1, device=forecast_loss.device)
             # clip gradients
             torch.nn.utils.clip_grad_norm_(
                 self.posterior_estimator.parameters(), self.gradient_clipping_norm
