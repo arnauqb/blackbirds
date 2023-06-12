@@ -184,6 +184,7 @@ class Calibrator:
         self.losses_hist = defaultdict(list)
         for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
+            print(list(self.posterior_estimator.parameters()))
             if mpi_rank == 0:
                 self.losses_hist["total"].append(loss.item())
                 self.losses_hist["forecast"].append(forecast_loss.item())

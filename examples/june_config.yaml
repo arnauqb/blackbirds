@@ -40,7 +40,7 @@ timer:
       0: 24
     weekend:
       0: 24
-  total_days: 50
+  total_days: 6
 
 networks:
   household:

@@ -191,7 +191,8 @@ def make_model(config_file, device):
     config["system"]["device"] = device
     config[
         "data_path"
-        ] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
+        #] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
+        ] = "/Users/arnull/code/gradabm-june/worlds/london_leisure_1.pkl"
     model = June(
         config,
         parameters_to_calibrate=_all_parameters, #("seed", "beta_household", "beta_company", "beta_school"),
