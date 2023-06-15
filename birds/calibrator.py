@@ -27,6 +27,7 @@ class Calibrator:
     - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
     - `w`: The weight of the regularisation loss in the total loss.
     - `initialize_flow_to_prior`: Whether to fit the posterior estimator to the prior before training the forecast term.
+    - `initialization_lr`: The learning rate to use for the initialization.
     - `gradient_clipping_norm`: The norm to which the gradients are clipped.
     - `forecast_loss`: The loss function to use for the forecast loss.
     - `optimizer`: The optimizer to use for training.
@@ -51,6 +52,7 @@ class Calibrator:
         data: List[torch.Tensor],
         w: float = 0.0,
         initialize_flow_to_prior: bool = False,
+        initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
         forecast_loss: Callable | None = None,
         optimizer: torch.optim.Optimizer | None = None,
@@ -72,6 +74,7 @@ class Calibrator:
         self.data = data
         self.w = w
         self.initialize_flow_to_prior = initialize_flow_to_prior
+        self.initialization_lr = initialization_lr
         self.gradient_clipping_norm = gradient_clipping_norm
         if forecast_loss is None:
             forecast_loss = torch.nn.MSELoss()
@@ -137,7 +140,9 @@ class Calibrator:
         """
         epoch = 0
         if mpi_rank == 0:
-            optimizer = torch.optim.Adam(self.posterior_estimator.parameters(), lr=1e-3)
+            optimizer = torch.optim.Adam(
+                self.posterior_estimator.parameters(), lr=self.initialization_lr
+            )
             best_loss = torch.tensor(np.inf)
             while True:
                 optimizer.zero_grad()
@@ -146,8 +151,8 @@ class Calibrator:
                     prior=self.prior,
                     n_samples=self.n_samples_regularisation,
                 )
-                self.writer.add_scalar("Loss/init_loss", loss, epoch)
-                # loss = self.posterior_estimator.forward_kld(self.prior.sample((self.n_samples_regularisation,)))
+                if self.log_tensorboard:
+                    self.writer.add_scalar("Loss/init_loss", loss, epoch)
                 loss.backward()
                 optimizer.step()
                 if loss < best_loss:
@@ -184,7 +189,6 @@ class Calibrator:
         self.losses_hist = defaultdict(list)
         for epoch in iterator:
             loss, forecast_loss, regularisation_loss = self.step()
-            print(list(self.posterior_estimator.parameters()))
             if mpi_rank == 0:
                 self.losses_hist["total"].append(loss.item())
                 self.losses_hist["forecast"].append(forecast_loss.item())
