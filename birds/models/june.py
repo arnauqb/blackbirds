@@ -48,18 +48,6 @@ class June(Model):
     def observe(self, x=None):
         return [self.cases_per_timestep[-1].reshape(1)]
 
-    def get_cases_by_age(self, x):
-        data = self.runner.data
-        age_bins = self.runner.age_bins
-        ret = torch.zeros(age_bins.shape[0] - 1, device=x.device)
-        for i in range(1, age_bins.shape[0]):
-            age_bin = age_bins[i]
-            mask1 = data["agent"].age < age_bins[i]
-            mask2 = data["agent"].age > age_bins[i - 1]
-            mask = mask1 * mask2
-            ret[i - 1] = (data["agent"].is_infected * mask).sum() / self.runner.population_by_age[age_bin.item()]
-        return ret
-
     def run_and_observe(self, params):
         self.initialize(params)
         observed_outputs = self.observe()
