@@ -13,27 +13,13 @@ class June(Model):
         self.n_timesteps = config["timer"]["total_days"]
 
     def get_x(self):
-        agent_data = self.runner.data["agent"]
-        x = agent_data["transmission"]
-        for key in ("susceptibility", "is_infected", "infection_time"):
-            x = torch.vstack((x, agent_data[key]))
-        for key in ("current_stage", "next_stage", "time_to_next_stage"):
-            x = torch.vstack((x, agent_data["symptoms"][key]))
-        return x
+        return None
 
     def set_x(self, x):
-        i = 0
-        agent_data = self.runner.data["agent"]
-        for key in ("transmission", "susceptibility", "is_infected", "infection_time"):
-            agent_data[key] = x[-1, i, :]
-            i += 1
-        for key in ("current_stage", "next_stage", "time_to_next_stage"):
-            agent_data["symptoms"][key] = x[-1, i, :]
-            i += 1
-        return x
+        return None
 
     def trim_time_series(self, x):
-        return x[-1:]
+        return None
 
     def initialize(self, params):
         self.runner.timer.reset()
@@ -42,8 +28,8 @@ class June(Model):
             seed = soft_minimum(torch.tensor(-0.1, device=params.device), params[0], 3)
             self.runner.log_fraction_initial_cases = seed
         self.runner.set_initial_cases()
-        x = self.get_x()
-        return x.reshape(1, 7, -1)
+        self.cases_per_timestep = self.runner.data["agent"].is_infected.sum().reshape(1)
+        return None
 
     def set_parameters(self, params):
         for i, param in enumerate(self.parameters_to_calibrate):
@@ -51,19 +37,16 @@ class June(Model):
                 name = "_".join(param.split("_")[1:])
                 self.runner.model.infection_networks.networks[name].log_beta = params[i]
 
-    def step(self, params, x):
+    def step(self, params, x=None):
         self.set_parameters(params)
-        self.set_x(x)
         next(self.runner.timer)
         self.runner.model(self.runner.data, self.runner.timer)
-        x = self.get_x()
-        return x.reshape(1, 7, -1)
+        cases = self.runner.data["agent"].is_infected.sum()
+        self.cases_per_timestep = torch.vstack((self.cases_per_timestep, cases))
+        return None
 
-    def observe(self, x):
-        # return cumulative infections.
-        return [x[:,2,:].sum(1)]
-        #cases_by_age = self.get_cases_by_age(x).reshape(1,-1)
-        #return [cases_by_age[:,i] for i in range(self.runner.age_bins.shape[0]-1)]
+    def observe(self, x=None):
+        return [self.cases_per_timestep[-1].reshape(1)]
 
     def get_cases_by_age(self, x):
         data = self.runner.data
@@ -76,3 +59,20 @@ class June(Model):
             mask = mask1 * mask2
             ret[i - 1] = (data["agent"].is_infected * mask).sum() / self.runner.population_by_age[age_bin.item()]
         return ret
+
+    def run_and_observe(self, params):
+        self.initialize(params)
+        observed_outputs = self.observe()
+        for _ in range(self.n_timesteps):
+            self(params, None)
+            observed_outputs = [
+                torch.cat((observed_output, output))
+                for observed_output, output in zip(observed_outputs, self.observe())
+            ]
+        return observed_outputs
+
+    def detach_gradient_horizon(self, time_series, gradient_horizon):
+        for prop in ("transmission", "susceptibility", "is_infected", "infection_time"):
+            getattr(self.runner.data["agent"], prop).detach_()
+        for prop in ("current_stage", "next_stage", "time_to_next_stage"):
+            getattr(self.runner.data["agent"].symptoms, prop).detach_()

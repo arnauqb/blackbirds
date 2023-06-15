@@ -32,9 +32,6 @@ _all_parameters = ["seed"] + _all_no_seed_parameters
 
 true_parameters = torch.tensor([-3.5, 0.6, 0.4, 0.4, 0.4, 0.1, 0.1, 0.1, 0.1, 0.1, 0.6])
 assert len(true_parameters) == len(_all_parameters)
-#true_parameters = 0.35 * torch.ones(len(_all_no_seed_parameters))#torch.tensor([0.9, 0.3, 0.6])
-#true_parameters = torch.hstack((torch.tensor([-3.5]), true_parameters))
-#true_parameters = torch.tensor([-3.5, 0.9, 0.3, 0.6])
 
 class MMDLoss:
     def __init__(self, y):
@@ -178,7 +175,7 @@ def train_flow(model, true_data, n_epochs, n_samples_per_epoch, n_parameters, de
         gradient_estimation_method="pathwise",
         gradient_horizon=0,
         gradient_clipping_norm=1.0,
-        diff_mode="forward",
+        diff_mode="reverse",
         device=device,
         jacobian_chunk_size=None,
     )
@@ -192,10 +189,10 @@ def make_model(config_file, device):
     config[
         "data_path"
         #] = "/cosma7/data/dp004/dc-quer1/gradabm_june_graphs/london_leisure_1.pkl"
-        ] = "/Users/arnull/code/gradabm-june/worlds/london_leisure_1.pkl"
+        ] = "/Users/arnull/code/gradabm-june/worlds/camden_leisure_1.pkl"
     model = June(
         config,
-        parameters_to_calibrate=_all_parameters, #("seed", "beta_household", "beta_company", "beta_school"),
+        parameters_to_calibrate=_all_parameters,
     )
     return model
 

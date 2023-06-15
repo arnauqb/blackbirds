@@ -44,3 +44,20 @@ class Model(ABC):
             ]
             time_series = torch.cat((time_series, x))
         return observed_outputs
+
+    def detach_gradient_horizon(self, time_series, gradient_horizon):
+        """
+        Detaches time-steps previous to `gradient_horizon`.
+        """
+        # detach past time-steps from the computational graph
+        no_gradient_time_series = time_series[
+            : len(time_series) - gradient_horizon
+        ].detach()
+        # stack with the last gradient_horizon time-steps
+        time_series = torch.cat(
+            (
+                no_gradient_time_series,
+                time_series[len(time_series) - gradient_horizon :],
+            )
+        )
+        return time_series

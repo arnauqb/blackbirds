@@ -36,17 +36,7 @@ def simulate_and_observe_model(
         )  # gets past time-steps needed to compute the next one.
         # only consider the past gradient_horizon time-steps to calculate the gradient
         if t > gradient_horizon:
-            # detach past time-steps from the computational graph
-            no_gradient_time_series = time_series[
-                : len(time_series) - gradient_horizon
-            ].detach()
-            # stack with the last gradient_horizon time-steps
-            time_series = torch.cat(
-                (
-                    no_gradient_time_series,
-                    time_series[len(time_series) - gradient_horizon :],
-                )
-            )
+            time_series = model.detach_gradient_horizon(time_series, gradient_horizon)
         x = model(params, time_series)
         observed_outputs = [
             torch.cat((observed_output, output))
