@@ -12,9 +12,6 @@ class Model(ABC):
     def step(self, params, x):
         pass
 
-    def __call__(self, params, x):
-        return self.step(params, x)
-
     @abstractmethod
     def observe(self, x):
         pass
@@ -22,6 +19,9 @@ class Model(ABC):
     @abstractmethod
     def trim_time_series(self, time_series):
         pass
+
+    def __call__(self, params, x):
+        return self.step(params, x)
 
     def run(self, params):
         x = self.initialize(params)

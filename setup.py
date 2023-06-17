@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages, Extension
-from setuptools.command.install import install
-import subprocess
-import os
+from setuptools import setup, find_packages
 from os.path import abspath, dirname, join
 
 this_dir = abspath(dirname(__file__))
@@ -19,7 +16,7 @@ with open(join(this_dir, "requirements.txt")) as f:
 setup(
     name="birds",
     version="0.1.0",
-    description="Bayesian inference for differentiable simulators",
+    description="Bayesian inference for differentiable simulators.",
     url="https://github.com/arnauqb/birds",
     long_description_content_type="text/markdown",
     long_description=long_description,
