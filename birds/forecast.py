@@ -307,6 +307,8 @@ def compute_and_differentiate_forecast_loss_score(
         to_backprop = to_backprop / n_samples_non_nan
         total_loss = total_loss / n_samples_non_nan
         # differentiate through the posterior estimator
+        print("Final allocation")
+        print(torch.cuda.memory_allocated(device)/ 1e6)
         to_backprop.backward()
         return total_loss
     return None

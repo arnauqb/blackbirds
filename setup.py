@@ -14,7 +14,7 @@ with open(join(this_dir, "requirements.txt")) as f:
 
 
 setup(
-    name="birds",
+    name="birdspy",
     version="0.1.0",
     description="Bayesian inference for differentiable simulators.",
     url="https://github.com/arnauqb/birds",
