@@ -389,24 +389,19 @@ symptoms:
   - critical
   - dead
 transmission:
-  base:
-    max_infectiousness:
-      dist: LogNormal
-      loc: 0.0
-      scale: 0.5
-    rate:
-      dist: Normal
-      loc: 0.53
-      scale: 0.03
-    shape:
-      dist: Normal
-      loc: 1.56
-      scale: 0.08
-    shift:
-      dist: Normal
-      loc: -2.12
-      scale: 0.1
-    shift:
-      dist: Normal
-      loc: -2.12
-      scale: 0.1
+  max_infectiousness:
+    dist: LogNormal
+    loc: 0.0
+    scale: 0.5
+  rate:
+    dist: Normal
+    loc: 0.53
+    scale: 0.03
+  shape:
+    dist: Normal
+    loc: 1.56
+    scale: 0.08
+  shift:
+    dist: Normal
+    loc: -2.12
+    scale: 0.1

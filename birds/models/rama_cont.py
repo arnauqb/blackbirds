@@ -30,7 +30,7 @@ class RamaCont(Model):
         eta = params[3]
         returns = self.compute_returns(order, eta) * torch.ones(self.n_agents)
         x = torch.vstack((nu_0, epsilon_t, returns))
-        return x.reshape(1, 3, self.n_agents)
+        return x.view(1, 3, self.n_agents)
 
     def step(self, params, x):
         # draw epsilon_t from normal distribution
@@ -51,7 +51,7 @@ class RamaCont(Model):
                 returns * torch.ones(self.n_agents),
             )
         )
-        return x.reshape(1, 3, self.n_agents)
+        return x.view(1, 3, self.n_agents)
 
     def observe(self, x):
         return [x[:, 2, 0]]

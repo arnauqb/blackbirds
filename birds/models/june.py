@@ -63,4 +63,4 @@ class June(Model):
         for prop in ("transmission", "susceptibility", "is_infected", "infection_time"):
             getattr(self.runner.data["agent"], prop).detach_()
         for prop in ("current_stage", "next_stage", "time_to_next_stage"):
-            getattr(self.runner.data["agent"].symptoms, prop).detach_()
+            self.runner.data["agent"].symptoms[prop].detach_()

@@ -42,7 +42,8 @@ def simulate_and_observe_model(
             torch.cat((observed_output, output))
             for observed_output, output in zip(observed_outputs, model.observe(x))
         ]
-        time_series = torch.cat((time_series, x))
+        if time_series is not None:
+            time_series = torch.cat((time_series, x))
     return observed_outputs
 
 
@@ -307,13 +308,11 @@ def compute_and_differentiate_forecast_loss_score(
         to_backprop = to_backprop / n_samples_non_nan
         total_loss = total_loss / n_samples_non_nan
         # differentiate through the posterior estimator
-        print("Final allocation")
-        print(torch.cuda.memory_allocated(device)/ 1e6)
         to_backprop.backward()
         return total_loss
     return None
 
-
+#@profile
 def compute_and_differentiate_forecast_loss(
     loss_fn: Callable,
     model: torch.nn.Module,
