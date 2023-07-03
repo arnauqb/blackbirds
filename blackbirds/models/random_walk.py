@@ -36,10 +36,13 @@ class RandomWalk(Model):
 
         **Arguments:**
 
-        - params: a tensor of shape (1,) containing the probability of moving forward at each timestep.
+        - params: a tensor of shape (1,) containing the logit probability of moving forward at each timestep.
         - x: a tensor of shape (n,) containing the time-series of positions.
+
+        !!! danger 
+        probability is given in logit, so the input is transformed using the sigmoid function. 
         """
-        p = torch.clip(params, min=0.0, max=1.0)
+        p = torch.sigmoid(params)
         logits = torch.vstack((p, 1 - p)).log()
         step = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True
