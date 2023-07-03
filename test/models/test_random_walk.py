@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from birds.models.random_walk import RandomWalk
+from blackbirds.models.random_walk import RandomWalk
 
 
 class TestRandomWalk:
@@ -8,7 +8,8 @@ class TestRandomWalk:
         n_timesteps = 1000
         rw = RandomWalk(n_timesteps)
         assert rw.n_timesteps == n_timesteps
-        x = rw.run(torch.tensor(0.3))
+        logit_p = torch.logit(torch.tensor(0.3))
+        x = rw.run(logit_p)
         assert x.shape == (n_timesteps + 1, 1)
         trajectory = rw.observe(x)[0]
         avg_steps_forward = 0.3 * n_timesteps

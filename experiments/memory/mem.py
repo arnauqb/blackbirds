@@ -1,6 +1,6 @@
-from birds.forecast import compute_and_differentiate_forecast_loss
-from birds.models.june import June
-from birds.posterior_estimators import TrainableGaussian
+from blackbirds.forecast import compute_and_differentiate_forecast_loss
+from blackbirds.models.june import June
+from blackbirds.posterior_estimators import TrainableGaussian
 from memory_profiler import profile
 import torch
 import numpy as np

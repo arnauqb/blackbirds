@@ -1,7 +1,7 @@
 import torch
 
-from birds.models.model import Model
-from birds.utils import soft_maximum, soft_minimum
+from blackbirds.models.model import Model
+from blackbirds.utils import soft_maximum, soft_minimum
 
 
 class BrockHommes(Model):
@@ -37,7 +37,7 @@ class BrockHommes(Model):
         - `x`: The current state of the model.
 
         !!! danger
-        beta, sigma, and r are given in log.
+            beta, sigma, and r are given in log.
         """
         beta = torch.exp(params[0])
         g = params[1:5]

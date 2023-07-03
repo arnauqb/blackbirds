@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import networkx
 
-from birds.models.sir import SIR
+from blackbirds.models.sir import SIR
 
 
 class TestSIR:

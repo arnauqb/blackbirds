@@ -1,6 +1,6 @@
 import torch
 
-from birds.posterior_estimators import TrainableGaussian
+from blackbirds.posterior_estimators import TrainableGaussian
 
 
 class TestTrainableGaussian:

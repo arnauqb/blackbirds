@@ -17,7 +17,7 @@ def compute_regularisation_loss(posterior_estimator, prior, n_samples):
     !!! example
         ```python
             import torch
-            from birds.regularisation import compute_regularisation
+            from blackbirds.regularisation import compute_regularisation
             # define two normal distributions
             dist1 = torch.distributions.Normal(0, 1)
             dist2 = torch.distributions.Normal(0, 1)

@@ -1,6 +1,6 @@
 import torch
 
-from birds.models.model import Model
+from blackbirds.models.model import Model
 
 
 class RandomWalk(Model):
@@ -17,9 +17,10 @@ class RandomWalk(Model):
         \eta \sim \text{Bernoulli}(p).
         $$
 
-        Arguments:
-            n_timesteps (int): Number of timesteps to simulate.
-            tau_softmax (float): Temperature parameter for the Gumbel-Softmax
+        **Arguments**:
+
+        - `n_timesteps` (int): Number of timesteps to simulate.
+        - `tau_softmax` (float): Temperature parameter for the Gumbel-Softmax
         """
         super().__init__()
         self.n_timesteps = n_timesteps
@@ -36,10 +37,13 @@ class RandomWalk(Model):
 
         **Arguments:**
 
-        - params: a tensor of shape (1,) containing the probability of moving forward at each timestep.
+        - params: a tensor of shape (1,) containing the logit probability of moving forward at each timestep.
         - x: a tensor of shape (n,) containing the time-series of positions.
+
+        !!! danger 
+            probability is given in logit, so the input is transformed using the sigmoid function. 
         """
-        p = torch.clip(params, min=0.0, max=1.0)
+        p = torch.sigmoid(params)
         logits = torch.vstack((p, 1 - p)).log()
         step = torch.nn.functional.gumbel_softmax(
             logits, dim=0, tau=self.tau_softmax, hard=True
