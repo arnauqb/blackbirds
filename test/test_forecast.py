@@ -2,13 +2,13 @@ import numpy as np
 import torch
 import pytest
 
-from birds.forecast import (
+from blackbirds.forecast import (
     simulate_and_observe_model,
     compute_loss,
     compute_forecast_loss_and_jacobian_pathwise,
     compute_and_differentiate_forecast_loss,
 )
-from birds.models.model import Model
+from blackbirds.models.model import Model
 
 
 class MockPosteriorEstimator(torch.nn.Module):

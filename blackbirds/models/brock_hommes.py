@@ -1,7 +1,7 @@
 import torch
 
-from birds.models.model import Model
-from birds.utils import soft_maximum, soft_minimum
+from blackbirds.models.model import Model
+from blackbirds.utils import soft_maximum, soft_minimum
 
 
 class BrockHommes(Model):

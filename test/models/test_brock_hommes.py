@@ -1,6 +1,6 @@
 import torch
 
-from birds.models.brock_hommes import BrockHommes
+from blackbirds.models.brock_hommes import BrockHommes
 
 
 class TestBrockHomes:

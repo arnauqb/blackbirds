@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from birds.models.random_walk import RandomWalk
+from blackbirds.models.random_walk import RandomWalk
 
 
 class TestRandomWalk:

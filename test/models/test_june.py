@@ -2,7 +2,7 @@ import yaml
 import torch
 
 from grad_june.paths import default_config_path
-from birds.models.june import June
+from blackbirds.models.june import June
 
 class TestJune:
     def test__run(self):

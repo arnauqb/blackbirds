@@ -7,10 +7,10 @@ import logging
 from collections import defaultdict
 from typing import Callable, List
 
-from birds.mpi_setup import mpi_rank
-from birds.models.model import Model
-from birds.regularisation import compute_regularisation_loss
-from birds.forecast import compute_and_differentiate_forecast_loss
+from blackbirds.mpi_setup import mpi_rank
+from blackbirds.models.model import Model
+from blackbirds.regularisation import compute_regularisation_loss
+from blackbirds.forecast import compute_and_differentiate_forecast_loss
 
 logger = logging.getLogger("calibrator")
 

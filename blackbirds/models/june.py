@@ -1,8 +1,8 @@
 import torch
 from grad_june import Runner
 
-from birds.models.model import Model
-from birds.utils import soft_minimum
+from blackbirds.models.model import Model
+from blackbirds.utils import soft_minimum
 
 
 class June(Model):

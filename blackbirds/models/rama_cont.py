@@ -1,6 +1,6 @@
 import torch
 
-from birds.models.model import Model
+from blackbirds.models.model import Model
 
 
 class RamaCont(Model):

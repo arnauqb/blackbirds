@@ -3,10 +3,10 @@ import pytest
 import numpy as np
 import normflows as nf
 
-from birds.models.random_walk import RandomWalk
-from birds.calibrator import Calibrator 
-from birds.regularisation import compute_regularisation_loss
-from birds.posterior_estimators import TrainableGaussian
+from blackbirds.models.random_walk import RandomWalk
+from blackbirds.calibrator import Calibrator 
+from blackbirds.regularisation import compute_regularisation_loss
+from blackbirds.posterior_estimators import TrainableGaussian
 
 def make_flow(n_parameters):
     K = 4

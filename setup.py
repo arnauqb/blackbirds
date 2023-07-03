@@ -14,10 +14,10 @@ with open(join(this_dir, "requirements.txt")) as f:
 
 
 setup(
-    name="birds",
+    name="blackbirds",
     version="0.1.0",
     description="Bayesian inference for differentiable simulators.",
-    url="https://github.com/arnauqb/birds",
+    url="https://github.com/arnauqb/blackbirds",
     long_description_content_type="text/markdown",
     long_description=long_description,
     author="Ayush Chopra and Joel Dyer and Arnau Quera-Bofarull",
