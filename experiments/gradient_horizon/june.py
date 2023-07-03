@@ -1,5 +1,5 @@
 """
-This scripts shows how to run BIRDS in parallel using MPI4PY.
+This scripts shows how to run blackbirds in parallel using MPI4PY.
 The parallelization is done across the number of parameters that are sampled
 in each epoch from the posterior candidate.
 
@@ -11,9 +11,9 @@ import yaml
 import normflows as nf
 import numpy as np
 
-from birds.models.june import June
-from birds.calibrator import Calibrator
-from birds.mpi_setup import mpi_rank
+from blackbirds.models.june import June
+from blackbirds.calibrator import Calibrator
+from blackbirds.mpi_setup import mpi_rank
 
 _all_no_seed_parameters = [
     "beta_household",

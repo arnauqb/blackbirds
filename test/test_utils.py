@@ -1,6 +1,6 @@
 import torch
 
-from birds.utils import soft_minimum, soft_maximum
+from blackbirds.utils import soft_minimum, soft_maximum
 
 
 class TestSoftMaximum:

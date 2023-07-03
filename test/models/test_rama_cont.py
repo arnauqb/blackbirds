@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from birds.models.rama_cont import RamaCont
+from blackbirds.models.rama_cont import RamaCont
 
 
 class TestRamaCont:

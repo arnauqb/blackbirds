@@ -1,14 +1,14 @@
 import torch
 
-from birds.models.model import Model
+from blackbirds.models.model import Model
 
 
 class RamaCont(Model):
     def __init__(self, n_agents, n_timesteps, s, sigmoid_k):
-        """
+        r"""
         Implementation of the Rama Cont model from Rama Cont (2005).
 
-        **Arguments**
+        **Arguments:**
 
         - `n_agents`: Number of agents
         - `n_timesteps`: Number of timesteps

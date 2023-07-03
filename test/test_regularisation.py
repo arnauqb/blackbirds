@@ -1,7 +1,7 @@
 import numpy as np
 
-from birds.regularisation import compute_regularisation_loss
-from birds.posterior_estimators import TrainableGaussian
+from blackbirds.regularisation import compute_regularisation_loss
+from blackbirds.posterior_estimators import TrainableGaussian
 
 
 class TestRegularisation:

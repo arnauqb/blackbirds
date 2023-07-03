@@ -2,8 +2,8 @@ import torch
 import networkx
 import torch_geometric
 
-from birds.utils import soft_minimum, soft_maximum
-from birds.models import Model
+from blackbirds.utils import soft_minimum, soft_maximum
+from blackbirds.models import Model
 
 
 class SIR(Model):

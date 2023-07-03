@@ -94,3 +94,5 @@ nav:
     - Models:
       - api/models/random_walk.md
       - api/models/sir.md
+      - api/models/brock_hommes.md
+      - api/models/rama_cont.md

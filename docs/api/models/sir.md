@@ -1,4 +1,4 @@
 # SIR
 
-:::birds.models.sir
+:::blackbirds.models.sir
 

@@ -1,3 +1,3 @@
 # Random Walk
 
-:::birds.models.random_walk
+:::blackbirds.models.random_walk

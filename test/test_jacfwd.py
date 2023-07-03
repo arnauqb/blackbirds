@@ -1,4 +1,4 @@
-from birds.jacfwd import jacfwd
+from blackbirds.jacfwd import jacfwd
 from torch.func import jacrev
 import torch
 

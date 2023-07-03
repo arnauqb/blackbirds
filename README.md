@@ -8,5 +8,5 @@
 The easiest way to install Birds is to install it from the PyPI repository
 
 ```
-pip install birds
+pip install blackbirds
 ```

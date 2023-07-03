@@ -4,8 +4,8 @@ import warnings
 from typing import Callable
 from itertools import chain
 
-from birds.mpi_setup import mpi_size, mpi_rank, mpi_comm
-from birds.jacfwd import jacfwd
+from blackbirds.mpi_setup import mpi_size, mpi_rank, mpi_comm
+from blackbirds.jacfwd import jacfwd
 
 
 def simulate_and_observe_model(
