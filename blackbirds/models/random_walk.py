@@ -17,9 +17,10 @@ class RandomWalk(Model):
         \eta \sim \text{Bernoulli}(p).
         $$
 
-        Arguments:
-            n_timesteps (int): Number of timesteps to simulate.
-            tau_softmax (float): Temperature parameter for the Gumbel-Softmax
+        **Arguments**:
+
+        - `n_timesteps` (int): Number of timesteps to simulate.
+        - `tau_softmax` (float): Temperature parameter for the Gumbel-Softmax
         """
         super().__init__()
         self.n_timesteps = n_timesteps
@@ -40,7 +41,7 @@ class RandomWalk(Model):
         - x: a tensor of shape (n,) containing the time-series of positions.
 
         !!! danger 
-        probability is given in logit, so the input is transformed using the sigmoid function. 
+            probability is given in logit, so the input is transformed using the sigmoid function. 
         """
         p = torch.sigmoid(params)
         logits = torch.vstack((p, 1 - p)).log()

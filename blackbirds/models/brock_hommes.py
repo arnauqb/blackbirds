@@ -37,7 +37,7 @@ class BrockHommes(Model):
         - `x`: The current state of the model.
 
         !!! danger
-        beta, sigma, and r are given in log.
+            beta, sigma, and r are given in log.
         """
         beta = torch.exp(params[0])
         g = params[1:5]
