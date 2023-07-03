@@ -10,3 +10,11 @@ The easiest way to install Birds is to install it from the PyPI repository
 ```
 pip install blackbirds
 ```
+
+# 2. Usage
+
+Refer to the [docs](https://arnau.ai/blackbirds) for examples and specific API usage.
+
+# 3. Citation
+
+TODO.
