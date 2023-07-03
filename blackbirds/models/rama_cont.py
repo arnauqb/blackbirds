@@ -65,6 +65,9 @@ class RamaCont(Model):
         return (epsilon_t > nu_t).float() - (epsilon_t < -nu_t).float()
 
     def compute_order(self, epsilon_t, nu_t):
+        """
+        We do a trick similar to the gumbel-softmax.
+        """
         soft = self.compute_order_soft(epsilon_t, nu_t)
         return self.compute_order_hard(epsilon_t, nu_t) + soft - soft.detach()
 
