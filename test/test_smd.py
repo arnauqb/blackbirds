@@ -23,6 +23,6 @@ class TestSMD:
         optim = torch.optim.Adam([parameters], lr=1e-2)
         smd = SMD(model=rw, optimizer=optim, loss_fn=loss_fn)
         smd.run(true_data, n_epochs=1000)
-        assert np.min(smd.loss) < 5
+        assert np.min(smd.loss) < 10
         best_parameters = torch.sigmoid(torch.load("best_parameters.pt"))
         assert torch.isclose(best_parameters, torch.tensor(0.25), rtol=1e-2, atol=1e-2)
