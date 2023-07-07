@@ -85,10 +85,12 @@ nav:
     - examples/01-random_walk.ipynb
     - examples/02-SIR.ipynb
     - examples/03-brock_hommes.ipynb
+    - examples/05-brock_hommes.ipynb
     - examples/score_vs_pathwise_gradient.ipynb
     - examples/gpu_parallelisation.py
   - API:
     - api/calibrator.md
+    - api/smd.md
     - api/forecast.md
     - api/regularisation.md
     - Models:

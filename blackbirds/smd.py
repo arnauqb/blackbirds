@@ -1,11 +1,12 @@
 import torch
 import numpy as np
+from tqdm import tqdm
 
 from blackbirds.forecast import simulate_and_observe_model
 
 
 class SMD:
-    def __init__(self, model, loss_fn, optimizer, gradient_horizon=None):
+    def __init__(self, model, loss_fn, optimizer, gradient_horizon=None, progress_bar = False):
         """
         Simulated Minimum Distance. Finds the point in parameter space that
         minimizes the distance between the model's output and the observed
@@ -17,11 +18,13 @@ class SMD:
         - `loss_fn`: A loss function taking (x,y) arguments, where y is the data and x the simulated value.
         - `optimizer`: A PyTorch optimizer (eg Adam)
         - `gradient_horizon`: The number of steps to look ahead when computing the gradient. If None, defaults to the number of parameters.
+        - `progress_bar`: Whether to display a progress bar.
         """
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.gradient_horizon = gradient_horizon
+        self.progress_bar = progress_bar
         self.loss = []
 
     def run(
@@ -43,7 +46,11 @@ class SMD:
         """
         best_loss = np.inf
         epochs_without_improvement = 0
-        for _ in range(n_epochs):
+        if self.progress_bar:
+            iterator = tqdm(range(n_epochs))
+        else:
+            iterator = range(n_epochs)
+        for _ in iterator:
             self.optimizer.zero_grad()
             parameters = self.optimizer.param_groups[0]["params"][0]
             simulated = simulate_and_observe_model(
@@ -59,6 +66,15 @@ class SMD:
                 torch.save(parameters, parameters_save_dir)
             else:
                 epochs_without_improvement += 1
+            if self.progress_bar:
+                iterator.set_postfix(
+                    {
+                        "loss": loss.item(),
+                        "best loss": best_loss,
+                        "epochs since improv.": epochs_without_improvement,
+                    }
+                )
+
             if epochs_without_improvement >= max_epochs_without_improvement:
                 break
             self.optimizer.step()
