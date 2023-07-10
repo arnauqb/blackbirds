@@ -61,7 +61,7 @@ class Calibrator:
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
         jacobian_chunk_size: int | None = None,
-        gradient_horizon: int = 0,
+        gradient_horizon: int | float = np.inf,
         device: str = "cpu",
         progress_bar: bool = True,
         progress_info: bool = True,

@@ -4,10 +4,11 @@ import warnings
 from typing import Callable
 from itertools import chain
 
-from blackbirds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 from blackbirds.jacfwd import jacfwd
+from blackbirds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 
 
+# todo: move this somewhere else.
 def simulate_and_observe_model(
     model: torch.nn.Module,
     params: torch.Tensor,
