@@ -36,7 +36,7 @@ class MALA:
         gradient_clipping_norm: float = np.inf,
         diff_mode: str = "reverse",
         jacobian_chunk_size: int | None = None,
-        gradient_horizon: int = 0,
+        gradient_horizon: int = np.inf,
         device: str = 'cpu',
         discretisation_method: str = "e-m"
     ):
