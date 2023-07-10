@@ -49,7 +49,6 @@ class MALA:
         self.device = device
         self.discretisation_method = discretisation_method
         self._dim = self._verify_dim()
-        self._eye = torch.eye(self._dim)
         self._previous_log_density = None
         self._previous_grad_theta_of_log_density = None
         self._proposal = None
@@ -96,7 +95,7 @@ class MALA:
         """
 
         if covariance is None:
-            covariance = self._eye
+            covariance = torch.eye(self._dim)
         sC = scale * covariance
         if self._previous_log_density is None:
             # This would happen if the user hasn't initialised the chain themselves
