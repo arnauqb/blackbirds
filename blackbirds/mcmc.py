@@ -60,26 +60,18 @@ class MALA:
         """
         return self.prior.sample((1,)).shape[-1]
 
-
-    def _compute_log_density_and_grad(self,
-        data,
+    def _compute_log_density_and_grad(self, 
+        data, 
         state
     ):
-
-        _state = state.clone()
+        _state = state.clone().detach()
         _state.requires_grad = True
         ell = self.forecast_loss(data, _state)
         log_prior_pdf = self.prior.log_prob(_state)
         log_density = - ell + log_prior_pdf * self.w
-        grad_theta_of_log_density = autograd.grad(log_density, _state)
-        # Clip gradients if desired
-        if self.gradient_clipping_norm < np.inf:
-            total_norm = torch.linalg.vector_norm(grad_theta_of_log_density[0])
-            if total_norm > self.gradient_clipping_norm:
-                grad_theta_of_log_density = (grad_theta_of_log_density[0] * self.gradient_clipping_norm / total_norm,)
-                assert torch.isclose(torch.linalg.vector_norm(grad_theta_of_log_density[0]),
-                                     torch.Tensor([self.gradient_clipping_norm]))
-        return log_density.detach(), grad_theta_of_log_density
+        log_density.backward()
+        torch.nn.utils.clip_grad_norm_([_state], self.gradient_clipping_norm)
+        return log_density.detach(), _state.grad
 
     def initialise_chain(self,
         data,
