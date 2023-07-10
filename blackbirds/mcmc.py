@@ -72,8 +72,15 @@ class MALA:
         _state.requires_grad = True
         ell = self.forecast_loss(data, _state)
         log_prior_pdf = self.prior.log_prob(_state)
-        log_density = - self.w * ell + log_prior_pdf 
+        log_density = - ell + log_prior_pdf * self.w
         grad_theta_of_log_density = autograd.grad(log_density, _state)
+        # Clip gradients if desired
+        if self.gradient_clipping_norm < np.inf:
+            total_norm = torch.linalg.vector_norm(grad_theta_of_log_density[0])
+            if total_norm > self.gradient_clipping_norm:
+                grad_theta_of_log_density = (grad_theta_of_log_density[0] * self.gradient_clipping_norm / total_norm,)
+                assert torch.isclose(torch.linalg.vector_norm(grad_theta_of_log_density[0]),
+                                     torch.Tensor([self.gradient_clipping_norm]))
         return log_density.detach(), grad_theta_of_log_density
 
     def initialise_chain(self,
@@ -112,7 +119,8 @@ class MALA:
                 gradient_term = torch.matmul(sC, self._previous_grad_theta_of_log_density[0])
                 mean = current_state + gradient_term
                 if verbose:
-                    print(mean, gradient_term)
+                    print("Total mean =", mean)
+                    print("Gradient_term =", gradient_term)
                 proposal = MVN(mean,
                            covariance_matrix = 2 * sC)
                 self._proposal = proposal
@@ -126,14 +134,23 @@ class MALA:
         log_alpha = torch.log(torch.rand((1,))[0])
         # Compute reverse proposal logpdf
         if self.discretisation_method == 'e-m':
-            rev_proposal = MVN(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
-                       covariance_matrix = 2 * sC)
+            try:
+                rev_proposal = MVN(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
+                           covariance_matrix = 2 * sC)
+            except ValueError as e:
+                if verbose:
+                    print(new_state, grad_theta_of_new_log_density)
+                raise e
         else:
             raise NotImplementedError("Discretisation method not yet implemented")
         log_accept_prob = new_log_density + rev_proposal.log_prob(current_state) - self._previous_log_density - self._proposal.log_prob(new_state)
         if verbose:
-            print(current_state, new_state)
-            print(log_accept_prob, new_log_density, rev_proposal.log_prob(current_state), self._previous_log_density, self._proposal.log_prob(new_state))
+            print("Current, new:", current_state, new_state)
+            print("Lalpha", log_accept_prob.item(), " = ", 
+                    new_log_density.item(), "+", 
+                    rev_proposal.log_prob(current_state).item(), "-",
+                    self._previous_log_density.item(), "-",
+                    self._proposal.log_prob(new_state).item())
             print()
         accept = log_alpha < log_accept_prob
         if accept:
@@ -179,7 +196,7 @@ class MCMC:
             initial_state, 
             *args, 
             seed=0,
-            T=1000,
+            T=1,
             **kwargs):
 
         if not seed is None:
