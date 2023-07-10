@@ -92,7 +92,6 @@ class MALA:
         self._previous_log_density = log_density
         self._previous_grad_theta_of_log_density = grad_theta_of_log_density
         self._proposal = None
-        return self._previous_log_density, self._previous_grad_theta_of_log_density
 
     def step(self,
         data,
@@ -112,7 +111,7 @@ class MALA:
         sC = scale * covariance
         if self._previous_log_density is None:
             # This would happen if the user hasn't initialised the chain themselves
-            out = self.initialise_chain(data, current_state)
+            self.initialise_chain(data, current_state)
         if self.discretisation_method == 'e-m':
             if self._proposal is None:
                 # This would happen if the user hasn't initialised the chain themselves
