@@ -9,8 +9,6 @@ from blackbirds.models.model import Model
 
 logger = logging.getLogger("mcmc")
 
-MVN = torch.distributions.multivariate_normal.MultivariateNormal
-
 class MALA:
     """
     Class that generates a step in the chain of a Metropolis-Adjusted Langevin Algorithm run.
@@ -118,7 +116,7 @@ class MALA:
                 mean = current_state + gradient_term
                 logger.debug("Total mean =", mean)
                 logger.debug("Gradient_term =", gradient_term)
-                proposal = MVN(mean,
+                proposal = torch.distributions.multivariate_normal.MultivariateNormal(mean,
                            covariance_matrix = 2 * sC)
                 self._proposal = proposal
             new_state = self._proposal.sample()
@@ -132,7 +130,7 @@ class MALA:
         # Compute reverse proposal logpdf
         if self.discretisation_method == 'e-m':
             try:
-                rev_proposal = MVN(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
+                rev_proposal = torch.distributions.multivariate_normal.MultivariateNormal(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
                            covariance_matrix = 2 * sC)
             except ValueError as e:
                 logger.debug(new_state, grad_theta_of_new_log_density)
