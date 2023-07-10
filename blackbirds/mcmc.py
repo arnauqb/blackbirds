@@ -98,7 +98,6 @@ class MALA:
         current_state, 
         scale: float = 1., 
         covariance: torch.Tensor | None = None,
-        verbose: bool = False,
     ):
 
         """
@@ -117,9 +116,8 @@ class MALA:
                 # This would happen if the user hasn't initialised the chain themselves
                 gradient_term = torch.matmul(sC, self._previous_grad_theta_of_log_density[0])
                 mean = current_state + gradient_term
-                if verbose:
-                    logger.debug("Total mean =", mean)
-                    logger.debug("Gradient_term =", gradient_term)
+                logger.debug("Total mean =", mean)
+                logger.debug("Gradient_term =", gradient_term)
                 proposal = MVN(mean,
                            covariance_matrix = 2 * sC)
                 self._proposal = proposal
@@ -137,20 +135,18 @@ class MALA:
                 rev_proposal = MVN(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
                            covariance_matrix = 2 * sC)
             except ValueError as e:
-                if verbose:
-                    logger.debug(new_state, grad_theta_of_new_log_density)
+                logger.debug(new_state, grad_theta_of_new_log_density)
                 raise e
         else:
             raise NotImplementedError("Discretisation method not yet implemented")
         log_accept_prob = new_log_density + rev_proposal.log_prob(current_state) - self._previous_log_density - self._proposal.log_prob(new_state)
-        if verbose:
-            logger.debug("Current, new:", current_state, new_state)
-            logger.debug("Lalpha", log_accept_prob.item(), " = ", 
-                    new_log_density.item(), "+", 
-                    rev_proposal.log_prob(current_state).item(), "-",
-                    self._previous_log_density.item(), "-",
-                    self._proposal.log_prob(new_state).item())
-            logger.debug("")
+        logger.debug("Current, new:", current_state, new_state)
+        logger.debug("Lalpha", log_accept_prob.item(), " = ", 
+                new_log_density.item(), "+", 
+                rev_proposal.log_prob(current_state).item(), "-",
+                self._previous_log_density.item(), "-",
+                self._proposal.log_prob(new_state).item())
+        logger.debug("")
         accept = log_alpha < log_accept_prob
         if accept:
             self._previous_log_density = new_log_density
