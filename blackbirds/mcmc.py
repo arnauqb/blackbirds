@@ -194,7 +194,7 @@ class MCMC:
             T=1,
             **kwargs):
 
-        if not seed is None:
+        if seed is not None:
             torch.manual_seed(seed)
         self.reset()
 
