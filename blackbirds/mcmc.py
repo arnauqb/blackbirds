@@ -88,9 +88,9 @@ class MALA:
         state
     ):
 
-        _ = self._compute_log_density_and_grad(data, state)
-        self._previous_log_density = _[0]
-        self._previous_grad_theta_of_log_density = _[1]
+        log_density, grad_theta_of_log_density = self._compute_log_density_and_grad(data, state)
+        self._previous_log_density = log_density
+        self._previous_grad_theta_of_log_density = grad_theta_of_log_density
         self._proposal = None
         return self._previous_log_density, self._previous_grad_theta_of_log_density
 
