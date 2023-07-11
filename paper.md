@@ -80,12 +80,13 @@ gradient-assisted parameter inference, including:
 - Simulated Minimum Distance (SMD, see e.g. [@smd](`ii` and `smm`)), in which parameter
   point estimates $\hat{\boldsymbol{\theta}}$ are obtained as
 
-  $$\hat{\boldsymbol{\theta}} 
-    = 
-    \arg \min_{\boldsymbol{\theta} \in \boldsymbol{\Theta}} {
+  \begin{equation}
+      \hat{\boldsymbol{\theta}} 
+      = 
+      \arg \min_{\boldsymbol{\theta} \in \boldsymbol{\Theta}} {
         f(\mathbf{y}, \boldsymbol{\theta})
-    },
-  $$
+      },
+  \end{equation}
   where $\boldsymbol{\theta}$ are the simuolator's parameters, which take values in some
   set $\boldsymbol{\Theta}$, and $f$ is a loss function capturing the compatibility with
   the observed data $\mathbf{y}$ with the simulator's behaviour at parameter vector 
