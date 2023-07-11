@@ -20,7 +20,7 @@ class SIR(Model):
         super().__init__()
         self.n_timesteps = n_timesteps
         # convert graph from networkx to pytorch geometric
-        self.graph = torch_geometric.utils.convert.from_networkx(graph)
+        self.graph = torch_geometric.utils.convert.from_networkx(graph).to(device)
         self.mp = SIRMessagePassing(aggr="add", node_dim=-1)
 
     def sample_bernoulli_gs(self, probs: torch.Tensor, tau: float = 0.1):

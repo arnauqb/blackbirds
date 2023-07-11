@@ -149,6 +149,7 @@ def compute_loss_and_jacobian_pathwise(
     # define loss to differentiate
     def loss_aux(params):
         loss_v = loss_fn(params, observed_outputs)
+        print(loss_v)
         return loss_v, loss_v  # need double return for jacobian calculation.
 
     jacobian_calculator = jacobian_diff_mode(
@@ -343,7 +344,7 @@ class VI:
     - `n_samples_per_epoch`: The number of samples to draw from the variational distribution per epoch.
     - `n_samples_regularisation`: The number of samples used to evaluate the regularisation loss.
     - `diff_mode`: The differentiation mode to use. Can be either 'reverse' or 'forward'.
-    - `gradient_estimation_method`: The method to use for estimating the gradients of the forecast loss. Can be either 'pathwise' or 'score'.
+    - `gradient_estimation_method`: The method to use for estimating the gradients of the loss. Can be either 'pathwise' or 'score'.
     - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.
     - `gradient_horizon`: The number of timesteps to use for the gradient horizon. Set 0 to use the full trajectory.
     - `device`: The device to use for training.
@@ -518,9 +519,9 @@ class VI:
                 if self.progress_bar and self.progress_info:
                     iterator.set_postfix(
                         {
-                            "loss": forecast_loss.item(),
+                            "loss": loss.item(),
                             "reg.": regularisation_loss.item(),
-                            "total": loss.item(),
+                            "total": total_loss.item(),
                             "best loss": self.best_loss.item(),
                             "epochs since improv.": num_epochs_without_improvement,
                         }
