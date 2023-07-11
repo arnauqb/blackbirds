@@ -16,7 +16,7 @@ with open(join(this_dir, "requirements.txt")) as f:
 setup(
     name="blackbirds",
     version="0.1.0",
-    description="Bayesian inference for differentiable simulators.",
+    description="Black-Box Inference foR Differentiable Simulators.",
     url="https://github.com/arnauqb/blackbirds",
     long_description_content_type="text/markdown",
     long_description=long_description,
