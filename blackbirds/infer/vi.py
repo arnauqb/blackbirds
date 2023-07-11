@@ -149,7 +149,6 @@ def compute_loss_and_jacobian_pathwise(
     # define loss to differentiate
     def loss_aux(params):
         loss_v = loss_fn(params, observed_outputs)
-        print(loss_v)
         return loss_v, loss_v  # need double return for jacobian calculation.
 
     jacobian_calculator = jacobian_diff_mode(
