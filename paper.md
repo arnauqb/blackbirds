@@ -99,12 +99,11 @@ gradient-assisted parameter inference, including:
   intractable posterior is obtained by solving the following optimisation problem over a
   variational family $\mathcal{Q}$:
 
-  $$ q^* 
-     = 
-     \arg\min_{q \in \mathcal{Q}} {
+  \begin{equation}
+    q^* = \arg\min_{q \in \mathcal{Q}} {
         \mathcal{D}\left( q(\cdot) \Vert \pi(\cdot \mid \mathbf{y})\right) 
      }
-  $$
+  \end{equation}
   for some divergence $\mathcal{D}$ between probability density functions.
 
 
