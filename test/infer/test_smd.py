@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from blackbirds.smd import SMD
+from blackbirds.infer import SMD
 from blackbirds.models.random_walk import RandomWalk
 
 

@@ -2,11 +2,13 @@ import torch
 import numpy as np
 from tqdm import tqdm
 
-from blackbirds.forecast import simulate_and_observe_model
+from blackbirds.simulate import simulate_and_observe_model
 
 
 class SMD:
-    def __init__(self, model, loss_fn, optimizer, gradient_horizon=None, progress_bar = False):
+    def __init__(
+        self, model, loss_fn, optimizer, gradient_horizon=None, progress_bar=False
+    ):
         """
         Simulated Minimum Distance. Finds the point in parameter space that
         minimizes the distance between the model's output and the observed

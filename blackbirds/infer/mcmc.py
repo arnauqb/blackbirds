@@ -9,6 +9,7 @@ from blackbirds.models.model import Model
 
 logger = logging.getLogger("mcmc")
 
+
 class MALA:
     """
     Class that generates a step in the chain of a Metropolis-Adjusted Langevin Algorithm run.
@@ -30,15 +31,14 @@ class MALA:
         self,
         prior: torch.distributions.Distribution,
         forecast_loss: Callable,
-        w: float = 1.,
+        w: float = 1.0,
         gradient_clipping_norm: float = np.inf,
         diff_mode: str = "reverse",
         jacobian_chunk_size: int | None = None,
         gradient_horizon: int = np.inf,
-        device: str = 'cpu',
-        discretisation_method: str = "e-m"
+        device: str = "cpu",
+        discretisation_method: str = "e-m",
     ):
-
         self.prior = prior
         self.w = w
         self.gradient_clipping_norm = gradient_clipping_norm
@@ -59,36 +59,31 @@ class MALA:
         """
         return self.prior.sample((1,)).shape[-1]
 
-    def _compute_log_density_and_grad(self, 
-        data, 
-        state
-    ):
+    def _compute_log_density_and_grad(self, data, state):
         _state = state.clone().detach()
         _state.requires_grad = True
         ell = self.forecast_loss(data, _state)
         log_prior_pdf = self.prior.log_prob(_state)
-        log_density = - ell + log_prior_pdf * self.w
+        log_density = -ell + log_prior_pdf * self.w
         log_density.backward()
         torch.nn.utils.clip_grad_norm_([_state], self.gradient_clipping_norm)
         return log_density.detach(), _state.grad
 
-    def initialise_chain(self,
-        data,
-        state
-    ):
-
-        log_density, grad_theta_of_log_density = self._compute_log_density_and_grad(data, state)
+    def initialise_chain(self, data, state):
+        log_density, grad_theta_of_log_density = self._compute_log_density_and_grad(
+            data, state
+        )
         self._previous_log_density = log_density
         self._previous_grad_theta_of_log_density = grad_theta_of_log_density
         self._proposal = None
 
-    def step(self,
+    def step(
+        self,
         data,
-        current_state, 
-        scale: float = 1., 
+        current_state,
+        scale: float = 1.0,
         covariance: torch.Tensor | None = None,
     ):
-
         """
         Returns a (torch.Tensor, bool) pair corresponding to (the current state of the chain, whether
         the current state resulted from an accept or reject decision in the Metropolis step).
@@ -100,41 +95,63 @@ class MALA:
         if self._previous_log_density is None:
             # This would happen if the user hasn't initialised the chain themselves
             self.initialise_chain(data, current_state)
-        if self.discretisation_method == 'e-m':
+        if self.discretisation_method == "e-m":
             if self._proposal is None:
                 # This would happen if the user hasn't initialised the chain themselves
-                gradient_term = torch.matmul(sC, self._previous_grad_theta_of_log_density)
+                gradient_term = torch.matmul(
+                    sC, self._previous_grad_theta_of_log_density
+                )
                 mean = current_state + gradient_term
                 logger.debug("Total mean =", mean)
                 logger.debug("Gradient_term =", gradient_term)
-                proposal = torch.distributions.multivariate_normal.MultivariateNormal(mean,
-                           covariance_matrix = 2 * sC)
+                proposal = torch.distributions.multivariate_normal.MultivariateNormal(
+                    mean, covariance_matrix=2 * sC
+                )
                 self._proposal = proposal
             new_state = self._proposal.sample()
         else:
             raise NotImplementedError("Discretisation method not yet implemented")
 
-        new_log_density, grad_theta_of_new_log_density = self._compute_log_density_and_grad(data, new_state)
+        (
+            new_log_density,
+            grad_theta_of_new_log_density,
+        ) = self._compute_log_density_and_grad(data, new_state)
 
         # Metropolis accept/reject step
         log_alpha = torch.log(torch.rand((1,))[0])
         # Compute reverse proposal logpdf
-        if self.discretisation_method == 'e-m':
+        if self.discretisation_method == "e-m":
             try:
-                rev_proposal = torch.distributions.multivariate_normal.MultivariateNormal(new_state + torch.matmul(sC, grad_theta_of_new_log_density),
-                           covariance_matrix = 2 * sC)
+                rev_proposal = (
+                    torch.distributions.multivariate_normal.MultivariateNormal(
+                        new_state + torch.matmul(sC, grad_theta_of_new_log_density),
+                        covariance_matrix=2 * sC,
+                    )
+                )
             except ValueError as e:
                 logger.debug(new_state, grad_theta_of_new_log_density)
                 raise e
         else:
             raise NotImplementedError("Discretisation method not yet implemented")
-        log_accept_prob = new_log_density + rev_proposal.log_prob(current_state) - self._previous_log_density - self._proposal.log_prob(new_state)
+        log_accept_prob = (
+            new_log_density
+            + rev_proposal.log_prob(current_state)
+            - self._previous_log_density
+            - self._proposal.log_prob(new_state)
+        )
         logger.debug("Current, new:", current_state, new_state)
-        logger.debug("Lalpha", log_accept_prob.item(), " = ", 
-                new_log_density.item(), "+", 
-                rev_proposal.log_prob(current_state).item(), "-",
-                self._previous_log_density.item(), "-",
-                self._proposal.log_prob(new_state).item())
+        logger.debug(
+            "Lalpha",
+            log_accept_prob.item(),
+            " = ",
+            new_log_density.item(),
+            "+",
+            rev_proposal.log_prob(current_state).item(),
+            "-",
+            self._previous_log_density.item(),
+            "-",
+            self._proposal.log_prob(new_state).item(),
+        )
         logger.debug("")
         accept = log_alpha < log_accept_prob
         if accept:
@@ -156,6 +173,7 @@ class MCMC:
     - `progress_bar`: Whether to display a progress bar during training.
     - `progress_info`: Whether to display loss data during training.
     """
+
     def __init__(
         self,
         kernel,
@@ -163,7 +181,6 @@ class MCMC:
         progress_bar: bool = True,
         progress_info: bool = True,
     ):
-
         self.kernel = kernel
         self.num_samples = num_samples
         self.progress_bar = progress_bar
@@ -172,17 +189,9 @@ class MCMC:
         self._samples = []
 
     def reset(self):
-
         self._samples = []
 
-    def run(self, 
-            data, 
-            initial_state, 
-            *args, 
-            seed=0,
-            T=1,
-            **kwargs):
-
+    def run(self, data, initial_state, *args, seed=0, T=1, **kwargs):
         if seed is not None:
             torch.manual_seed(seed)
         self.reset()
@@ -203,5 +212,7 @@ class MCMC:
                 if accept_step:
                     total_accepted += 1
                 if t % T == 0:
-                    iterator.set_postfix({"Acceptance rate": float(total_accepted) / (t + 1.)})
+                    iterator.set_postfix(
+                        {"Acceptance rate": float(total_accepted) / (t + 1.0)}
+                    )
         return self._samples
