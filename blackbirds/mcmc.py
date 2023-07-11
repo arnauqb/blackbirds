@@ -103,7 +103,7 @@ class MALA:
         if self.discretisation_method == 'e-m':
             if self._proposal is None:
                 # This would happen if the user hasn't initialised the chain themselves
-                gradient_term = torch.matmul(sC, self._previous_grad_theta_of_log_density[0])
+                gradient_term = torch.matmul(sC, self._previous_grad_theta_of_log_density)
                 mean = current_state + gradient_term
                 logger.debug("Total mean =", mean)
                 logger.debug("Gradient_term =", gradient_term)
@@ -121,7 +121,7 @@ class MALA:
         # Compute reverse proposal logpdf
         if self.discretisation_method == 'e-m':
             try:
-                rev_proposal = torch.distributions.multivariate_normal.MultivariateNormal(new_state + torch.matmul(sC, grad_theta_of_new_log_density[0]),
+                rev_proposal = torch.distributions.multivariate_normal.MultivariateNormal(new_state + torch.matmul(sC, grad_theta_of_new_log_density),
                            covariance_matrix = 2 * sC)
             except ValueError as e:
                 logger.debug(new_state, grad_theta_of_new_log_density)
