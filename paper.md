@@ -105,7 +105,7 @@ q^* = \arg\min_{q \in \mathcal{Q}} {
         \mathcal{D}\left( q(\cdot) \Vert \pi(\cdot \mid \mathbf{y})\right) 
 }
 \end{equation}
-  for some divergence $\mathcal{D}$ between probability density functions.
+  for some divergence $\mathcal{D}$ between probability density functions. $q^*$. $\arg$ $\min$ $\left(\cdot\right)$
 
 
 `Gala` was designed to be used by both astronomical researchers and by
