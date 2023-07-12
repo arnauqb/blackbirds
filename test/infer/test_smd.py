@@ -5,13 +5,16 @@ from blackbirds.infer import SMD
 from blackbirds.simulate import simulate_and_observe_model
 from blackbirds.models.random_walk import RandomWalk
 
+
 class L2Loss:
     def __init__(self, model):
         self.model = model
         self.loss_fn = torch.nn.MSELoss()
+
     def __call__(self, params, data):
         simulated = simulate_and_observe_model(self.model, params)
         return self.loss_fn(simulated[0], data[0])
+
 
 class TestSMD:
     """

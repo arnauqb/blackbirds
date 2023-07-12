@@ -2,10 +2,9 @@ import torch
 import numpy as np
 from tqdm import tqdm
 
+
 class SMD:
-    def __init__(
-        self, loss, optimizer, gradient_horizon=None, progress_bar=False
-    ):
+    def __init__(self, loss, optimizer, gradient_horizon=None, progress_bar=False):
         """
         Simulated Minimum Distance. Finds the point in parameter space that
         minimizes the distance between the model's output and the observed
