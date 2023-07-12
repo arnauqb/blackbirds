@@ -1,3 +1,0 @@
-# Calibrator 
-
-:::blackbirds.calibrator.Calibrator

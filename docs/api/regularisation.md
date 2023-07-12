@@ -1,3 +1,0 @@
-# Regularisation
-
-:::blackbirds.regularisation

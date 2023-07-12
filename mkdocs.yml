@@ -82,17 +82,22 @@ plugins:
 nav:
   - index.md
   - Examples:
-    - examples/01-random_walk.ipynb
-    - examples/02-SIR.ipynb
-    - examples/03-brock_hommes.ipynb
-    - examples/05-brock_hommes.ipynb
-    - examples/score_vs_pathwise_gradient.ipynb
-    - examples/gpu_parallelisation.py
+    - Variational Inference:
+      - examples/variational_inference/01-random_walk.ipynb
+      - examples/variational_inference/02-SIR.ipynb
+      - examples/variational_inference/03-brock_hommes.ipynb
+      - examples/variational_inference/04-score_vs_pathwise_gradient.ipynb
+      - examples/variational_inference/05-gpu_parallelisation.py
+      - examples/variational_inference/06-classical_posterior.ipynb
+    - MCMC:
+      - examples/mcmc/01-mala-mcmc_conjugate_prior_likelihood_pairs.ipynb
+    - Simulated Minimum Distance:
+      - examples/smd/01-random_walk.ipynb
   - API:
-    - api/calibrator.md
-    - api/smd.md
-    - api/forecast.md
-    - api/regularisation.md
+    - Inference:
+      - api/infer/mcmc.md
+      - api/infer/smd.md
+      - api/infer/vi.md
     - Models:
       - api/models/random_walk.md
       - api/models/sir.md
