@@ -118,7 +118,6 @@ class TestVI:
             loss=loss,
             posterior_estimator=posterior_estimator,
             prior=prior,
-            data=data,
             optimizer=optimizer,
             initialize_estimator_to_prior=True,
             initialization_lr=1e-3,
@@ -127,7 +126,7 @@ class TestVI:
             n_samples_per_epoch=1,
             n_samples_regularisation=1000,
         )
-        vi.run(1, max_epochs_without_improvement=100)
+        vi.run(data, 1, max_epochs_without_improvement=100)
         kd_loss = compute_regularisation_loss(posterior_estimator, prior, 10000)
         assert np.isclose(kd_loss.item(), 0.0, atol=0.1)
 
@@ -149,14 +148,13 @@ class TestVI:
                 loss=loss,
                 posterior_estimator=posterior_estimator,
                 prior=prior,
-                data=data,
                 optimizer=optimizer,
                 diff_mode=diff_mode,
                 w=0.0,
                 progress_bar=False,
                 n_samples_per_epoch=1,
             )
-            vi.run(100, max_epochs_without_improvement=100)
+            vi.run(data, 100, max_epochs_without_improvement=100)
             ## check correct result is within 2 sigma
             assert np.isclose(posterior_estimator.mu.item(), true_p, atol=0.1)
 
@@ -173,14 +171,13 @@ class TestVI:
             loss=loss,
             posterior_estimator=posterior_estimator,
             prior=prior,
-            data=data,
             optimizer=optimizer,
             n_samples_per_epoch=1,
             w=10000.0,
             progress_bar=False,
             n_samples_regularisation=1000,
         )
-        vi.run(100, max_epochs_without_improvement=np.inf)
+        vi.run(data, 100, max_epochs_without_improvement=np.inf)
         posterior_estimator.load_state_dict(vi.best_estimator_state_dict)
         assert np.isclose(posterior_estimator.mu.item(), 3, rtol=0.1)
         assert np.isclose(posterior_estimator.sigma.item(), 1, rtol=0.1)

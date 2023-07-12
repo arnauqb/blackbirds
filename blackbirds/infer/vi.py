@@ -334,7 +334,6 @@ class VI:
     - `loss` : A callable that returns a (differentiable) loss. Needs to take (parameters, data) as input and return a scalar tensor.
     - `prior`: The prior distribution.
     - `posterior_estimator`: The variational distribution that approximates the (generalised) posterior.
-    - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
     - `w`: The weight of the regularisation loss in the total loss.
     - `initialize_estimator_to_prior`: Whether to fit the posterior estimator to the prior before training.
     - `initialization_lr`: The learning rate to use for the initialization.
@@ -358,7 +357,6 @@ class VI:
         loss: Callable,
         prior: torch.distributions.Distribution,
         posterior_estimator: torch.nn.Module,
-        data: List[torch.Tensor],
         w: float = 0.0,
         initialize_estimator_to_prior: bool = False,
         initialization_lr: float = 1e-3,
@@ -379,7 +377,6 @@ class VI:
         self.loss = loss
         self.prior = prior
         self.posterior_estimator = posterior_estimator
-        self.data = data
         self.w = w
         self.initialize_estimator_to_prior = initialize_estimator_to_prior
         self.initialization_lr = initialization_lr
@@ -399,7 +396,7 @@ class VI:
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
 
-    def step(self):
+    def step(self, data):
         """
         Performs one training step.
         """
@@ -410,7 +407,7 @@ class VI:
             loss_fn=self.loss,
             posterior_estimator=self.posterior_estimator,
             n_samples=self.n_samples_per_epoch,
-            observed_outputs=self.data,
+            observed_outputs=data,
             diff_mode=self.diff_mode,
             gradient_estimation_method=self.gradient_estimation_method,
             jacobian_chunk_size=self.jacobian_chunk_size,
@@ -471,7 +468,7 @@ class VI:
                     break
                 epoch += 1
 
-    def run(self, n_epochs, max_epochs_without_improvement=20):
+    def run(self, data, n_epochs, max_epochs_without_improvement=20):
         """
         Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.
 
@@ -494,7 +491,7 @@ class VI:
             iterator = tqdm(iterator)
         self.losses_hist = defaultdict(list)
         for epoch in iterator:
-            total_loss, loss, regularisation_loss = self.step()
+            total_loss, loss, regularisation_loss = self.step(data)
             if mpi_rank == 0:
                 self.losses_hist["total"].append(total_loss.item())
                 self.losses_hist["loss"].append(loss.item())
