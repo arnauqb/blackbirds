@@ -2,12 +2,9 @@ import torch
 import numpy as np
 from tqdm import tqdm
 
-from blackbirds.simulate import simulate_and_observe_model
-
-
 class SMD:
     def __init__(
-        self, model, loss_fn, optimizer, gradient_horizon=None, progress_bar=False
+        self, loss, optimizer, gradient_horizon=None, progress_bar=False
     ):
         """
         Simulated Minimum Distance. Finds the point in parameter space that
@@ -16,14 +13,12 @@ class SMD:
 
         **Arguments:**
 
-        - `model`: A model that inherits from `blackbirds.models.Model`.
-        - `loss_fn`: A loss function taking (x,y) arguments, where y is the data and x the simulated value.
+        - `loss` : A callable that returns a (differentiable) loss. Needs to take (parameters, data) as input and return a scalar tensor.
         - `optimizer`: A PyTorch optimizer (eg Adam)
         - `gradient_horizon`: The number of steps to look ahead when computing the gradient. If None, defaults to the number of parameters.
         - `progress_bar`: Whether to display a progress bar.
         """
-        self.model = model
-        self.loss_fn = loss_fn
+        self.loss_fn = loss
         self.optimizer = optimizer
         self.gradient_horizon = gradient_horizon
         self.progress_bar = progress_bar
@@ -55,12 +50,7 @@ class SMD:
         for _ in iterator:
             self.optimizer.zero_grad()
             parameters = self.optimizer.param_groups[0]["params"][0]
-            simulated = simulate_and_observe_model(
-                self.model, parameters, self.gradient_horizon
-            )
-            loss = torch.tensor(0.0)
-            for sim, d in zip(simulated, data):
-                loss += self.loss_fn(sim, d)
+            loss = self.loss_fn(parameters, data)
             loss.backward()
             if loss < best_loss:
                 best_loss = loss.item()

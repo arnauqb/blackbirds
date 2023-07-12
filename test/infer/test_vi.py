@@ -154,7 +154,7 @@ class TestVI:
                 diff_mode=diff_mode,
                 w=0.0,
                 progress_bar=False,
-                n_samples_per_epoch=5,
+                n_samples_per_epoch=1,
             )
             vi.run(100, max_epochs_without_improvement=100)
             ## check correct result is within 2 sigma
