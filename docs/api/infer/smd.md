@@ -1,3 +1,3 @@
 # Simulated Minimum Distance
 
-:::blackbirds.smd.SMD
+:::blackbirds.infer.smd.SMD
