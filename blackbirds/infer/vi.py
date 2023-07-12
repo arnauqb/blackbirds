@@ -298,7 +298,11 @@ def compute_and_differentiate_loss(
     - `device`: device to use for the computation
     """
     if gradient_estimation_method == "pathwise":
-        (parameters, loss, jacobians,) = compute_loss_and_jacobian_pathwise(
+        (
+            parameters,
+            loss,
+            jacobians,
+        ) = compute_loss_and_jacobian_pathwise(
             loss_fn=loss_fn,
             posterior_estimator=posterior_estimator,
             observed_outputs=observed_outputs,
@@ -468,13 +472,20 @@ class VI:
                     break
                 epoch += 1
 
-    def run(self, data, n_epochs, max_epochs_without_improvement=20):
+    def run(
+        self,
+        data: List[torch.Tensor],
+        n_epochs: int,
+        max_epochs_without_improvement: int = 20,
+    ):
         """
         Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.
 
-        Arguments:
-            n_epochs (int | np.inf): The number of epochs to run the calibrator for.
-            max_epochs_without_improvement (int): The number of epochs without improvement after which the calibrator stops.
+        **Arguments:**
+
+        - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.
+        - `n_epochs`: The number of epochs to run the calibrator for.
+        - `max_epochs_without_improvement`: The number of epochs without improvement after which the calibrator stops.
         """
         if mpi_rank == 0 and self.log_tensorboard:
             self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
