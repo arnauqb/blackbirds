@@ -35,7 +35,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest --cov=birds test --cov-report xml
+        python -m pytest --cov=blackbirds test --cov-report xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
