@@ -1,11 +1,8 @@
 import logging
 import numpy as np
 import torch
-import torch.autograd as autograd
-from tqdm import tqdm, trange
-from typing import Callable, List
-
-from blackbirds.models.model import Model
+from tqdm import trange
+from typing import Callable
 
 logger = logging.getLogger("mcmc")
 
@@ -59,19 +56,19 @@ class MALA:
         """
         return self.prior.sample((1,)).shape[-1]
 
-    def _compute_log_density_and_grad(self, data, state):
+    def _compute_log_density_and_grad(self, state, data):
         _state = state.clone().detach()
         _state.requires_grad = True
-        ell = self.forecast_loss(data, _state)
+        ell = self.forecast_loss(_state, data)
         log_prior_pdf = self.prior.log_prob(_state)
         log_density = -ell + log_prior_pdf * self.w
         log_density.backward()
         torch.nn.utils.clip_grad_norm_([_state], self.gradient_clipping_norm)
         return log_density.detach(), _state.grad
 
-    def initialise_chain(self, data, state):
+    def initialise_chain(self, state, data):
         log_density, grad_theta_of_log_density = self._compute_log_density_and_grad(
-            data, state
+            state, data
         )
         self._previous_log_density = log_density
         self._previous_grad_theta_of_log_density = grad_theta_of_log_density
@@ -79,8 +76,8 @@ class MALA:
 
     def step(
         self,
-        data,
         current_state,
+        data,
         scale: float = 1.0,
         covariance: torch.Tensor | None = None,
     ):
@@ -94,7 +91,7 @@ class MALA:
         sC = scale * covariance
         if self._previous_log_density is None:
             # This would happen if the user hasn't initialised the chain themselves
-            self.initialise_chain(data, current_state)
+            self.initialise_chain(current_state, data)
         if self.discretisation_method == "e-m":
             if self._proposal is None:
                 # This would happen if the user hasn't initialised the chain themselves
@@ -115,7 +112,7 @@ class MALA:
         (
             new_log_density,
             grad_theta_of_new_log_density,
-        ) = self._compute_log_density_and_grad(data, new_state)
+        ) = self._compute_log_density_and_grad(new_state, data)
 
         # Metropolis accept/reject step
         log_alpha = torch.log(torch.rand((1,))[0])
@@ -191,7 +188,7 @@ class MCMC:
     def reset(self):
         self._samples = []
 
-    def run(self, data, initial_state, *args, seed=0, T=1, **kwargs):
+    def run(self, initial_state, data, *args, seed=0, T=1, **kwargs):
         if seed is not None:
             torch.manual_seed(seed)
         self.reset()
@@ -206,7 +203,7 @@ class MCMC:
         if self.progress_info:
             total_accepted = 0
         for t in iterator:
-            state, accept_step = self.kernel.step(data, state, *args, **kwargs)
+            state, accept_step = self.kernel.step(state, data, *args, **kwargs)
             self._samples.append(state)
             if self.progress_info:
                 if accept_step:

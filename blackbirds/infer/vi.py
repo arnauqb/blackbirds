@@ -15,7 +15,11 @@ from blackbirds.mpi_setup import mpi_size, mpi_rank, mpi_comm
 logger = logging.getLogger("vi")
 
 
-def compute_regularisation_loss(posterior_estimator, prior, n_samples):
+def compute_regularisation_loss(
+    posterior_estimator: torch.nn.Module,
+    prior: torch.distributions.Distribution,
+    n_samples: int,
+):
     r"""Estimates the KL divergence between the posterior and the prior using n_samples through Monte Carlo using
 
     $$
@@ -294,11 +298,7 @@ def compute_and_differentiate_loss(
     - `device`: device to use for the computation
     """
     if gradient_estimation_method == "pathwise":
-        (
-            parameters,
-            loss,
-            jacobians,
-        ) = compute_loss_and_jacobian_pathwise(
+        (parameters, loss, jacobians,) = compute_loss_and_jacobian_pathwise(
             loss_fn=loss_fn,
             posterior_estimator=posterior_estimator,
             observed_outputs=observed_outputs,
