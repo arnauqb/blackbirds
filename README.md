@@ -1,4 +1,4 @@
-![](docs/_static/banner.svg)
+![](docs/_static/banner.png)
 
 [![Docs](https://github.com/arnauqb/blackbirds/actions/workflows/docs.yml/badge.svg)](https://arnau.ai/blackbirds)
 [![Build and test package](https://github.com/arnauqb/birds/actions/workflows/ci.yml/badge.svg)](https://github.com/arnauqb/birds/actions/workflows/ci.yml)
