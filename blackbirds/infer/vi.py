@@ -361,7 +361,7 @@ class VI:
         loss: Callable,
         prior: torch.distributions.Distribution,
         posterior_estimator: torch.nn.Module,
-        w: float = 0.0,
+        w: float = 1.0,
         initialize_estimator_to_prior: bool = False,
         initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
