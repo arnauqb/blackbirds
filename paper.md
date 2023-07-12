@@ -39,12 +39,12 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 `blackbirds` is a Python package consisting of generically applicable, black-box
 inference methods for differentiable simulation models. It facilitates both (a) 
 the differentiable implementation of simulation models by providing a common 
-object-oriented framework for their implementation in `pytorch` [@pytorch](`pytorch`), 
+object-oriented framework for their implementation in `pytorch` [@pytorch], 
 and (b) the use of a variety of gradient-assisted inference procedures for these simulation
 models, allowing researchers to easily exploit the differentiable nature of their simulator in 
 parameter estimation tasks. The package consists of both Bayesian and non-Bayesian
 inference methods, and relies on well-supported software libraries (e.g. 
-[@nflows](`nflows`)) to provide this broad functionality.
+`nflows`, @nflows) to provide this broad functionality.
 
 # Statement of need
 
@@ -63,7 +63,7 @@ these tasks inexactly.
 The complicated and black-box nature of many simulation models can present a
 significant barrier to the successful deployment of these simulation-based inference 
 and optimisation techniques. Consequently, there has been increasing interest within
-various scientific communities in constructing *differentiable* simulation models (see e.g. [@gradabm], [@hep]): 
+various scientific communities in constructing *differentiable* simulation models (see e.g. @gradabm; @hep): 
 simulation models for which the gradient of the model output with respect to the
 model's input parameters can be easily obtained. The primary motivation for this is
 that access to this additional information, which captures the sensitivity of the
@@ -77,7 +77,7 @@ set of parameter inference methods that exploit the gradient information provide
 differentiable simulators. The package provides support for a variety of approaches to
 gradient-assisted parameter inference, including:
 
-- Simulated Minimum Distance (SMD, see e.g. [@ii] and [@smm]), in which parameter
+- Simulated Minimum Distance (SMD, see e.g. @ii; @smm), in which parameter
   point estimates $\hat{\boldsymbol{\theta}}$ are obtained as
 
   \begin{equation}
@@ -117,7 +117,7 @@ gradient-assisted parameter inference, including:
 The package is written such that the user is free to specify their choice of $\ell$ and $\pi$ (in the
 case of Bayesian methods), under the constraint that both choices are differentiable with respect to
 $\boldsymbol{\theta}$. This allows the user to target a wide variety of parameter point estimators, 
-and both classical and generalised (see e.g. [@bissiri], [@gvi]) posteriors. We provide a
+and both classical and generalised (see e.g. @bissiri; @gvi) posteriors. We provide a
 number of [tutorials](https://www.arnau.ai/blackbirds/) demonstrating (a) how to implement a simulator
 in a differentiable framework in PyTorch and (b) how to apply the different parameter inference methods
 supported by `blackbirds` to these differentiable simulators. Our package provides the user with flexible
@@ -136,35 +136,11 @@ to construct and experiment with differentiable implementations of mathematical 
 - Support for both forward-mode and reverse-mode auto-differentiation.
 - Continuous integration and unit tests.
 
-
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-[//]: # # Figures
-
-[//]: #Figures can be included like this:
-[//]: #![Caption for example figure.\label{fig:example}](figure.png)
-[//]: #and referenced from text using \autoref{fig:example}.
-
-[//]: #Figure sizes can be customized by adding an optional second parameter:
-[//]: #![Caption for example figure.](figure.png){ width=20% }
-
 # Acknowledgements
 
 This research was supported by a UKRI AI World Leading Researcher Fellowship awarded to Wooldridge (grant EP/W002949/1). 
 M. Wooldridge and A. Calinescu acknowledge funding from Trustworthy AI - Integrating Learning, Optimisation and Reasoning 
-(TAILOR) (https://tailor-network.eu/), a project funded by European Union Horizon2020 research and innovation program 
+([TAILOR](https://tailor-network.eu/)), a project funded by European Union Horizon2020 research and innovation program 
 under Grant Agreement 952215.
 
 # References
