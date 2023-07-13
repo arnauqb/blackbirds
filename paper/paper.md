@@ -22,7 +22,7 @@ authors:
     affiliation: 1
   - name: J. Doyne Farmer 
     orcid: 0000-0001-7871-073X
-    affiliation: 2
+    affiliation: "2, 3, 4"
   - name: Michael Wooldridge
     orcid: 0000-0002-9329-8410
     affiliation: 1
