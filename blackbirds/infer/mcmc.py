@@ -249,6 +249,9 @@ class MCMC:
         .step() method.
         """
 
+        assert isinstance(initial_state, torch.Tensor), "Initial state of the MCMC chain must be a torch.Tensor"
+        assert isinstance(data, torch.Tensor), "The data must be passed as a torch.Tensor"
+
         if seed is not None:
             torch.manual_seed(seed)
         self.reset()
