@@ -1,9 +1,9 @@
-from blackbirds.model import Model
-from blackbirds.simulate import simulate_and_observe
+from blackbirds.models.model import Model
+from blackbirds.simulate import simulate_and_observe_model
 
 import torch
 
-class SingleOutput_SmulateAndMSELoss:
+class SingleOutput_SimulateAndMSELoss:
 
     """
     Computes MSE between observed data y and simulated data at theta (to be passed during __call__).
@@ -50,7 +50,12 @@ class UnivariateMMDLoss:
         """
 
         assert isinstance(y, torch.Tensor), "y is assumed to be a torch.Tensor here"
-        assert len(y.shape) == 1, "This class assumes y is a single univariate time series"
+        try:
+            assert len(y.shape) == 1, "This class assumes y is a single univariate time series"
+        except AssertionError:
+            assert len(y.shape) == 2, "If not a 1D Tensor, y must be at most 2D of shape (1, T)"
+            assert y.shape[1] == 1, "This class assumes y is a single univariate time series. This appears to be a batch of data."
+            y = y.reshape(-1)
 
         self.y = y
         self.y_matrix = self.y.reshape(1,-1,1)
@@ -71,7 +76,12 @@ class UnivariateMMDLoss:
     ):
 
         assert isinstance(x, torch.Tensor), "x is assumed to be a torch.Tensor here"
-        assert len(x.shape) == 1, "This class assumes x is a single univariate time series"
+        try:
+            assert len(x.shape) == 1, "This class assumes x is a single univariate time series"
+        except AssertionError:
+            assert len(x.shape) == 2, "If not a 1D Tensor, x must be at most 2D of shape (1, T)"
+            assert x.shape[1] == 1, "This class assumes x is a single univariate time series. This appears to be a batch of data."
+            x = x.reshape(-1)
 
         nx = x.shape[0]
         x_matrix = x.reshape(1,-1,1)
@@ -107,7 +117,7 @@ class SingleOutput_SimulateAndMMD:
         gradient_horizon: int | None = None
     ):
 
-        self.mmd_loss = MMDLoss(y)
+        self.mmd_loss = UnivariateMMDLoss(y)
         self.model = model
         self.gradient_horizon = gradient_horizon
         
