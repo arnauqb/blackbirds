@@ -20,6 +20,9 @@ authors:
   - name: Anisoara Calinescu
     orcid: 0000-0003-2082-734X
     affiliation: 1
+  - name: J. Doyne Farmer 
+    orcid: 0000-0001-7871-073X
+    affiliation: 2
   - name: Michael Wooldridge
     orcid: 0000-0002-9329-8410
     affiliation: 1
@@ -28,6 +31,10 @@ affiliations:
    index: 1
  - name: Institute for New Economic Thinking, University of Oxford, UK
    index: 2
+ - name: Mathematical Institute, University of Oxford, UK
+   index: 3
+ - name: Santa Fe Institute, USA
+   index: 4
 date: 14 July 2023
 bibliography: paper.bib
 
