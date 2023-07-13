@@ -125,8 +125,25 @@ in a differentiable framework in PyTorch and (b) how to apply the different para
 supported by `BlackBIRDS` to these differentiable simulators. Our package provides the user with flexible
 posterior density estimators with the use of normalising flows, and has already been used in scientific
 research to calibrate differentiable simulators, such as [@ai4abm; @dae], and in forthcoming publications
-yet to be announced publicly. We envisage that `BlackBIRDS` will further assist researchers in various fields
-to construct and experiment with differentiable implementations of mathematical simulation models.
+yet to be announced publicly. 
+
+## Related software
+
+`BlackBIRDS` offers complementary functionality to a number of existing Python packages. `sbi` [@sbi]
+is a package offering PyTorch-based implementations of numerous simulation-based inference algorithms,
+including those based on the use of MCMC and neural conditional density estimators. Our package differs
+significantly, however: in contrast to `sbi`, `BlackBIRDS` provides support for both Bayesian and 
+non-Bayesian inference methods, and permits the researcher to exploit gradients of the simulator, 
+loss function, and/or posterior density with respect to parameters $\mathbf{\theta}$ during inference tasks.
+`black-it` [@blit] is a further recent Python package that collects some recently developed parameter 
+estimation methods from the agent-based modelling community; the focus of this package is, however, on
+non-Bayesian methods, and the package does not currently support the exploitation of simulator gradients.
+`PyVBMC` [@pyvbmc] provides a Python implementation of the Variational Bayesian Monte Carlo algorithm 
+using Gaussian processes, but differs from our package in that it does not exploit simulator gradients
+and is focused on Bayesian inference alone. Additional older packages (e.g. @abcpy; @pyabc) also
+focus on approximate Bayesian inference methods for non-differentiable simulators. Beyond this, we are
+unaware of other mature software projects in Python that support parameter inference in the specific case
+of differentiable simulation models. 
 
 # Features
 
