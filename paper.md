@@ -1,5 +1,5 @@
 ---
-title: 'BlackBIRDS: Black-box Inference foR Differentiable Simulators'
+title: 'BlackBIRDS: Black-Box Inference foR Differentiable Simulators'
 tags:
   - Python
   - Bayesian inference
@@ -42,12 +42,12 @@ bibliography: paper.bib
 `BlackBIRDS` is a Python package consisting of generically applicable, black-box
 inference methods for differentiable simulation models. It facilitates both (a) 
 the differentiable implementation of simulation models by providing a common 
-object-oriented framework for their implementation in `pytorch` [@pytorch], 
+object-oriented framework for their implementation in `PyTorch` [@pytorch], 
 and (b) the use of a variety of gradient-assisted inference procedures for these simulation
 models, allowing researchers to easily exploit the differentiable nature of their simulator in 
 parameter estimation tasks. The package consists of both Bayesian and non-Bayesian
 inference methods, and relies on well-supported software libraries (e.g. 
-`nflows`, @nflows) to provide this broad functionality.
+`normflows`, @normflows) to provide this broad functionality.
 
 # Statement of need
 
@@ -66,7 +66,7 @@ these tasks inexactly.
 The complicated and black-box nature of many simulation models can present a
 significant barrier to the successful deployment of these simulation-based inference 
 and optimisation techniques. Consequently, there has been increasing interest within
-various scientific communities in constructing *differentiable* simulation models (see e.g. @gradabm; @hep): 
+various scientific communities in constructing *differentiable* simulation models (see e.g. @hep; @gradabm): 
 simulation models for which the gradient of the model output with respect to the
 model's input parameters can be easily obtained. The primary motivation for this is
 that access to this additional information, which captures the sensitivity of the
