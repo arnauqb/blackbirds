@@ -97,7 +97,7 @@ gradient-assisted parameter inference, including:
 - Markov chain Monte Carlo (MCMC), in which samples from a parameter posterior 
 
     \begin{equation}
-        \pi(\boldsymbol{\theta} \mid \mathbf{y}) \propto e^{-\ell(\boldysmbol{\theta}, \mathbf{y})} \pi(\boldsymbol{\theta})
+        \pi(\boldsymbol{\theta} \mid \mathbf{y}) \propto e^{-\ell(\boldsymbol{\theta}, \mathbf{y})} \pi(\boldsymbol{\theta})
     \end{equation}
 
   corresponding to a choice of loss function $\ell$ and a prior density $\pi$ over $\boldsymbol{\Theta}$ 
