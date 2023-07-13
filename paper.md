@@ -8,35 +8,38 @@ tags:
   - Markov chain Monte Carlo
 authors:
   - name: Arnau Quera-Bofarull
-    orcid: 
+    orcid: 0000-0001-5055-9863
     equal-contrib: true
     corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: Joel Dyer
+    orcid: 0000-0002-8304-8450
     equal-contrib: true
     corresponding: true # (This is how to denote the corresponding author)
     affiliation: "1, 2"
   - name: Anisoara Calinescu
+    orcid: 0000-0003-2082-734X
     affiliation: 1
   - name: Michael Wooldridge
+    orcid: 0000-0002-9329-8410
     affiliation: 1
 affiliations:
- - name: Department of Computer Science, University of Oxford
+ - name: Department of Computer Science, University of Oxford, UK
    index: 1
- - name: Institute for New Economic Thinking, Oxford
+ - name: Institute for New Economic Thinking, University of Oxford, UK
    index: 2
 date: 14 July 2023
 bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
 # https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
+#aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
+#aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
 
-`blackbirds` is a Python package consisting of generically applicable, black-box
+`BlackBIRDS` is a Python package consisting of generically applicable, black-box
 inference methods for differentiable simulation models. It facilitates both (a) 
 the differentiable implementation of simulation models by providing a common 
 object-oriented framework for their implementation in `pytorch` [@pytorch], 
@@ -72,7 +75,7 @@ simulation-based optimisation and inference procedures, helping to reduce the to
 algorithms, their overall consumption of valuable computational resources, and their 
 concomitant financial and environmental costs.
 
-To this end, `blackbirds` was designed to provide researchers with easy access to a
+To this end, `BlackBIRDS` was designed to provide researchers with easy access to a
 set of parameter inference methods that exploit the gradient information provided by
 differentiable simulators. The package provides support for a variety of approaches to
 gradient-assisted parameter inference, including:
@@ -120,10 +123,10 @@ $\boldsymbol{\theta}$. This allows the user to target a wide variety of paramete
 and both classical and generalised (see e.g. @bissiri; @gvi) posteriors. We provide a
 number of [tutorials](https://www.arnau.ai/blackbirds/) demonstrating (a) how to implement a simulator
 in a differentiable framework in PyTorch and (b) how to apply the different parameter inference methods
-supported by `blackbirds` to these differentiable simulators. Our package provides the user with flexible
+supported by `BlackBIRDS` to these differentiable simulators. Our package provides the user with flexible
 posterior density estimators with the use of normalising flows, and has already been used in scientific
 research to calibrate differentiable simulators, such as [@ai4abm; @dae], and in forthcoming publications
-yet to be announced publicly. We envisage that `blackbirds` will further assist researchers in various fields
+yet to be announced publicly. We envisage that `BlackBIRDS` will further assist researchers in various fields
 to construct and experiment with differentiable implementations of mathematical simulation models.
 
 # Features
@@ -132,7 +135,7 @@ to construct and experiment with differentiable implementations of mathematical 
   function $\ell$ and the optimiser to use, while in the case of MCMC (resp. VI), only the loss $\ell$, the prior 
   density, and the MCMC method (resp. posterior approximator) must be specified. However, additional arguments
   can be provided to straightforwardly specify hyperparameters of the method.
-- Parallelisation support with MPI.
+- Multi-GPU parallelisation support with MPI.
 - Support for both forward-mode and reverse-mode auto-differentiation.
 - Continuous integration and unit tests.
 
