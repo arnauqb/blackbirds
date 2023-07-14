@@ -1,7 +1,6 @@
 # BlackBIRDS documentation
 
-BlackBIRDS stands for Black-box Bayesian Inference foR Differentiable Simulators. As the name suggests,
-this is a package to facilitate Bayesian inference on simulators using techniques that require some kind of gradient estimation.
+BlackBIRDS is a Python package consisting of generically applicable, black-box inference methods for differentiable simulation models. It facilitates both (a) the differentiable implementation of simulation models by providing a common object-oriented framework for their implementation in PyTorch, and (b) the use of a variety of gradient-assisted inference procedures for these simulation models, allowing researchers to easily exploit the differentiable nature of their simulator in parameter estimation tasks. The package consists of both Bayesian and non-Bayesian inference methods, and relies on well-supported software libraries (e.g. normflows, Stimper et al. (2023)) to provide this broad functionality.
 
 ## Installation
 
