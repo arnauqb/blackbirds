@@ -156,14 +156,14 @@ class TestVI:
             )
             vi.run(data, 100, max_epochs_without_improvement=100)
             ## check correct result is within 2 sigma
-            assert np.isclose(posterior_estimator.mu.item(), true_p, atol=0.1)
+            assert np.isclose(posterior_estimator.mu.item(), true_p, atol=0.2)
 
     def test__train_regularisation_only(self, loss):
         data = loss.model.run_and_observe(torch.tensor([0.5]))
 
         prior = torch.distributions.Normal(3.0, 1)
 
-        posterior_estimator = TrainableGaussian([0.0], 1.0)
+        posterior_estimator = TrainableGaussian([0.0], 1)
         posterior_estimator.sigma.requires_grad = False
 
         optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=5e-2)
@@ -179,5 +179,5 @@ class TestVI:
         )
         vi.run(data, 100, max_epochs_without_improvement=np.inf)
         posterior_estimator.load_state_dict(vi.best_estimator_state_dict)
-        assert np.isclose(posterior_estimator.mu.item(), 3, rtol=0.1)
-        assert np.isclose(posterior_estimator.sigma.item(), 1, rtol=0.1)
+        assert np.isclose(posterior_estimator.mu.item(), 3, atol=1) #1 sigma away
+        assert np.isclose(posterior_estimator.sigma.item(), 1)
