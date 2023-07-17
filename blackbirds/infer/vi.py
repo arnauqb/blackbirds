@@ -99,7 +99,7 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     device = parameters.device
     to_diff = torch.zeros(1, device=device)
     for i in range(len(jacobians)):
-        to_diff += torch.dot(jacobians[i].to(device), parameters[i, :])
+        to_diff += torch.matmul(jacobians[i].to(device), parameters[i, :])
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
