@@ -63,7 +63,7 @@ def train(
     val_theta: torch.Tensor,
     ratio_estimator: nn.Module,
     ratio_optimiser: torch.optim.Optimizer,
-    ratio_scheduler: torch.optim.lr_scheduler.LRSCheduler | None = None,
+    ratio_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
     batch_size: int = 50,
     max_num_epochs: int = 200,
     best_loss: float = float('inf'),
