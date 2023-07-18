@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim
 from tqdm import trange
+from typing import Callable
 
 logger = logging.getLogger("ratio")
 
@@ -54,6 +55,19 @@ class RatioEstimator(nn.Module):
             return self._spp(data).mean()
         else:
             return self._spn(data).mean()
+
+
+def generate_training_data(
+    simulator: Callable,
+    prior: torch.distributions.Distribution,
+    n_training_samples: int = 1_000
+    ):
+
+    theta = prior.sample((n_training_samples,))
+    x = []
+    for i in range(n_training_samples):
+        x.append(simulator(theta[i]))
+    return theta, torch.vstack(x)
 
 
 def train(
