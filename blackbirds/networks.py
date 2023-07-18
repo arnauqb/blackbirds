@@ -24,7 +24,8 @@ class MLP(nn.Module):
 
     def forward(self, x):
 
-        return self._layers(x)
+        x = self._layers(x)
+        return x
     
 
 class RNN(nn.Module):
@@ -57,4 +58,5 @@ class RNN(nn.Module):
 
         out, _ = self._rnn(x)
         _x = out[:, -1, :]
-        return self._fff(_x)
+        _x = self._fff(_x)
+        return _x
