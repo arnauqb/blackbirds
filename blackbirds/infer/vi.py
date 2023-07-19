@@ -171,7 +171,10 @@ def compute_loss_and_jacobian_pathwise(
         if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
         loss += loss_i
-        jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
+        try:
+            jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
+        except RuntimeError:
+            jacobians_per_rank.append(jacobian.cpu())
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
@@ -366,6 +369,7 @@ class VI:
         initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
         optimizer: torch.optim.Optimizer | None = None,
+        scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
         n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
@@ -388,6 +392,7 @@ class VI:
         if optimizer is None:
             optimizer = torch.optim.Adam(posterior_estimator.parameters(), lr=1e-3)
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.n_samples_per_epoch = n_samples_per_epoch
         self.n_samples_regularisation = n_samples_regularisation
         self.progress_bar = progress_bar
@@ -540,6 +545,8 @@ class VI:
                         )
                     )
                     break
+            if not self.scheduler is None:
+                self.scheduler.step(total_loss)
         if mpi_rank == 0 and self.log_tensorboard:
             self.writer.flush()
             self.writer.close()
