@@ -60,3 +60,76 @@ class RNN(nn.Module):
         _x = out[:, -1, :]
         _x = self._fff(_x)
         return _x
+
+class CNN(nn.Module):
+
+    """
+    Convoultional neural network for images/data on grids.
+    """
+
+    def __init__(self, 
+                 N=100,
+                 n_channels=1, 
+                 hidden_layer_channels=3,
+                 conv_kernel_size=4,
+                 pool_kernel_size=2,
+                 final_ff=[32, 16]):
+
+        assert len(final_ff) == 2
+
+        super().__init__()
+
+        conv1_out_dim = N - conv_kernel_size + 1
+        pool1_out_dim = int((conv1_out_dim - pool_kernel_size) / pool_kernel_size + 1)
+        #conv2_out_dim = pool1_out_dim - conv_kernel_size + 1
+        #pool2_out_dim = conv2_out_dim - pool_kernel_size + 1
+
+        self.conv1 = nn.Conv2d(n_channels, 
+                               hidden_layer_channels, 
+                               conv_kernel_size)
+        self.pool = nn.MaxPool2d(pool_kernel_size,
+                                 pool_kernel_size)
+        #self.conv2 = nn.Conv2d(hidden_layer_channels,
+        #                       2,
+        #                       conv_kernel_size)
+        self.fc1 = nn.Linear(hidden_layer_channels * pool1_out_dim**2,#(pool2_out_dim)**2, 
+                             final_ff[0])
+        self.fc2 = nn.Linear(final_ff[0],
+                             final_ff[1])
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        # Output shape of this will be (B, hidden_layer_channels, )
+        x = self.pool(self.relu(self.conv1(x)))
+        #x = self.pool(self.relu(self.conv2(x)))
+        x = torch.flatten(x, 1) # flatten all dimensions except batch
+        x = self.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+class CNN_RNN(nn.Module):
+
+    """
+    Implementation of a CNN-RNN model for sequences of images.
+    """
+
+    def __init__(self,
+                 rnn,
+                 *args,
+                 **kwargs):
+
+        super().__init__()
+        self.rnn = rnn
+        self.cnn = CNN(*args, **kwargs)
+
+    def forward(self, x):
+
+        # x will be shape (B, T, C, D0, D1) – batch, time, two spatial dims, number of channels
+        # So need to reshape to (B * T, C, D0, D1) before CNN
+        batch_size = x.shape[0]
+        n_timesteps = x.shape[1]
+        x = x.reshape(batch_size * n_timesteps, x.shape[2], x.shape[3], x.shape[-1])
+        x = self.cnn(x)
+        x = x.reshape(batch_size, n_timesteps, x.shape[-1])
+        x = self.rnn(x)
+        return x
