@@ -5,7 +5,7 @@ from blackbirds.utils import soft_maximum, soft_minimum
 
 
 class SIRS(Model):
-    r"""Differentiable implementation of the mean-field SIRS model.
+    r"""Non-differentiable implementation of the mean-field SIRS model.
 
     **Arguments:**
 
