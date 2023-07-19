@@ -110,7 +110,7 @@ class SIRS(Model):
         - `params`: A list of parameters. Parameters follow the order: log_alpha, log_beta, log_gamma
         - `x`: The current state of the model.
         """
-        alpha, beta, gamma = 1./torch.exp(params)
+        alpha, beta, gamma = torch.sigmoid(params)
         assert (alpha > 0) & (alpha < 1)
         assert (beta > 0) & (beta < 1)
         assert (gamma > 0) & (gamma < 1)
@@ -127,4 +127,5 @@ class SIRS(Model):
         return x_t
 
     def observe(self, x):
-        return [x.unsqueeze(-1)]
+        # Add channel dimension
+        return [x.unsqueeze(0)]
