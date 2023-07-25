@@ -39,7 +39,8 @@ def simulate_and_observe_model(
             torch.cat((observed_output, output))
             for observed_output, output in zip(observed_outputs, model.observe(x))
         ]
-        time_series = torch.cat((time_series, x))
+        if time_series is not None:
+            time_series = torch.cat((time_series, x))
     return observed_outputs
 
 

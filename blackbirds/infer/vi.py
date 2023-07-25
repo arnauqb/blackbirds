@@ -171,10 +171,7 @@ def compute_loss_and_jacobian_pathwise(
         if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
         loss += loss_i
-        try:
-            jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
-        except RuntimeError:
-            jacobians_per_rank.append(jacobian.cpu())
+        jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy(), dtype=torch.float))
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
