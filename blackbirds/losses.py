@@ -133,33 +133,33 @@ class MMDLoss:
         self.kernel_yy = self._gaussian_kernel(y, y, self.sigma)
         # substract diagonal elements
         self.kernel_yy = self.kernel_yy - torch.eye(
-            self.kernel_yy.shape[0]
+            self.kernel_yy.shape[0], device=y.device
         )
         self.ny = y.shape[0]
 
-    def _pairwise_distance(self, x, y):
+    def _pairwise_distance_sq(self, x, y):
         xx = torch.sum(x**2, dim=1, keepdim=True)
         yy = torch.sum(y**2, dim=1, keepdim=True)
         xy = torch.matmul(x, y.t())
-        dist_matrix = xx - 2 * xy + yy.t()
-        dist_matrix = torch.clamp(dist_matrix, min=0.0)
-        return dist_matrix.sqrt()
+        dist_matrix_sq = xx - 2 * xy + yy.t()
+        return dist_matrix_sq
+        #dist_matrix = torch.clamp(dist_matrix, min=0.0)
+        #return (dist_matrix + 1e-8).sqrt()
 
     def _gaussian_kernel(self, x, y, sigma):
-        dist = self._pairwise_distance(x, y)
-        kernel_matrix = torch.exp(-dist**2 / sigma) #(2 * sigma**2))
+        dist_sq = self._pairwise_distance_sq(x, y)
+        kernel_matrix = torch.exp(-dist_sq / sigma) #(2 * sigma**2))
         return kernel_matrix
 
     def _estimate_sigma(self, y):
-        with torch.no_grad():
-            dist_vector = self._pairwise_distance(y, y).flatten().square()
-            return torch.median(dist_vector)
+        dist_vector = self._pairwise_distance_sq(y, y).flatten().square()
+        return torch.median(dist_vector.sqrt())
 
     def __call__(self, x):
         nx = x.shape[0]
         kernel_xx = self._gaussian_kernel(x, x, self.sigma)
         # substract diagonal elements
-        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0])        
+        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0], device=x.device)        
         kernel_xy = self._gaussian_kernel(x, self.y, self.sigma)
         loss = (
             1 / (nx * (nx - 1)) * kernel_xx.sum()
