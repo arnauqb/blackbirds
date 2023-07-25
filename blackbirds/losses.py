@@ -56,7 +56,7 @@ class UnivariateMMDLoss:
             assert len(y.shape) == 2, "If not a 1D Tensor, y must be at most 2D of shape (1, T)"
             assert y.shape[1] == 1, "This class assumes y is a single univariate time series. This appears to be a batch of data."
             y = y.reshape(-1)
-
+        self.device = y.device
         self.y = y
         self.y_matrix = self.y.reshape(1,-1,1)
         yy = torch.cdist(self.y_matrix, self.y_matrix)
@@ -67,7 +67,7 @@ class UnivariateMMDLoss:
             torch.exp( 
                 -yy_sqrd / self.y_sigma 
             ) 
-            - torch.eye(ny)
+            - torch.eye(ny, device=self.device)
         ).sum() / (ny * (ny - 1))
         
     def __call__(
@@ -91,7 +91,7 @@ class UnivariateMMDLoss:
              2) 
             / self.y_sigma 
         )
-        kxx = (kxx - torch.eye(nx)).sum() / (nx * (nx - 1))
+        kxx = (kxx - torch.eye(nx, device=self.device)).sum() / (nx * (nx - 1))
         kxy = torch.exp( - torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma )
         kxy = kxy.mean()
         return kxx + self.kyy - 2 * kxy
