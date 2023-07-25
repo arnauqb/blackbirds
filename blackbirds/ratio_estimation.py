@@ -69,21 +69,6 @@ class RatioEstimator(nn.Module):
         return this_loss
 
 
-def generate_training_data(
-    simulator: Callable,
-    prior: torch.distributions.Distribution,
-    n_training_samples: int = 1_000
-    ):
-
-    theta = prior.sample((n_training_samples,))
-    x = []
-    for i in range(n_training_samples):
-        this_theta = theta[i]
-        this_x = simulator(this_theta)
-        x.append(this_x)
-    return theta, torch.vstack(x)
-
-
 def train(
     train_x: torch.Tensor,
     train_theta: torch.Tensor,

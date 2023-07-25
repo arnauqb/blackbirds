@@ -2,6 +2,8 @@ import torch
 import warnings
 from typing import Callable
 
+from blackbirds.mpi_setup import mpi_rank, mpi_size, mpi_comm
+
 
 def simulate_and_observe_model(
     model: torch.nn.Module,
@@ -81,3 +83,51 @@ def compute_loss(
     if is_nan:
         return torch.tensor(torch.nan), torch.tensor(torch.nan)
     return loss, loss  # need to return it twice for jac calculation
+
+
+def generate_training_data(
+    simulator: Callable,
+    prior: torch.distributions.Distribution,
+    n_training_samples: int = 1_000
+    ):
+    """
+    Generates training data pairs (theta, x) where theta are the 
+    model parameters and x the model output. Supports MPI parallelilsation
+    for multi-gpu calculation.
+
+    **Arguments:**
+
+    - `simulator`: A function that takes a parameter vector theta and returns a model output x.
+    - `prior`: A torch.distributions.Distribution object that generates training parameter samples.
+    - `n_training_samples`: Number of training samples to generate.
+
+    !!! example
+        ```python
+        def simulator(theta):
+            return theta + torch.randn(1)
+        prior = torch.distributions.Normal(0., 1.)
+        theta, x = generate_training_data(simulator, prior, 1000)
+        ```
+    To run in parallel, simply run the following command:
+        ```bash
+        mpirun -np X python script.py
+        ```
+    where `script.py` contains the code in the example above.
+    """
+    # sample and scatter parameters across mpi ranks
+    thetas = prior.sample((n_training_samples,))
+    thetas = torch.split(thetas, n_training_samples // mpi_size)[mpi_rank]
+    # simulate
+    xs = []
+    for theta in thetas:
+        x = simulator(theta)
+        xs.append(x)
+    xs = torch.stack(xs)
+    # gather all parameters and outputs to rank 0
+    if mpi_comm is not None:
+        thetas = mpi_comm.bcast(thetas, root=0)
+        xs = mpi_comm.bcast(xs, root=0)
+    assert thetas.shape[0] == n_training_samples
+    assert xs.shape[0] == n_training_samples
+    return thetas, xs
+

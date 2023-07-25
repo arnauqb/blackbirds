@@ -1,7 +1,11 @@
 import torch
 import numpy as np
 
-from blackbirds.simulate import simulate_and_observe_model, compute_loss
+from blackbirds.simulate import (
+    simulate_and_observe_model,
+    compute_loss,
+    generate_training_data,
+)
 
 
 class TestSimulate:
@@ -38,3 +42,10 @@ class TestSimulate:
             torch.tensor([4.0, 5, float("nan")]),
         ]
         assert np.isnan(compute_loss(loss_fn, observed_outputs, simulated_outputs)[0])
+
+    def test__generate_training_pairs(self):
+        def simulator(theta):
+            return theta + torch.randn(1)
+        prior = torch.distributions.Normal(torch.tensor([0., 0.]), torch.tensor([1., 1.]))
+        theta, x = generate_training_data(simulator, prior, 100)
+        assert theta.shape == torch.Size([100, 2])
