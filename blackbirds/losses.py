@@ -116,13 +116,12 @@ class SingleOutput_SimulateAndMMD:
         return self.mmd_loss(x)
 
 
-class MMDLoss(torch.nn.Module):
+class MMDLoss:
     """
     Implementation of a multivariate MMDLoss, that does not use `torch.cdist` since it is not compatible with forward-mode differentiation as of now.
     """
 
     def __init__(self, y):
-        super().__init__()
         self.y = y
         self.sigma = self._estimate_sigma(y)
         self.kernel_yy = self._gaussian_kernel(y, y, self.sigma)
