@@ -60,7 +60,6 @@ class UnivariateMMDLoss:
         self.kyy = (torch.exp(-yy_sqrd / self.y_sigma) - torch.eye(ny)).sum() / (
             ny * (ny - 1)
         )
-        print(self.kyy)
 
     def __call__(
         self,
