@@ -37,7 +37,7 @@ class TestMSELoss:
         assert np.isclose(loss_value, value, atol=1e-2, rtol=5e-2)
 
 
-class TestMMDLoss:
+class TestUnivariateMMDLoss:
 
     def test_normal_same(self):
 
