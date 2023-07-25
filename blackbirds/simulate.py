@@ -1,5 +1,6 @@
 import torch
 import warnings
+from tqdm import tqdm
 from typing import Callable
 
 from blackbirds.mpi_setup import mpi_rank, mpi_size, mpi_comm
@@ -89,7 +90,8 @@ def compute_loss(
 def generate_training_data(
     simulator: Callable,
     prior: torch.distributions.Distribution,
-    n_training_samples: int = 1_000
+    n_training_samples: int = 1_000,
+    progress_bar = True
     ):
     """
     Generates training data pairs (theta, x) where theta are the 
@@ -120,15 +122,30 @@ def generate_training_data(
     thetas = torch.split(thetas, n_training_samples // mpi_size)[mpi_rank]
     # simulate
     xs = []
-    for theta in thetas:
+    if progress_bar:
+        prange = tqdm(range(len(thetas)))
+    else:
+        prange = range(len(thetas))
+    for i in prange:
+        theta = thetas[i]
         x = simulator(theta)
-        xs.append(x)
-    xs = torch.stack(xs)
+        x = torch.cat([t[:,None] for t in x], dim=-1)
+        xs.append(x[None,:])
+    # concatenate xs into tensor for size N x T x F
+    # where N is number of samples, T is number of timesteps and F is number of features
+    xs 
+    xs = torch.cat(xs, dim=0)
     # gather all parameters and outputs to rank 0
-    if mpi_comm is not None:
-        thetas = mpi_comm.bcast(thetas, root=0)
-        xs = mpi_comm.bcast(xs, root=0)
-    assert thetas.shape[0] == n_training_samples
-    assert xs.shape[0] == n_training_samples
-    return thetas, xs
+    if mpi_comm is not None and mpi_size > 1:
+        thetas = mpi_comm.gather(thetas, root=0)
+        xs = mpi_comm.gather(xs, root=0)
+        if mpi_rank == 0:
+            thetas = torch.cat(thetas, dim=0)
+            xs = torch.cat(xs, dim=0)
+    if mpi_rank == 0:
+        assert thetas.shape[0] == n_training_samples
+        assert xs.shape[0] == n_training_samples
+        return thetas, xs
+    else:
+        return [], []
 

@@ -45,7 +45,8 @@ class TestSimulate:
 
     def test__generate_training_pairs(self):
         def simulator(theta):
-            return theta + torch.randn(1)
+            return [theta + torch.randn(1), theta - torch.randn(1), theta + 2 * torch.randn(1)]
         prior = torch.distributions.Normal(torch.tensor([0., 0.]), torch.tensor([1., 1.]))
-        theta, x = generate_training_data(simulator, prior, 100)
+        theta, x = generate_training_data(simulator, prior, 100, progress_bar=False)
         assert theta.shape == torch.Size([100, 2])
+        assert x.shape == torch.Size([100, 2, 3])
