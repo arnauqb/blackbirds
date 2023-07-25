@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from blackbirds.losses import SingleOutput_SimulateAndMSELoss, SingleOutput_SimulateAndMMD
+from blackbirds.losses import SingleOutput_SimulateAndMSELoss, SingleOutput_SimulateAndMMD, MMDLoss, UnivariateMMDLoss
 from blackbirds.models.normal import Normal
 from blackbirds.models.random_walk import RandomWalk
 from blackbirds.simulate import simulate_and_observe_model
@@ -65,5 +65,24 @@ class TestMMDLoss:
         # MMD between distributions of hould be close to 0
         assert not np.isclose(loss_value, 0.)
         assert loss_value > 0.
+
+
+class TestMMDLoss:
+    def test__compute_pairwise_distances(self):
+        x = torch.randn(100, 2)
+        y = torch.randn(50, 2)
+        loss = MMDLoss(y)
+        loss_calc = loss._pairwise_distance(x, y)
+        x_cdist = x.view(1, 100, 2)
+        y_cdist = y.view(1, 50, 2)
+        torch_calc = torch.cdist(x_cdist, y_cdist)[0,:,:]
+        assert torch.allclose(torch_calc, loss_calc)
+
+    def test__mmd_loss(self):
+        X = torch.randn(100, 1)
+        Y = torch.randn(50, 1)
+        loss = MMDLoss(Y)
+        loss_1d = UnivariateMMDLoss(Y.flatten())
+        assert torch.isclose(loss(X), loss_1d(X.flatten()))
 
 
