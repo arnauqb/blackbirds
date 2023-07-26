@@ -122,7 +122,7 @@ def generate_training_data(
     thetas = torch.split(thetas, n_training_samples // mpi_size)[mpi_rank]
     # simulate
     xs = []
-    if progress_bar:
+    if progress_bar and mpi_rank == 0:
         prange = tqdm(range(len(thetas)))
     else:
         prange = range(len(thetas))
@@ -137,8 +137,8 @@ def generate_training_data(
     xs = torch.cat(xs, dim=0)
     # gather all parameters and outputs to rank 0
     if mpi_comm is not None and mpi_size > 1:
-        thetas = mpi_comm.gather(thetas, root=0)
-        xs = mpi_comm.gather(xs, root=0)
+        thetas = mpi_comm.gather(thetas.cpu(), root=0)
+        xs = mpi_comm.gather(xs.cpu(), root=0)
         if mpi_rank == 0:
             thetas = torch.cat(thetas, dim=0)
             xs = torch.cat(xs, dim=0)
