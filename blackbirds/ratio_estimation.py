@@ -6,6 +6,8 @@ import torch.optim
 from tqdm import trange
 from typing import Callable
 
+from torch.utils.tensorboard import SummaryWriter
+
 logger = logging.getLogger("ratio")
 
 
@@ -82,7 +84,9 @@ def train(
     best_loss: float = float('inf'),
     max_iterations_without_val_loss_improvement: int = 20,
     outloc: str | None = None,
-    stop_at_loss: float = 0.
+    stop_at_loss: float = 0.,
+    tensorboard_log_dir: str | None = None,
+    gradient_clipping_norm: float | None = None
     ):
 
     """
@@ -107,6 +111,7 @@ def train(
        saved for later use.
     - `stop_at_loss`: A float specifying the loss below which training should be stopped.
        Useful when a lower bound on the loss is known.
+    - `tensorboard_log_dir`: A string specifying the location at which to store tensorboard
     """
 
     iterator = trange(max_num_epochs, position=0, leave=True)
@@ -115,9 +120,12 @@ def train(
     N_VAL = val_x.shape[0]
     m = 0
     best_ratio_estimator = copy.deepcopy(ratio_estimator)
+    writer = SummaryWriter(log_dir=tensorboard_log_dir)
 
     for epoch in iterator:
         idx = 0
+        epoch_train_loss = 0.
+        epoch_val_loss = 0.
         while idx < N_TRAIN:
 
             ratio_optimiser.zero_grad()
@@ -139,8 +147,12 @@ def train(
             #product_loss = ratio_estimator.forward(joint_sx, rolled_thetas, prior=True)
             #loss = product_loss + joint_loss
 
+            epoch_train_loss += loss.item()
             logger.info("Loss = {0}".format(loss.item()))
+
             loss.backward()
+            if gradient_clipping_norm is not None:
+                torch.nn.utils.clip_grad_norm_(ratio_estimator.parameters(), gradient_clipping_norm)
             #print([p.grad for p in ratio_estimator.parameters()])
             ratio_optimiser.step()
             idx += batch_size
@@ -154,6 +166,7 @@ def train(
                 rolled_thetas = torch.roll(val_theta, i, 0)
                 val_product_loss += ratio_estimator.forward(val_sx, rolled_thetas, prior=True)
             val_loss = val_product_loss / (N_VAL - 1) + val_joint_loss
+            epoch_val_loss += val_loss.item()
 
             #rolled_thetas = torch.roll(val_theta, torch.randint(low=1, high=N_VAL, size=(1,)).item(), 0)
             #val_product_loss = ratio_estimator.forward(val_sx, rolled_thetas, prior=True)
@@ -179,5 +192,9 @@ def train(
                 return best_ratio_estimator, loss_hist
             if not ratio_scheduler is None:
                 ratio_scheduler.step(val_loss)
+        writer.add_scalar("loss/train", epoch_train_loss, epoch)
+        writer.add_scalar("loss/val", epoch_val_loss, epoch)
     logger.info("Training stopped - max number of iterations reached.")
+    writer.flush()
+    writer.close()
     return best_ratio_estimator, loss_hist
