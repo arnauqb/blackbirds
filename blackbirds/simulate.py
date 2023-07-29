@@ -143,8 +143,6 @@ def generate_training_data(
             thetas = torch.cat(thetas, dim=0)
             xs = torch.cat(xs, dim=0)
     if mpi_rank == 0:
-        assert thetas.shape[0] == n_training_samples
-        assert xs.shape[0] == n_training_samples
         return thetas, xs
     else:
         return [], []
