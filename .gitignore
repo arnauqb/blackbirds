@@ -163,3 +163,8 @@ cython_debug/
 **/*.pt
 examples/**/runs/**
 runs
+**/*.DS_Store
+**/*.pdf
+**/*.npy
+.vscode
+
