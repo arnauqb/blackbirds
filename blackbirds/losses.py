@@ -123,11 +123,12 @@ class MMDLoss:
 
     def __init__(self, y):
         self.y = y
+        self.device = y.device
         self.sigma = self._estimate_sigma(y)
         self.kernel_yy = self._gaussian_kernel(y, y, self.sigma)
         # substract diagonal elements
         self.kernel_yy = self.kernel_yy - torch.eye(
-            self.kernel_yy.shape[0]
+            self.kernel_yy.shape[0], device=self.device
         )
         self.ny = y.shape[0]
 
@@ -154,7 +155,7 @@ class MMDLoss:
         nx = x.shape[0]
         kernel_xx = self._gaussian_kernel(x, x, self.sigma)
         # substract diagonal elements
-        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0])        
+        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0], device=self.device)        
         kernel_xy = self._gaussian_kernel(x, self.y, self.sigma)
         loss = (
             1 / (nx * (nx - 1)) * kernel_xx.sum()
