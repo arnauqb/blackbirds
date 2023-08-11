@@ -85,4 +85,22 @@ class TestMMDLoss:
         loss_1d = UnivariateMMDLoss(Y.flatten())
         assert torch.isclose(loss(X), loss_1d(X.flatten()))
 
+    def test__mmd_gradient(self):
+        # detect anomaly torch
+        torch.autograd.set_detect_anomaly(True)
+        p = torch.tensor(0.3, requires_grad=True)
+        X = torch.randn(100, 1) * p
+        Y = torch.randn(50, 1)
+        loss = MMDLoss(Y)(X)
+        loss.backward()
+        grad = p.grad.item()
+        p = torch.tensor(0.3, requires_grad=True)
+        X = torch.randn(100, 1) * p
+        loss_1d = UnivariateMMDLoss(Y.flatten())
+        loss = loss_1d(X.flatten())
+        loss.backward()
+        grad_1d = p.grad.item()
+        assert np.isclose(grad, grad_1d, rtol=1e-2)
+
+
 

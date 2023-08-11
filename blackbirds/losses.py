@@ -137,7 +137,8 @@ class MMDLoss:
         xy = torch.matmul(x, y.t())
         dist_matrix = xx - 2 * xy + yy.t()
         dist_matrix = torch.clamp(dist_matrix, min=0.0)
-        return dist_matrix.sqrt()
+        # add small epsilon to avoid nan gradient
+        return torch.sqrt(dist_matrix + 1e-10)
 
     def _gaussian_kernel(self, x, y, sigma):
         dist = self._pairwise_distance(x, y)
