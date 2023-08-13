@@ -57,7 +57,7 @@ class UnivariateMMDLoss:
         yy_sqrd = torch.pow(yy, 2)
         self.y_sigma = torch.median(yy_sqrd)
         ny = self.y.shape[0]
-        self.kyy = (torch.exp(-yy_sqrd / self.y_sigma) - torch.eye(ny)).sum() / (
+        self.kyy = (torch.exp(-yy_sqrd / self.y_sigma) - torch.eye(ny, device=y.device)).sum() / (
             ny * (ny - 1)
         )
 
@@ -82,7 +82,7 @@ class UnivariateMMDLoss:
         nx = x.shape[0]
         x_matrix = x.reshape(1, -1, 1)
         kxx = torch.exp(-torch.pow(torch.cdist(x_matrix, x_matrix), 2) / self.y_sigma)
-        kxx = (kxx - torch.eye(nx)).sum() / (nx * (nx - 1))
+        kxx = (kxx - torch.eye(nx, device=x.device)).sum() / (nx * (nx - 1))
         kxy = torch.exp(
             -torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma
         )
