@@ -99,7 +99,8 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     device = parameters.device
     to_diff = torch.zeros(1, device=device)
     for i in range(len(jacobians)):
-        to_diff += torch.matmul(jacobians[i].to(device), parameters[i, :])
+        jacobian = torch.tensor(jacobians[i], device=device)
+        to_diff += torch.matmul(jacobian, parameters[i, :])
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
@@ -162,7 +163,7 @@ def compute_loss_and_jacobian_pathwise(
         chunk_size=jacobian_chunk_size,
     )
     # make each rank compute the loss for its parameters
-    loss = 0
+    loss = 0.0
     jacobians_per_rank = []
     indices_per_rank = []  # need to keep track of which parameter has which jacobian
     for i in range(mpi_rank, len(params_list_comm), mpi_size):
@@ -170,8 +171,8 @@ def compute_loss_and_jacobian_pathwise(
         jacobian, loss_i = jacobian_calculator(params)
         if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
-        loss += loss_i
-        jacobians_per_rank.append(jacobian.cpu().to(torch.float))
+        loss += loss_i.item()
+        jacobians_per_rank.append(jacobian.cpu().to(torch.float).numpy())
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
@@ -183,9 +184,10 @@ def compute_loss_and_jacobian_pathwise(
     if mpi_comm is not None:
         losses = mpi_comm.gather(loss, root=0)
         if mpi_rank == 0:
-            loss = sum([l.cpu() for l in losses if l != 0])
-            if type(loss) == int:
-                loss = torch.tensor(loss, device=device)
+            loss = sum(losses)
+            #loss = sum([l.cpu() for l in losses if l != 0])
+            #if type(loss) == int:
+                #loss = torch.tensor(loss, device=device)
     if mpi_rank == 0:
         jacobians = list(chain(*jacobians_per_rank))
         indices = list(chain(*indices_per_rank))
@@ -258,9 +260,9 @@ def compute_and_differentiate_loss_score(
             params_list_comm, loss_per_parameter, logprobs_list
         ):
             loss_i = torch.tensor(loss_i, device=device)
-            if np.isnan(loss_i):  # no parameter was non-nan
+            if torch.isnan(loss_i):  # no parameter was non-nan
                 continue
-            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1)))
+            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1), device=device))
             to_backprop += loss_i * lp
             total_loss += loss_i
             n_samples_non_nan += 1
@@ -430,8 +432,9 @@ class VI:
                 )
                 # differentiate regularisation
                 regularisation_loss.backward()
+                regularisation_loss = regularisation_loss.item()
             else:
-                regularisation_loss = torch.zeros(1, device=loss.device)
+                regularisation_loss = 0.0
             # clip gradients
             torch.nn.utils.clip_grad_norm_(
                 self.posterior_estimator.parameters(), self.gradient_clipping_norm
@@ -463,7 +466,7 @@ class VI:
                 loss.backward()
                 optimizer.step()
                 if loss < best_loss:
-                    best_loss = loss.item()
+                    best_loss = loss
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
@@ -506,16 +509,16 @@ class VI:
         for epoch in iterator:
             total_loss, loss, regularisation_loss = self.step(data)
             if mpi_rank == 0:
-                self.losses_hist["total"].append(total_loss.item())
-                self.losses_hist["loss"].append(loss.item())
-                self.losses_hist["regularisation"].append(regularisation_loss.item())
+                self.losses_hist["total"].append(total_loss)
+                self.losses_hist["loss"].append(loss)
+                self.losses_hist["regularisation"].append(regularisation_loss)
                 if self.log_tensorboard:
                     self.writer.add_scalar("Loss/total", total_loss, epoch)
                     self.writer.add_scalar("Loss/loss", loss, epoch)
                     self.writer.add_scalar(
                         "Loss/regularisation", regularisation_loss, epoch
                     )
-                torch.save(self.best_estimator_state_dict, "last_estimator.pt")
+                torch.save(self.posterior_estimator.state_dict(), "last_estimator.pt")
                 if total_loss < self.best_loss:
                     self.best_loss = total_loss
                     self.best_estimator_state_dict = deepcopy(
@@ -528,10 +531,10 @@ class VI:
                 if self.progress_bar and self.progress_info:
                     iterator.set_postfix(
                         {
-                            "loss": loss.item(),
-                            "reg.": regularisation_loss.item(),
-                            "total": total_loss.item(),
-                            "best loss": self.best_loss.item(),
+                            "loss": loss,
+                            "reg.": regularisation_loss,
+                            "total": total_loss,
+                            "best loss": self.best_loss,
                             "epochs since improv.": num_epochs_without_improvement,
                         }
                     )
