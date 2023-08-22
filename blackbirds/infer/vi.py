@@ -259,10 +259,10 @@ def compute_and_differentiate_loss_score(
         for param, loss_i, param_logprob in zip(
             params_list_comm, loss_per_parameter, logprobs_list
         ):
-            loss_i = torch.tensor(loss_i, device=device)
-            if torch.isnan(loss_i):  # no parameter was non-nan
+            if np.isnan(loss_i):  # no parameter was non-nan
                 continue
             lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1), device=device))
+            loss_i = float(loss_i)
             to_backprop += loss_i * lp
             total_loss += loss_i
             n_samples_non_nan += 1
