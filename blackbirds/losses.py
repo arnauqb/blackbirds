@@ -50,16 +50,19 @@ class UnivariateMMDLoss:
                 y.shape[1] == 1
             ), "This class assumes y is a single univariate time series. This appears to be a batch of data."
             y = y.reshape(-1)
-
+        self.device = y.device
         self.y = y
         self.y_matrix = self.y.reshape(1, -1, 1)
         yy = torch.cdist(self.y_matrix, self.y_matrix)
         yy_sqrd = torch.pow(yy, 2)
         self.y_sigma = torch.median(yy_sqrd)
         ny = self.y.shape[0]
-        self.kyy = (torch.exp(-yy_sqrd / self.y_sigma) - torch.eye(ny)).sum() / (
-            ny * (ny - 1)
-        )
+        self.kyy = (
+            torch.exp( 
+                -yy_sqrd / self.y_sigma 
+            ) 
+            - torch.eye(ny, device=self.device)
+        ).sum() / (ny * (ny - 1))
 
     def __call__(
         self,
@@ -80,12 +83,15 @@ class UnivariateMMDLoss:
             x = x.reshape(-1)
 
         nx = x.shape[0]
-        x_matrix = x.reshape(1, -1, 1)
-        kxx = torch.exp(-torch.pow(torch.cdist(x_matrix, x_matrix), 2) / self.y_sigma)
-        kxx = (kxx - torch.eye(nx)).sum() / (nx * (nx - 1))
-        kxy = torch.exp(
-            -torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma
+        x_matrix = x.reshape(1,-1,1)
+        kxx = torch.exp( 
+            -torch.pow(
+                torch.cdist(x_matrix, x_matrix), 
+             2) 
+            / self.y_sigma 
         )
+        kxx = (kxx - torch.eye(nx, device=self.device)).sum() / (nx * (nx - 1))
+        kxy = torch.exp( - torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma )
         kxy = kxy.mean()
         return kxx + self.kyy - 2 * kxy
 
@@ -127,33 +133,33 @@ class MMDLoss:
         self.kernel_yy = self._gaussian_kernel(y, y, self.sigma)
         # substract diagonal elements
         self.kernel_yy = self.kernel_yy - torch.eye(
-            self.kernel_yy.shape[0]
+            self.kernel_yy.shape[0], device=y.device
         )
         self.ny = y.shape[0]
 
-    def _pairwise_distance(self, x, y):
+    def _pairwise_distance_sq(self, x, y):
         xx = torch.sum(x**2, dim=1, keepdim=True)
         yy = torch.sum(y**2, dim=1, keepdim=True)
         xy = torch.matmul(x, y.t())
-        dist_matrix = xx - 2 * xy + yy.t()
-        dist_matrix = torch.clamp(dist_matrix, min=0.0)
-        return dist_matrix.sqrt()
+        dist_matrix_sq = xx - 2 * xy + yy.t()
+        return dist_matrix_sq
+        #dist_matrix = torch.clamp(dist_matrix, min=0.0)
+        #return (dist_matrix + 1e-8).sqrt()
 
     def _gaussian_kernel(self, x, y, sigma):
-        dist = self._pairwise_distance(x, y)
-        kernel_matrix = torch.exp(-dist**2 / sigma) #(2 * sigma**2))
+        dist_sq = self._pairwise_distance_sq(x, y)
+        kernel_matrix = torch.exp(-dist_sq / sigma) #(2 * sigma**2))
         return kernel_matrix
 
     def _estimate_sigma(self, y):
-        with torch.no_grad():
-            dist_vector = self._pairwise_distance(y, y).flatten().square()
-            return torch.median(dist_vector)
+        dist_vector = self._pairwise_distance_sq(y, y).flatten().square()
+        return torch.median(dist_vector.sqrt())
 
     def __call__(self, x):
         nx = x.shape[0]
         kernel_xx = self._gaussian_kernel(x, x, self.sigma)
         # substract diagonal elements
-        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0])        
+        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0], device=x.device)        
         kernel_xy = self._gaussian_kernel(x, self.y, self.sigma)
         loss = (
             1 / (nx * (nx - 1)) * kernel_xx.sum()
