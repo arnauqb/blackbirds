@@ -1,12 +1,12 @@
 import torch
 import warnings
-from typing import Callable
+from typing import Callable, Union
 
 
 def simulate_and_observe_model(
     model: torch.nn.Module,
     params: torch.Tensor,
-    gradient_horizon: int | None = None,
+    gradient_horizon: Union[int,  None] = None,
 ):
     """Runs the simulator for the given parameters and calls the model's observe method.
     To avoid gradient instabilities, the `gradient_horizon` argument limits the number of past time-steps
