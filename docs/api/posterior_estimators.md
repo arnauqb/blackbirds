@@ -1,3 +1,3 @@
 # Example posterior estimators 
 
-:::blackbirds.posterior_estimators
+:::blackbirds.posterior_estimators.TrainableGaussian
