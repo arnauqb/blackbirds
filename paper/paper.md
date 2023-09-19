@@ -53,8 +53,8 @@ object-oriented framework for their implementation in `PyTorch` [@pytorch],
 and (b) the use of a variety of gradient-assisted inference procedures for these simulation
 models, allowing researchers to easily exploit the differentiable nature of their simulator in 
 parameter estimation tasks. The package consists of both Bayesian and non-Bayesian
-inference methods, and relies on well-supported software libraries (e.g. 
-`normflows`, @normflows) to provide this broad functionality.
+inference methods, and relies on well-supported software libraries [e.g.,
+`normflows`, @normflows] to provide this broad functionality.
 
 # Statement of need
 
@@ -73,7 +73,7 @@ these tasks inexactly.
 The complicated and black-box nature of many simulation models can present a
 significant barrier to the successful deployment of these simulation-based inference 
 and optimisation techniques. Consequently, there has been increasing interest within
-various scientific communities in constructing *differentiable* simulation models (see e.g. @hep; @gradabm): 
+various scientific communities in constructing *differentiable* simulation models [see e.g., @hep; @gradabm]: 
 simulation models for which the gradient of the model output with respect to the
 model's input parameters can be easily obtained. The primary motivation for this is
 that access to this additional information, which captures the sensitivity of the
@@ -87,7 +87,7 @@ set of parameter inference methods that exploit the gradient information provide
 differentiable simulators. The package provides support for a variety of approaches to
 gradient-assisted parameter inference, including:
 
-- Simulated Minimum Distance (SMD, see e.g. @ii; @smm), in which parameter
+- Simulated Minimum Distance [SMD, see e.g., @ii; @smm], in which parameter
   point estimates $\hat{\boldsymbol{\theta}}$ are obtained as
 
   \begin{equation}
@@ -126,13 +126,12 @@ gradient-assisted parameter inference, including:
 The package is written such that the user is free to specify their choice of $\ell$ and $\pi$ (in the
 case of Bayesian methods), under the constraint that both choices are differentiable with respect to
 $\boldsymbol{\theta}$. This allows the user to target a wide variety of parameter point estimators, 
-and both classical and generalised (see e.g. @bissiri; @gvi) posteriors. We provide a
+and both classical and generalised [see e.g., @bissiri; @gvi] posteriors. We provide a
 number of [tutorials](https://www.arnau.ai/blackbirds/) demonstrating (a) how to implement a simulator
 in a differentiable framework in PyTorch and (b) how to apply the different parameter inference methods
 supported by `BlackBIRDS` to these differentiable simulators. Our package provides the user with flexible
 posterior density estimators with the use of normalising flows, and has already been used in scientific
-research to calibrate differentiable simulators, such as [@ai4abm; @dae], and in forthcoming publications
-yet to be announced publicly. 
+research to calibrate differentiable simulators [@ai4abm; @dae].
 
 ## Related software
 
@@ -141,13 +140,13 @@ is a package offering PyTorch-based implementations of numerous simulation-based
 including those based on the use of MCMC and neural conditional density estimators. Our package differs
 significantly, however: in contrast to `sbi`, `BlackBIRDS` provides support for both Bayesian and 
 non-Bayesian inference methods, and permits the researcher to exploit gradients of the simulator, 
-loss function, and/or posterior density with respect to parameters $\mathbf{\theta}$ during inference tasks.
+loss function, and/or posterior density with respect to parameters $\mathbf{\theta}$ during inference tasks. The same comparison applies to the the `BayesFlow` package [@radev2023bayesflow].
 `black-it` [@blit] is a further recent Python package that collects some recently developed parameter 
 estimation methods from the agent-based modelling community; the focus of this package is, however, on
 non-Bayesian methods, and the package does not currently support the exploitation of simulator gradients.
 `PyVBMC` [@pyvbmc] provides a Python implementation of the Variational Bayesian Monte Carlo algorithm 
 using Gaussian processes, but differs from our package in that it does not exploit simulator gradients
-and is focused on Bayesian inference alone. Additional older packages (e.g. @abcpy; @pyabc) also
+and is focused on Bayesian inference alone. Additional older packages [e.g., @abcpy; @pyabc] also
 focus on approximate Bayesian inference methods for non-differentiable simulators. Beyond this, we are
 unaware of other mature software projects in Python that support parameter inference in the specific case
 of differentiable simulation models. 

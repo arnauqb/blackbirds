@@ -1,7 +1,8 @@
+from typing import Union
+import torch
+
 from blackbirds.models.model import Model
 from blackbirds.simulate import simulate_and_observe_model
-
-import torch
 
 
 class SingleOutput_SimulateAndMSELoss:
@@ -9,13 +10,13 @@ class SingleOutput_SimulateAndMSELoss:
     """
     Computes MSE between observed data y and simulated data at theta (to be passed during __call__).
 
-    **Arguments**
+    **Arguments:**
 
     - `model`: An instance of a Model. The model that you'd like to "fit".
     - `gradient_horizon`: Specifies the gradient horizon to use. None implies infinite horizon.
     """
 
-    def __init__(self, model: Model, gradient_horizon: int | None = None):
+    def __init__(self, model: Model, gradient_horizon: Union[int, None] = None):
         self.loss = torch.nn.MSELoss()
         self.model = model
         self.gradient_horizon = gradient_horizon
@@ -34,9 +35,10 @@ class UnivariateMMDLoss:
         """
         Computes MMD between data y and simulated output x (to be passed during call).
 
-        Assumes y is a torch.Tensor consisting of a single univariate time series.
-        """
+        **Arguments:**
 
+        - `y`: torch.Tensor containing a single univariate time series.
+        """
         assert isinstance(y, torch.Tensor), "y is assumed to be a torch.Tensor here"
         try:
             assert (
@@ -58,10 +60,7 @@ class UnivariateMMDLoss:
         self.y_sigma = torch.median(yy_sqrd)
         ny = self.y.shape[0]
         self.kyy = (
-            torch.exp( 
-                -yy_sqrd / self.y_sigma 
-            ) 
-            - torch.eye(ny, device=self.device)
+            torch.exp(-yy_sqrd / self.y_sigma) - torch.eye(ny, device=self.device)
         ).sum() / (ny * (ny - 1))
 
     def __call__(
@@ -83,35 +82,30 @@ class UnivariateMMDLoss:
             x = x.reshape(-1)
 
         nx = x.shape[0]
-        x_matrix = x.reshape(1,-1,1)
-        kxx = torch.exp( 
-            -torch.pow(
-                torch.cdist(x_matrix, x_matrix), 
-             2) 
-            / self.y_sigma 
-        )
+        x_matrix = x.reshape(1, -1, 1)
+        kxx = torch.exp(-torch.pow(torch.cdist(x_matrix, x_matrix), 2) / self.y_sigma)
         kxx = (kxx - torch.eye(nx, device=self.device)).sum() / (nx * (nx - 1))
-        kxy = torch.exp( - torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma )
+        kxy = torch.exp(
+            -torch.pow(torch.cdist(x_matrix, self.y_matrix), 2) / self.y_sigma
+        )
         kxy = kxy.mean()
         return kxx + self.kyy - 2 * kxy
 
 
 class SingleOutput_SimulateAndMMD:
-
     """
     Example implementation of a loss that simulates from the model and computes the MMD
     between the model output and observed data y. (This treats the entries in y and in
     the simulator output as exchangeable.)
 
-    **Arguments**
+    **Arguments:**
 
     - `y`: torch.Tensor containing a single univariate time series.
     - `model`: An instance of a Model.
     - `gradient_horizon`: An integer or None. Sets horizon over which gradients are retained. If None, infinite horizon used.
     """
-
     def __init__(
-        self, y: torch.Tensor, model: Model, gradient_horizon: int | None = None
+        self, y: torch.Tensor, model: Model, gradient_horizon: Union[int, None] = None
     ):
         self.mmd_loss = UnivariateMMDLoss(y)
         self.model = model

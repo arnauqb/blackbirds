@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import torch
 from tqdm import trange
-from typing import Callable
+from typing import Callable, Union
 
 logger = logging.getLogger("mcmc")
 
@@ -32,7 +32,7 @@ class MCMCKernel(ABC):
         w: float = 1.0,
         gradient_clipping_norm: float = np.inf,
         diff_mode: str = "reverse",
-        jacobian_chunk_size: int | None = None,
+        jacobian_chunk_size: Union[int, None] = None,
         gradient_horizon: int = np.inf,
         device: str = "cpu",
         discretisation_method: str = "e-m",
@@ -116,7 +116,7 @@ class MALA(MCMCKernel):
         current_state,
         data,
         scale: float = 1.0,
-        covariance: torch.Tensor | None = None,
+        covariance: Union[torch.Tensor, None] = None,
     ):
         """
         Returns a (torch.Tensor, bool) pair corresponding to (the current state of the chain, whether

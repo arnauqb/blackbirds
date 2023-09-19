@@ -4,7 +4,6 @@ import torch
 from blackbirds.losses import (
     SingleOutput_SimulateAndMSELoss,
     SingleOutput_SimulateAndMMD,
-    UnivariateMMDLoss,
 )
 from blackbirds.models.normal import Normal
 from blackbirds.simulate import simulate_and_observe_model
