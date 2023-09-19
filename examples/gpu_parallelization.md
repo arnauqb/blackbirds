@@ -4,9 +4,9 @@ This shows an example on how to run Variational Inference (VI) using multiple GP
 
 The full example script can be found in `examples/variational_inference/05-gpu_parallelisation.py`.
 
-To achieve multi-gpu parallelization, we use MPI4PY to launch multiple python processes. The main process (rank 0) is in charge of sampling the parameters that need to be evaluated and updating the candidate posterior parameters. The worker processes only job is to receive the parameters from the main process and to run the evaluate the model on them.
+To achieve multi-gpu parallelization, we use MPI4PY to launch multiple python processes. The main process (rank 0) is in charge of sampling the parameters that need to be evaluated and updating the candidate posterior parameters. The worker processes only job is to receive the parameters from the main process and to evaluate the model on them.
 
-Each process needs to allocate the model in the desired GPU. As you may have already seen from the examples section, all the example models accept a `device` argument that let's us specify the device in the usual torch syntax. So, we initialize the model and the flow in the device we want:
+Each process needs to allocate the model in the desired GPU. As you may have already seen from the examples section, all the example models accept a `device` argument that lets us specify the device in the usual torch syntax. So, we initialize the model and the flow in the device we want:
 
 ```python
 def make_model(n_agents, n_timesteps, device):
