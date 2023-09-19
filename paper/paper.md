@@ -53,7 +53,7 @@ object-oriented framework for their implementation in `PyTorch` [@pytorch],
 and (b) the use of a variety of gradient-assisted inference procedures for these simulation
 models, allowing researchers to easily exploit the differentiable nature of their simulator in 
 parameter estimation tasks. The package consists of both Bayesian and non-Bayesian
-inference methods, and relies on well-supported software libraries (e.g. 
+inference methods, and relies on well-supported software libraries (e.g.,
 `normflows`, @normflows) to provide this broad functionality.
 
 # Statement of need
@@ -73,7 +73,7 @@ these tasks inexactly.
 The complicated and black-box nature of many simulation models can present a
 significant barrier to the successful deployment of these simulation-based inference 
 and optimisation techniques. Consequently, there has been increasing interest within
-various scientific communities in constructing *differentiable* simulation models (see e.g. @hep; @gradabm): 
+various scientific communities in constructing *differentiable* simulation models (see e.g., @hep; @gradabm): 
 simulation models for which the gradient of the model output with respect to the
 model's input parameters can be easily obtained. The primary motivation for this is
 that access to this additional information, which captures the sensitivity of the
@@ -131,8 +131,7 @@ number of [tutorials](https://www.arnau.ai/blackbirds/) demonstrating (a) how to
 in a differentiable framework in PyTorch and (b) how to apply the different parameter inference methods
 supported by `BlackBIRDS` to these differentiable simulators. Our package provides the user with flexible
 posterior density estimators with the use of normalising flows, and has already been used in scientific
-research to calibrate differentiable simulators, such as [@ai4abm; @dae], and in forthcoming publications
-yet to be announced publicly. 
+research to calibrate differentiable simulators, such as [@ai4abm; @dae].
 
 ## Related software
 
@@ -141,7 +140,7 @@ is a package offering PyTorch-based implementations of numerous simulation-based
 including those based on the use of MCMC and neural conditional density estimators. Our package differs
 significantly, however: in contrast to `sbi`, `BlackBIRDS` provides support for both Bayesian and 
 non-Bayesian inference methods, and permits the researcher to exploit gradients of the simulator, 
-loss function, and/or posterior density with respect to parameters $\mathbf{\theta}$ during inference tasks.
+loss function, and/or posterior density with respect to parameters $\mathbf{\theta}$ during inference tasks. The same comparison applies to the the `BayesFlow` package [@radev2023bayesflow].
 `black-it` [@blit] is a further recent Python package that collects some recently developed parameter 
 estimation methods from the agent-based modelling community; the focus of this package is, however, on
 non-Bayesian methods, and the package does not currently support the exploitation of simulator gradients.
