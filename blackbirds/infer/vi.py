@@ -5,6 +5,7 @@ from tqdm import tqdm
 from copy import deepcopy
 from itertools import chain
 from typing import Callable, List
+from pathlib import Path
 from collections import defaultdict
 from torch.utils.tensorboard import SummaryWriter
 
@@ -54,7 +55,6 @@ def compute_regularisation_loss(
     log_prob_prior = prior.log_prob(z)
     # compute the Monte Carlo estimate of the KL divergence
     kl_divergence = (log_prob_posterior - log_prob_prior).mean()
-    # kl_divergence = torch.clamp(kl_divergence, min=0.0, max=1)
     return kl_divergence
 
 
@@ -185,9 +185,6 @@ def compute_loss_and_jacobian_pathwise(
         losses = mpi_comm.gather(loss, root=0)
         if mpi_rank == 0:
             loss = sum(losses)
-            #loss = sum([l.cpu() for l in losses if l != 0])
-            #if type(loss) == int:
-                #loss = torch.tensor(loss, device=device)
     if mpi_rank == 0:
         jacobians = list(chain(*jacobians_per_rank))
         indices = list(chain(*indices_per_rank))
@@ -229,7 +226,7 @@ def compute_and_differentiate_loss_score(
     - `device`: device to use for the computation
     """
     # sample parameters and scatter them across devices
-    _, params_list_comm, logprobs_list = _sample_and_scatter_parameters(
+    params_list, params_list_comm, logprobs_list = _sample_and_scatter_parameters(
         posterior_estimator, n_samples
     )
     # make each rank compute the loss for its parameters
@@ -262,7 +259,9 @@ def compute_and_differentiate_loss_score(
             loss_i = torch.tensor(loss_i, device=device)
             if torch.isnan(loss_i):  # no parameter was non-nan
                 continue
-            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1), device=device))
+            lp = posterior_estimator.log_prob(
+                torch.tensor(param.reshape(1, -1), device=device)
+            )
             to_backprop += loss_i * lp
             total_loss += loss_i
             n_samples_non_nan += 1
@@ -380,6 +379,7 @@ class VI:
         progress_info: bool = True,
         log_tensorboard: bool = False,
         tensorboard_log_dir: str | None = None,
+        save_path=None,
     ):
         self.loss = loss
         self.prior = prior
@@ -403,6 +403,11 @@ class VI:
         self.device = device
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
+        if save_path is None:
+            self.save_path = Path(".")
+        else:
+            self.save_path = Path(save_path)
+        self.save_path.mkdir(exist_ok=True, parents=True)
 
     def step(self, data):
         """
@@ -439,7 +444,6 @@ class VI:
             torch.nn.utils.clip_grad_norm_(
                 self.posterior_estimator.parameters(), self.gradient_clipping_norm
             )
-            self.optimizer.step()
             total_loss = loss + regularisation_loss
             return total_loss, loss, regularisation_loss
         return None, None, None
@@ -466,7 +470,7 @@ class VI:
                 loss.backward()
                 optimizer.step()
                 if loss < best_loss:
-                    best_loss = loss
+                    best_loss = loss.item()
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
@@ -497,7 +501,8 @@ class VI:
         if self.initialize_estimator_to_prior:
             self.initialize_estimator()
             torch.save(
-                self.posterior_estimator.state_dict(), "estimator_fit_to_prior.pt"
+                self.posterior_estimator.state_dict(),
+                self.save_path / "estimator_fit_to_prior.pt",
             )
         self.best_loss = torch.tensor(np.inf)
         self.best_estimator_state_dict = None
@@ -518,24 +523,30 @@ class VI:
                     self.writer.add_scalar(
                         "Loss/regularisation", regularisation_loss, epoch
                     )
-                torch.save(self.posterior_estimator.state_dict(), "last_estimator.pt")
+                torch.save(
+                    self.posterior_estimator.state_dict(),
+                    self.save_path / "last_estimator.pt",
+                )
                 if total_loss < self.best_loss:
                     self.best_loss = total_loss
                     self.best_estimator_state_dict = deepcopy(
                         self.posterior_estimator.state_dict()
                     )
-                    torch.save(self.best_estimator_state_dict, "best_estimator.pt")
+                    torch.save(
+                        self.best_estimator_state_dict,
+                        self.save_path / "best_estimator.pt",
+                    )
                     num_epochs_without_improvement = 0
                 else:
                     num_epochs_without_improvement += 1
                 if self.progress_bar and self.progress_info:
                     iterator.set_postfix(
                         {
-                            "loss": loss,
-                            "reg.": regularisation_loss,
-                            "total": total_loss,
-                            "best loss": self.best_loss,
-                            "epochs since improv.": num_epochs_without_improvement,
+                            "loss": f"{loss:.2f}",
+                            "reg": f"{regularisation_loss:.2f}",
+                            "total": f"{total_loss:.2f}",
+                            "best": f"{self.best_loss:.2f}",
+                            "stall": f"{num_epochs_without_improvement}",
                         }
                     )
                 if num_epochs_without_improvement >= max_epochs_without_improvement:
@@ -545,7 +556,9 @@ class VI:
                         )
                     )
                     break
-            if not self.scheduler is None:
+            # update parameters
+            self.optimizer.step()
+            if self.scheduler is not None:
                 self.scheduler.step(total_loss)
         if mpi_rank == 0 and self.log_tensorboard:
             self.writer.flush()
