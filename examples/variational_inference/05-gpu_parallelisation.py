@@ -29,9 +29,9 @@ class L2Loss:
         return self.loss_fn(observed_outputs[0], data[0])
 
 
-def make_model(n_agents, n_timesteps):
+def make_model(n_agents, n_timesteps, device):
     graph = networkx.watts_strogatz_graph(n_agents, 10, 0.1)
-    return SIR(graph=graph, n_timesteps=n_timesteps)
+    return SIR(graph=graph, n_timesteps=n_timesteps, device=device)
 
 
 def make_flow(device):
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     # parse arguments from cli
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_epochs", type=int, default=500)
-    parser.add_argument("--n_agents", type=int, default=1000)
+    parser.add_argument("--n_agents", type=int, default=5000)
     parser.add_argument("--n_timesteps", type=int, default=100)
     parser.add_argument("--n_samples_per_epoch", type=int, default=5)
     parser.add_argument("--device_ids", default=["cpu"], nargs="+")
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # device of this rank
     device = args.device_ids[mpi_rank]
 
-    model = make_model(args.n_agents, args.n_timesteps)
+    model = make_model(args.n_agents, args.n_timesteps, device)
     true_parameters = torch.tensor(
         [0.05, 0.05, 0.05], device=device
     ).log10()  # SIR takes log parameters
