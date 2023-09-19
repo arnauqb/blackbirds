@@ -4,7 +4,7 @@ import logging
 from tqdm import tqdm
 from copy import deepcopy
 from itertools import chain
-from typing import Callable, List
+from typing import Callable, List, Union
 from collections import defaultdict
 from torch.utils.tensorboard import SummaryWriter
 
@@ -112,7 +112,7 @@ def compute_loss_and_jacobian_pathwise(
     n_samples: int,
     observed_outputs: list[torch.Tensor],
     diff_mode: str = "reverse",
-    jacobian_chunk_size: int | None = None,
+    jacobian_chunk_size: Union[int, None] = None,
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
@@ -279,7 +279,7 @@ def compute_and_differentiate_loss(
     observed_outputs: list[torch.Tensor],
     diff_mode: str = "reverse",
     gradient_estimation_method: str = "pathwise",
-    jacobian_chunk_size: int | None = None,
+    jacobian_chunk_size: Union[int, None] = None,
     device: str = "cpu",
 ):
     r"""Computes and differentiates the loss according to the chosen gradient estimation method
@@ -361,17 +361,17 @@ class VI:
         initialize_estimator_to_prior: bool = False,
         initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
-        optimizer: torch.optim.Optimizer | None = None,
+        optimizer: Union[torch.optim.Optimizer, None] = None,
         n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
-        jacobian_chunk_size: int | None = None,
+        jacobian_chunk_size: Union[int,  None] = None,
         device: str = "cpu",
         progress_bar: bool = True,
         progress_info: bool = True,
         log_tensorboard: bool = False,
-        tensorboard_log_dir: str | None = None,
+        tensorboard_log_dir: Union[str, None] = None,
     ):
         self.loss = loss
         self.prior = prior

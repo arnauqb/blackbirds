@@ -1,7 +1,8 @@
+from typing import Union
+import torch
+
 from blackbirds.models.model import Model
 from blackbirds.simulate import simulate_and_observe_model
-
-import torch
 
 
 class SingleOutput_SimulateAndMSELoss:
@@ -15,7 +16,7 @@ class SingleOutput_SimulateAndMSELoss:
     - `gradient_horizon`: Specifies the gradient horizon to use. None implies infinite horizon.
     """
 
-    def __init__(self, model: Model, gradient_horizon: int | None = None):
+    def __init__(self, model: Model, gradient_horizon: Union[int, None] = None):
         self.loss = torch.nn.MSELoss()
         self.model = model
         self.gradient_horizon = gradient_horizon
@@ -105,7 +106,7 @@ class SingleOutput_SimulateAndMMD:
     """
 
     def __init__(
-        self, y: torch.Tensor, model: Model, gradient_horizon: int | None = None
+        self, y: torch.Tensor, model: Model, gradient_horizon: Union[int, None] = None
     ):
         self.mmd_loss = UnivariateMMDLoss(y)
         self.model = model
