@@ -69,7 +69,24 @@ vi.run(true_data, 1000, max_epochs_without_improvement=100)
 
 ```
 
+# 3. Tests
 
-# 3. Citation
+To run the unit tests of the code, you need to have pytest installed,
+
+```bash
+pip install pytest pytest-cov
+```
+
+and run the command
+
+```bash
+pytest test
+```
+
+# 4. Contributing
+
+See [CONTRIBUTING.md](https://github.com/arnauqb/blackbirds/blob/main/CONTRIBUTING.md) for the contribution guidelines.
+
+# 5. Citation
 
 TODO. add after JOSS review.
