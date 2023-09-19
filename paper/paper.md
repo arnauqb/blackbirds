@@ -53,8 +53,8 @@ object-oriented framework for their implementation in `PyTorch` [@pytorch],
 and (b) the use of a variety of gradient-assisted inference procedures for these simulation
 models, allowing researchers to easily exploit the differentiable nature of their simulator in 
 parameter estimation tasks. The package consists of both Bayesian and non-Bayesian
-inference methods, and relies on well-supported software libraries (e.g.,
-`normflows`, @normflows) to provide this broad functionality.
+inference methods, and relies on well-supported software libraries [e.g.,
+`normflows`, @normflows] to provide this broad functionality.
 
 # Statement of need
 
@@ -73,7 +73,7 @@ these tasks inexactly.
 The complicated and black-box nature of many simulation models can present a
 significant barrier to the successful deployment of these simulation-based inference 
 and optimisation techniques. Consequently, there has been increasing interest within
-various scientific communities in constructing *differentiable* simulation models (see e.g., [@hep; @gradabm]): 
+various scientific communities in constructing *differentiable* simulation models [see e.g., @hep; @gradabm]: 
 simulation models for which the gradient of the model output with respect to the
 model's input parameters can be easily obtained. The primary motivation for this is
 that access to this additional information, which captures the sensitivity of the
@@ -87,7 +87,7 @@ set of parameter inference methods that exploit the gradient information provide
 differentiable simulators. The package provides support for a variety of approaches to
 gradient-assisted parameter inference, including:
 
-- Simulated Minimum Distance (SMD, see e.g. [@ii; @smm]), in which parameter
+- Simulated Minimum Distance [SMD, see e.g. @ii; @smm], in which parameter
   point estimates $\hat{\boldsymbol{\theta}}$ are obtained as
 
   \begin{equation}
@@ -126,7 +126,7 @@ gradient-assisted parameter inference, including:
 The package is written such that the user is free to specify their choice of $\ell$ and $\pi$ (in the
 case of Bayesian methods), under the constraint that both choices are differentiable with respect to
 $\boldsymbol{\theta}$. This allows the user to target a wide variety of parameter point estimators, 
-and both classical and generalised (see e.g. [@bissiri; @gvi]) posteriors. We provide a
+and both classical and generalised [see e.g. @bissiri; @gvi] posteriors. We provide a
 number of [tutorials](https://www.arnau.ai/blackbirds/) demonstrating (a) how to implement a simulator
 in a differentiable framework in PyTorch and (b) how to apply the different parameter inference methods
 supported by `BlackBIRDS` to these differentiable simulators. Our package provides the user with flexible
