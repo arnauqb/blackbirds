@@ -93,6 +93,7 @@ nav:
       - examples/mcmc/01-mala-mcmc_conjugate_prior_likelihood_pairs.ipynb
     - Simulated Minimum Distance:
       - examples/smd/01-random_walk.ipynb
+    - examples/gpu_parallelization.md
   - API:
     - Inference:
       - api/infer/mcmc.md
