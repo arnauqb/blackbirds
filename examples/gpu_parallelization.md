@@ -90,6 +90,10 @@ Now the script needs to be set so that each core runs on a different device. One
 
 ```python
 if __name__ == "__main__":
+    import argparse
+
+    from blackbirds.mpi_setup import mpi_rank
+
     # parse arguments from cli
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_epochs", type=int, default=500)
