@@ -119,6 +119,6 @@ So we can just run the script by doing
 mpirun -np 5 python examples/variational_inference/05-gpu_parallelisation.py --device_ids cuda:0 cuda:1 cuda:2 cuda:3 cuda:4 --n_samples_per_epoch 20
 ```
 
-In this case, we will use 5 GPUs, indexed by the ids we pass. Each GPU will execute 4 evaluations of the model for a total of 20. 
+In this case, we will use 5 GPUs, indexed by the ids we pass. Each GPU will execute 4 evaluations of the model for a total of 20. We can plot the scaling with number of GPUs for this particular model:
 
 ![](./gpu_scaling.png)

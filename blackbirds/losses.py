@@ -10,7 +10,7 @@ class SingleOutput_SimulateAndMSELoss:
     """
     Computes MSE between observed data y and simulated data at theta (to be passed during __call__).
 
-    **Arguments**
+    **Arguments:**
 
     - `model`: An instance of a Model. The model that you'd like to "fit".
     - `gradient_horizon`: Specifies the gradient horizon to use. None implies infinite horizon.
@@ -35,9 +35,10 @@ class UnivariateMMDLoss:
         """
         Computes MMD between data y and simulated output x (to be passed during call).
 
-        Assumes y is a torch.Tensor consisting of a single univariate time series.
-        """
+        **Arguments:**
 
+        - `y`: torch.Tensor containing a single univariate time series.
+        """
         assert isinstance(y, torch.Tensor), "y is assumed to be a torch.Tensor here"
         try:
             assert (
@@ -92,19 +93,17 @@ class UnivariateMMDLoss:
 
 
 class SingleOutput_SimulateAndMMD:
-
     """
     Example implementation of a loss that simulates from the model and computes the MMD
     between the model output and observed data y. (This treats the entries in y and in
     the simulator output as exchangeable.)
 
-    **Arguments**
+    **Arguments:**
 
     - `y`: torch.Tensor containing a single univariate time series.
     - `model`: An instance of a Model.
     - `gradient_horizon`: An integer or None. Sets horizon over which gradients are retained. If None, infinite horizon used.
     """
-
     def __init__(
         self, y: torch.Tensor, model: Model, gradient_horizon: Union[int, None] = None
     ):

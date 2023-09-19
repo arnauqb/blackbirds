@@ -99,8 +99,14 @@ nav:
       - api/infer/mcmc.md
       - api/infer/smd.md
       - api/infer/vi.md
+    - api/jacfwd.md
+    - api/losses.md
+    - api/mpi_setup.md
     - Models:
       - api/models/random_walk.md
       - api/models/sir.md
       - api/models/brock_hommes.md
       - api/models/rama_cont.md
+    - api/posterior_estimators.md
+    - api/simulate.md
+    - api/utils.md
