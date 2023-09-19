@@ -12,8 +12,21 @@ import normflows as nf
 import numpy as np
 
 from blackbirds.models.sir import SIR
-from blackbirds.calibrator import Calibrator
+from blackbirds.infer.vi import VI
 from blackbirds.mpi_setup import mpi_rank
+from blackbirds.simulate import simulate_and_observe_model
+
+
+class L2Loss:
+    def __init__(self, model):
+        self.model = model
+        self.loss_fn = torch.nn.MSELoss()
+
+    def __call__(self, params, data):
+        observed_outputs = simulate_and_observe_model(
+            self.model, params, gradient_horizon=0
+        )
+        return self.loss_fn(observed_outputs[0], data[0])
 
 
 def make_model(n_agents, n_timesteps):
@@ -58,13 +71,13 @@ def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch, device):
     # We set the regularisation weight to 10.
     w = 100
 
+    loss = L2Loss(model)
     # Note that we can track the progress of the training by using tensorboard.
     # tensorboard --logdir=runs
-    calibrator = Calibrator(
-        model=model,
+    vi = VI(
+        loss=loss,
         posterior_estimator=flow,
         prior=prior,
-        data=true_data,
         optimizer=optimizer,
         w=w,
         n_samples_per_epoch=n_samples_per_epoch,
@@ -72,7 +85,7 @@ def train_flow(flow, model, true_data, n_epochs, n_samples_per_epoch, device):
     )
 
     # and we run for 500 epochs without early stopping.
-    calibrator.run(n_epochs=n_epochs, max_epochs_without_improvement=np.inf)
+    vi.run(true_data, n_epochs=n_epochs, max_epochs_without_improvement=np.inf)
 
 
 if __name__ == "__main__":
@@ -92,7 +105,7 @@ if __name__ == "__main__":
     true_parameters = torch.tensor(
         [0.05, 0.05, 0.05], device=device
     ).log10()  # SIR takes log parameters
-    true_data = model(true_parameters)
+    true_data = model.run_and_observe(true_parameters)
     flow = make_flow(device)
     train_flow(
         flow, model, true_data, args.n_epochs, args.n_samples_per_epoch, device=device
