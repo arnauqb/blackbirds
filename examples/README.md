@@ -9,7 +9,7 @@ Here we include multiple examples showcasing the utility of Blackbirds to perfor
 The random walk process we considered is given by 
 
 $$
-x(t+1) = x(t) + 2\epsilon -1, \;\;\; \epsilon \sim \mathrm{Bernoulli}(p)
+x(t+1) = x(t) + 2\epsilon -1,  \epsilon \sim \mathrm{Bernoulli}(p)
 $$
 
 and the inference exercise consists on inferring the value of $p$ from an observed time-series $\{x(t)\}_t$. In `smd/01-random_walk.ipynb` we recover $p$ by just employing gradient descent to minimize the L2 distance between the simulated and the observed time-series. A Bayesian approach using generalized variational inference (GVI) is shown in `variational_inference/01-random_walk.ipynb`. In this case we consider the candidate family to approximate the generalised posterior as a family of normal distributions where we vary the mean $\mu$ and standard deviation $\sigma$.
