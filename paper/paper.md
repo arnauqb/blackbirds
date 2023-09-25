@@ -104,7 +104,7 @@ gradient-assisted parameter inference, including:
 - Markov chain Monte Carlo (MCMC), in which samples from a parameter posterior 
 
     \begin{equation}
-        \pi(\boldsymbol{\theta} \mid \mathbf{y}) \propto e^{-\ell(\boldsymbol{\theta}, \mathbf{y})} \pi(\boldsymbol{\theta})
+        \pi(\boldsymbol{\theta} \mid \mathbf{y}) \propto e^{-\ell(\boldsymbol{\theta}, \mathbf{y})} \pi(\boldsymbol{\theta}),
     \end{equation}
 
   corresponding to a choice of loss function $\ell$ and a prior density $\pi$ over $\boldsymbol{\Theta}$ 
@@ -114,12 +114,12 @@ gradient-assisted parameter inference, including:
   gradient-assisted MCMC algorithms such as Hamiltonian Monte Carlo [@hmc];
 - Variational Inference (VI), in which a parameteric approximation $q^*$ to the
   intractable posterior is obtained by solving the following optimisation problem over a
-  variational family $\mathcal{Q}$:
+  variational family $\mathcal{Q}$
   \begin{equation}
     q^* = \arg\min_{q \in \mathcal{Q}} {
             \mathbb{E}_{q}\left[ -\ell(\boldsymbol{\theta}, \mathbf{y})\right]
             + \mathbb{E}_{q}\left[\log\frac{q(\boldsymbol{\theta})}{\pi(\boldsymbol{\theta})}\right]
-    }
+    },
     \end{equation}
   where $\ell$ is defined as above and $\pi$ is a prior density over $\boldsymbol{\Theta}$.
 
