@@ -89,4 +89,16 @@ See [CONTRIBUTING.md](https://github.com/arnauqb/blackbirds/blob/main/CONTRIBUTI
 
 # 5. Citation
 
-TODO. add after JOSS review.
+```
+@article{Quera-Bofarull2023, 
+    doi = {10.21105/joss.05776}, 
+    url = {https://doi.org/10.21105/joss.05776}, 
+    year = {2023}, 
+    publisher = {The Open Journal}, 
+    volume = {8}, 
+    number = {89}, 
+    pages = {5776}, 
+    author = {Arnau Quera-Bofarull and Joel Dyer and Anisoara Calinescu and J. Doyne Farmer and Michael Wooldridge}, 
+    title = {BlackBIRDS: Black-Box Inference foR Differentiable Simulators}, 
+    journal = {Journal of Open Source Software} }
+```
