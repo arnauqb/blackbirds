@@ -1,5 +1,6 @@
 ![](docs/_static/banner.png)
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.05776/status.svg)](https://doi.org/10.21105/joss.05776)
 [![codecov](https://codecov.io/gh/arnauqb/blackbirds/branch/main/graph/badge.svg?token=HvwGGjA7qr)](https://codecov.io/gh/arnauqb/blackbirds)
 [![Docs](https://github.com/arnauqb/blackbirds/actions/workflows/docs.yml/badge.svg)](https://arnau.ai/blackbirds)
 [![Build and test package](https://github.com/arnauqb/birds/actions/workflows/ci.yml/badge.svg)](https://github.com/arnauqb/birds/actions/workflows/ci.yml)
