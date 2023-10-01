@@ -1,0 +1,2735 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for the BlackBIRDS library.">
+      
+      
+        <meta name="author" content="Arnau Quera-Bofarull">
+      
+      
+        <link rel="canonical" href="https://arnauqb.github.io/blackbirds/api/infer/vi/">
+      
+      
+        <link rel="prev" href="../smd/">
+      
+      
+        <link rel="next" href="../../jacfwd/">
+      
+      
+      <link rel="icon" href="../../../_static/logo.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.3.2">
+    
+    
+      
+        <title>Variational Inference - BlackBIRDS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.30068a00.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.85d0ee34.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../_static/custom_css.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="amber">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#variational-inference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="BlackBIRDS" class="md-header__button md-logo" aria-label="BlackBIRDS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M456 0c-48.6 0-88 39.4-88 88v29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9l74.6-57.4h133.1l46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384h44.1l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192v-72l80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32h-50.1C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BlackBIRDS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Variational Inference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/arnauqb/blackbirds" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="BlackBIRDS" class="md-nav__button md-logo" aria-label="BlackBIRDS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M456 0c-48.6 0-88 39.4-88 88v29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9l74.6-57.4h133.1l46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384h44.1l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192v-72l80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32h-50.1C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg>
+
+    </a>
+    BlackBIRDS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/arnauqb/blackbirds" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BlackBIRDS documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Variational Inference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Variational Inference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/01-random_walk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Random Walk
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/02-SIR/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SIR model
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/03-brock_hommes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Brock and Hommes model
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/04-score_vs_pathwise_gradient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Score vs Pathwise Gradient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/05-gpu_parallelisation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    05 gpu parallelisation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/variational_inference/06-classical_posterior/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Variational Inference with classical posterior
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    MCMC
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            MCMC
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/mcmc/01-mala-mcmc_conjugate_prior_likelihood_pairs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MALA MCMC on conjugate prior-likelihood pairs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Simulated Minimum Distance
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Simulated Minimum Distance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/smd/01-random_walk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simulated Minimum Distance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/gpu_parallelization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GPU parallelization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Inference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Inference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcmc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MCMC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../smd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simulated Minimum Distance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Variational Inference
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Variational Inference
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi" class="md-nav__link">
+    vi
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.VI" class="md-nav__link">
+    VI
+  </a>
+  
+    <nav class="md-nav" aria-label="VI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.VI.initialize_estimator" class="md-nav__link">
+    initialize_estimator()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.VI.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.VI.step" class="md-nav__link">
+    step()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.compute_and_differentiate_loss" class="md-nav__link">
+    compute_and_differentiate_loss()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.compute_and_differentiate_loss_score" class="md-nav__link">
+    compute_and_differentiate_loss_score()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.compute_loss_and_jacobian_pathwise" class="md-nav__link">
+    compute_loss_and_jacobian_pathwise()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackbirds.infer.vi.compute_regularisation_loss" class="md-nav__link">
+    compute_regularisation_loss()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jacfwd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JACFWD
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example losses
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mpi_setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MPI Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Models
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/random_walk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Random Walk
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/sir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SIR
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/brock_hommes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Brock & Hommes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/rama_cont/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rama Cont
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../posterior_estimators/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example posterior estimators
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Simulate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="variational-inference">Variational Inference<a class="headerlink" href="#variational-inference" title="Permanent link">¤</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="blackbirds.infer.vi"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="blackbirds.infer.vi.VI" class="doc doc-heading">
+          <code>VI</code>
+
+
+<a href="#blackbirds.infer.vi.VI" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Class to handle (Generalized) Variational Inferece.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>loss</code> : A callable that returns a (differentiable) loss. Needs to take (parameters, data) as input and return a scalar tensor.</li>
+<li><code>prior</code>: The prior distribution.</li>
+<li><code>posterior_estimator</code>: The variational distribution that approximates the (generalised) posterior.</li>
+<li><code>w</code>: The weight of the regularisation loss in the total loss.</li>
+<li><code>initialize_estimator_to_prior</code>: Whether to fit the posterior estimator to the prior before training.</li>
+<li><code>initialization_lr</code>: The learning rate to use for the initialization.</li>
+<li><code>gradient_clipping_norm</code>: The norm to which the gradients are clipped.</li>
+<li><code>optimizer</code>: The optimizer to use for training.</li>
+<li><code>n_samples_per_epoch</code>: The number of samples to draw from the variational distribution per epoch.</li>
+<li><code>n_samples_regularisation</code>: The number of samples used to evaluate the regularisation loss.</li>
+<li><code>diff_mode</code>: The differentiation mode to use. Can be either 'reverse' or 'forward'.</li>
+<li><code>gradient_estimation_method</code>: The method to use for estimating the gradients of the loss. Can be either 'pathwise' or 'score'.</li>
+<li><code>jacobian_chunk_size</code> : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.</li>
+<li><code>device</code>: The device to use for training.</li>
+<li><code>progress_bar</code>: Whether to display a progress bar during training.</li>
+<li><code>progress_info</code> : Whether to display loss data during training.</li>
+<li><code>log_tensorboard</code>: Whether to log tensorboard data.</li>
+<li><code>tensorboard_log_dir</code>: The directory to log tensorboard data to.</li>
+</ul>
+
+            <details class="quote">
+              <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">VI</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to handle (Generalized) Variational Inferece.</span>
+
+<span class="sd">    **Arguments:**</span>
+
+<span class="sd">    - `loss` : A callable that returns a (differentiable) loss. Needs to take (parameters, data) as input and return a scalar tensor.</span>
+<span class="sd">    - `prior`: The prior distribution.</span>
+<span class="sd">    - `posterior_estimator`: The variational distribution that approximates the (generalised) posterior.</span>
+<span class="sd">    - `w`: The weight of the regularisation loss in the total loss.</span>
+<span class="sd">    - `initialize_estimator_to_prior`: Whether to fit the posterior estimator to the prior before training.</span>
+<span class="sd">    - `initialization_lr`: The learning rate to use for the initialization.</span>
+<span class="sd">    - `gradient_clipping_norm`: The norm to which the gradients are clipped.</span>
+<span class="sd">    - `optimizer`: The optimizer to use for training.</span>
+<span class="sd">    - `n_samples_per_epoch`: The number of samples to draw from the variational distribution per epoch.</span>
+<span class="sd">    - `n_samples_regularisation`: The number of samples used to evaluate the regularisation loss.</span>
+<span class="sd">    - `diff_mode`: The differentiation mode to use. Can be either &#39;reverse&#39; or &#39;forward&#39;.</span>
+<span class="sd">    - `gradient_estimation_method`: The method to use for estimating the gradients of the loss. Can be either &#39;pathwise&#39; or &#39;score&#39;.</span>
+<span class="sd">    - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.</span>
+<span class="sd">    - `device`: The device to use for training.</span>
+<span class="sd">    - `progress_bar`: Whether to display a progress bar during training.</span>
+<span class="sd">    - `progress_info` : Whether to display loss data during training.</span>
+<span class="sd">    - `log_tensorboard`: Whether to log tensorboard data.</span>
+<span class="sd">    - `tensorboard_log_dir`: The directory to log tensorboard data to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">prior</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span>
+        <span class="n">posterior_estimator</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+        <span class="n">w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">initialize_estimator_to_prior</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">initialization_lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">gradient_clipping_norm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_samples_per_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">n_samples_regularisation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">diff_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+        <span class="n">gradient_estimation_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pathwise&quot;</span><span class="p">,</span>
+        <span class="n">jacobian_chunk_size</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span>  <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+        <span class="n">progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">progress_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">log_tensorboard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">tensorboard_log_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span> <span class="o">=</span> <span class="n">posterior_estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_estimator_to_prior</span> <span class="o">=</span> <span class="n">initialize_estimator_to_prior</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialization_lr</span> <span class="o">=</span> <span class="n">initialization_lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradient_clipping_norm</span> <span class="o">=</span> <span class="n">gradient_clipping_norm</span>
+        <span class="k">if</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples_per_epoch</span> <span class="o">=</span> <span class="n">n_samples_per_epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples_regularisation</span> <span class="o">=</span> <span class="n">n_samples_regularisation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_bar</span> <span class="o">=</span> <span class="n">progress_bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_info</span> <span class="o">=</span> <span class="n">progress_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diff_mode</span> <span class="o">=</span> <span class="n">diff_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradient_estimation_method</span> <span class="o">=</span> <span class="n">gradient_estimation_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jacobian_chunk_size</span> <span class="o">=</span> <span class="n">jacobian_chunk_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tensorboard_log_dir</span> <span class="o">=</span> <span class="n">tensorboard_log_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span> <span class="o">=</span> <span class="n">log_tensorboard</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs one training step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="c1"># compute and differentiate loss</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_and_differentiate_loss</span><span class="p">(</span>
+            <span class="n">loss_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span>
+            <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+            <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_per_epoch</span><span class="p">,</span>
+            <span class="n">observed_outputs</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">diff_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_mode</span><span class="p">,</span>
+            <span class="n">gradient_estimation_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gradient_estimation_method</span><span class="p">,</span>
+            <span class="n">jacobian_chunk_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jacobian_chunk_size</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># compute and differentiate regularisation loss</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="n">compute_regularisation_loss</span><span class="p">(</span>
+                    <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+                    <span class="n">prior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span>
+                    <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_regularisation</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># differentiate regularisation</span>
+                <span class="n">regularisation_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">loss</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="c1"># clip gradients</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_clipping_norm</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">total_loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">regularisation_loss</span>
+            <span class="k">return</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">regularisation_loss</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">initialize_estimator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_epochs_without_improvement</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization step where the estimator is fitted to just the prior.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">epoch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initialization_lr</span>
+            <span class="p">)</span>
+            <span class="n">best_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_regularisation_loss</span><span class="p">(</span>
+                    <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+                    <span class="n">prior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span>
+                    <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_regularisation</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/init_loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="n">best_loss</span><span class="p">:</span>
+                    <span class="n">best_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                    <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">num_epochs_without_improvement</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">num_epochs_without_improvement</span> <span class="o">&gt;=</span> <span class="n">max_epochs_without_improvement</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">atol</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_epochs_without_improvement</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.</span>
+
+<span class="sd">        **Arguments:**</span>
+
+<span class="sd">        - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.</span>
+<span class="sd">        - `n_epochs`: The number of epochs to run the calibrator for.</span>
+<span class="sd">        - `max_epochs_without_improvement`: The number of epochs without improvement after which the calibrator stops.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">SummaryWriter</span><span class="p">(</span><span class="n">log_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tensorboard_log_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_estimator_to_prior</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize_estimator</span><span class="p">()</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s2">&quot;estimator_fit_to_prior.pt&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_bar</span> <span class="ow">and</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="n">total_loss</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;regularisation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">regularisation_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/total&quot;</span><span class="p">,</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span>
+                        <span class="s2">&quot;Loss/regularisation&quot;</span><span class="p">,</span> <span class="n">regularisation_loss</span><span class="p">,</span> <span class="n">epoch</span>
+                    <span class="p">)</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span><span class="p">,</span> <span class="s2">&quot;last_estimator.pt&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span> <span class="o">=</span> <span class="n">loss</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span><span class="p">,</span> <span class="s2">&quot;best_estimator.pt&quot;</span><span class="p">)</span>
+                    <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">num_epochs_without_improvement</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_bar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_info</span><span class="p">:</span>
+                    <span class="n">iterator</span><span class="o">.</span><span class="n">set_postfix</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                            <span class="s2">&quot;reg.&quot;</span><span class="p">:</span> <span class="n">regularisation_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                            <span class="s2">&quot;best loss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                            <span class="s2">&quot;epochs since improv.&quot;</span><span class="p">:</span> <span class="n">num_epochs_without_improvement</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">num_epochs_without_improvement</span> <span class="o">&gt;=</span> <span class="n">max_epochs_without_improvement</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Stopping early because the loss did not improve for </span><span class="si">{}</span><span class="s2"> epochs.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">max_epochs_without_improvement</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="blackbirds.infer.vi.VI.initialize_estimator" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">initialize_estimator</span><span class="p">(</span><span class="n">max_epochs_without_improvement</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.VI.initialize_estimator" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Initialization step where the estimator is fitted to just the prior.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">initialize_estimator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_epochs_without_improvement</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialization step where the estimator is fitted to just the prior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">epoch</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initialization_lr</span>
+        <span class="p">)</span>
+        <span class="n">best_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_regularisation_loss</span><span class="p">(</span>
+                <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+                <span class="n">prior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span>
+                <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_regularisation</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/init_loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="n">best_loss</span><span class="p">:</span>
+                <span class="n">best_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_epochs_without_improvement</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">num_epochs_without_improvement</span> <span class="o">&gt;=</span> <span class="n">max_epochs_without_improvement</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">atol</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="blackbirds.infer.vi.VI.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n_epochs</span><span class="p">,</span> <span class="n">max_epochs_without_improvement</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.VI.run" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>data</code>: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.</li>
+<li><code>n_epochs</code>: The number of epochs to run the calibrator for.</li>
+<li><code>max_epochs_without_improvement</code>: The number of epochs without improvement after which the calibrator stops.</li>
+</ul>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">max_epochs_without_improvement</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Runs the calibrator for {n_epochs} epochs. Stops if the loss does not improve for {max_epochs_without_improvement} epochs.</span>
+
+<span class="sd">    **Arguments:**</span>
+
+<span class="sd">    - `data`: The observed data to calibrate against. It must be given as a list of tensors that matches the output of the model.</span>
+<span class="sd">    - `n_epochs`: The number of epochs to run the calibrator for.</span>
+<span class="sd">    - `max_epochs_without_improvement`: The number of epochs without improvement after which the calibrator stops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">SummaryWriter</span><span class="p">(</span><span class="n">log_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tensorboard_log_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_estimator_to_prior</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_estimator</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s2">&quot;estimator_fit_to_prior.pt&quot;</span>
+        <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">iterator</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_bar</span> <span class="ow">and</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+        <span class="n">total_loss</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">losses_hist</span><span class="p">[</span><span class="s2">&quot;regularisation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">regularisation_loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/total&quot;</span><span class="p">,</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;Loss/loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span>
+                    <span class="s2">&quot;Loss/regularisation&quot;</span><span class="p">,</span> <span class="n">regularisation_loss</span><span class="p">,</span> <span class="n">epoch</span>
+                <span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span><span class="p">,</span> <span class="s2">&quot;last_estimator.pt&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span> <span class="o">=</span> <span class="n">loss</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_estimator_state_dict</span><span class="p">,</span> <span class="s2">&quot;best_estimator.pt&quot;</span><span class="p">)</span>
+                <span class="n">num_epochs_without_improvement</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_epochs_without_improvement</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_bar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_info</span><span class="p">:</span>
+                <span class="n">iterator</span><span class="o">.</span><span class="n">set_postfix</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                        <span class="s2">&quot;reg.&quot;</span><span class="p">:</span> <span class="n">regularisation_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                        <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                        <span class="s2">&quot;best loss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                        <span class="s2">&quot;epochs since improv.&quot;</span><span class="p">:</span> <span class="n">num_epochs_without_improvement</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">num_epochs_without_improvement</span> <span class="o">&gt;=</span> <span class="n">max_epochs_without_improvement</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Stopping early because the loss did not improve for </span><span class="si">{}</span><span class="s2"> epochs.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">max_epochs_without_improvement</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_tensorboard</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="blackbirds.infer.vi.VI.step" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">step</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.VI.step" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs one training step.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs one training step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="c1"># compute and differentiate loss</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_and_differentiate_loss</span><span class="p">(</span>
+        <span class="n">loss_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span>
+        <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+        <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_per_epoch</span><span class="p">,</span>
+        <span class="n">observed_outputs</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">diff_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_mode</span><span class="p">,</span>
+        <span class="n">gradient_estimation_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gradient_estimation_method</span><span class="p">,</span>
+        <span class="n">jacobian_chunk_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jacobian_chunk_size</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># compute and differentiate regularisation loss</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="n">compute_regularisation_loss</span><span class="p">(</span>
+                <span class="n">posterior_estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="p">,</span>
+                <span class="n">prior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span>
+                <span class="n">n_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples_regularisation</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># differentiate regularisation</span>
+            <span class="n">regularisation_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">regularisation_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">loss</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="c1"># clip gradients</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior_estimator</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_clipping_norm</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">regularisation_loss</span>
+        <span class="k">return</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">regularisation_loss</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="blackbirds.infer.vi.compute_and_differentiate_loss" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">compute_and_differentiate_loss</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">observed_outputs</span><span class="p">,</span> <span class="n">diff_mode</span><span class="o">=</span><span class="s1">&#39;reverse&#39;</span><span class="p">,</span> <span class="n">gradient_estimation_method</span><span class="o">=</span><span class="s1">&#39;pathwise&#39;</span><span class="p">,</span> <span class="n">jacobian_chunk_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.compute_and_differentiate_loss" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Computes and differentiates the loss according to the chosen gradient estimation method
+and automatic differentiation mechanism.
+<strong>Arguments:</strong></p>
+<ul>
+<li><code>loss_fn</code>: loss function</li>
+<li><code>posterior_estimator</code>: posterior estimator, must implement a sample and a log_prob method</li>
+<li><code>n_samples</code>: number of samples</li>
+<li><code>observed_outputs</code>: observed outputs</li>
+<li><code>diff_mode</code>: differentiation mode can be "reverse" or "forward"</li>
+<li><code>gradient_estimation_method</code>: gradient estimation method can be "pathwise" or "score"</li>
+<li><code>jacobian_chunk_size</code>: chunk size for the Jacobian computation (set None to get maximum chunk size)</li>
+<li><code>device</code>: device to use for the computation</li>
+</ul>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_and_differentiate_loss</span><span class="p">(</span>
+    <span class="n">loss_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">posterior_estimator</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">observed_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">diff_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+    <span class="n">gradient_estimation_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pathwise&quot;</span><span class="p">,</span>
+    <span class="n">jacobian_chunk_size</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and differentiates the loss according to the chosen gradient estimation method</span>
+<span class="sd">    and automatic differentiation mechanism.</span>
+<span class="sd">    **Arguments:**</span>
+
+<span class="sd">    - `loss_fn`: loss function</span>
+<span class="sd">    - `posterior_estimator`: posterior estimator, must implement a sample and a log_prob method</span>
+<span class="sd">    - `n_samples`: number of samples</span>
+<span class="sd">    - `observed_outputs`: observed outputs</span>
+<span class="sd">    - `diff_mode`: differentiation mode can be &quot;reverse&quot; or &quot;forward&quot;</span>
+<span class="sd">    - `gradient_estimation_method`: gradient estimation method can be &quot;pathwise&quot; or &quot;score&quot;</span>
+<span class="sd">    - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)</span>
+<span class="sd">    - `device`: device to use for the computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">gradient_estimation_method</span> <span class="o">==</span> <span class="s2">&quot;pathwise&quot;</span><span class="p">:</span>
+        <span class="p">(</span>
+            <span class="n">parameters</span><span class="p">,</span>
+            <span class="n">loss</span><span class="p">,</span>
+            <span class="n">jacobians</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">compute_loss_and_jacobian_pathwise</span><span class="p">(</span>
+            <span class="n">loss_fn</span><span class="o">=</span><span class="n">loss_fn</span><span class="p">,</span>
+            <span class="n">posterior_estimator</span><span class="o">=</span><span class="n">posterior_estimator</span><span class="p">,</span>
+            <span class="n">observed_outputs</span><span class="o">=</span><span class="n">observed_outputs</span><span class="p">,</span>
+            <span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span>
+            <span class="n">diff_mode</span><span class="o">=</span><span class="n">diff_mode</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+            <span class="n">jacobian_chunk_size</span><span class="o">=</span><span class="n">jacobian_chunk_size</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_differentiate_loss_pathwise</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">jacobians</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">gradient_estimation_method</span> <span class="o">==</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_and_differentiate_loss_score</span><span class="p">(</span>
+            <span class="n">loss_fn</span><span class="o">=</span><span class="n">loss_fn</span><span class="p">,</span>
+            <span class="n">posterior_estimator</span><span class="o">=</span><span class="n">posterior_estimator</span><span class="p">,</span>
+            <span class="n">observed_outputs</span><span class="o">=</span><span class="n">observed_outputs</span><span class="p">,</span>
+            <span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown gradient estimation method </span><span class="si">{</span><span class="n">gradient_estimation_method</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="blackbirds.infer.vi.compute_and_differentiate_loss_score" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">compute_and_differentiate_loss_score</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">observed_outputs</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.compute_and_differentiate_loss_score" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute</p>
+<div class="arithmatex">\[
+\eta = \nabla_\psi \mathbb{E}_{\psi \sim p(\theta)} \left[ \mathcal{L}(\theta) \right],
+\]</div>
+<p>by performing the score gradient</p>
+<div class="arithmatex">\[
+\eta \approx \frac{1}{N} \sum_{i=1}^N \mathcal{L}(\theta_i) \nabla_\psi \log p\left(\theta_i | \psi\right).
+\]</div>
+<p>The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized
+across the available devices.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>loss_fn</code>: loss function</li>
+<li><code>posterior_estimator</code>: posterior estimator, must implement a sample and a log_prob method</li>
+<li><code>n_samples</code>: number of samples</li>
+<li><code>observed_outputs</code>: observed outputs</li>
+<li><code>device</code>: device to use for the computation</li>
+</ul>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_and_differentiate_loss_score</span><span class="p">(</span>
+    <span class="n">loss_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">posterior_estimator</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">observed_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \eta = \nabla_\psi \mathbb{E}_{\psi \sim p(\theta)} \left[ \mathcal{L}(\theta) \right],</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    by performing the score gradient</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \eta \approx \frac{1}{N} \sum_{i=1}^N \mathcal{L}(\theta_i) \nabla_\psi \log p\left(\theta_i | \psi\right).</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized</span>
+<span class="sd">    across the available devices.</span>
+
+<span class="sd">    **Arguments:**</span>
+
+<span class="sd">    - `loss_fn`: loss function</span>
+<span class="sd">    - `posterior_estimator`: posterior estimator, must implement a sample and a log_prob method</span>
+<span class="sd">    - `n_samples`: number of samples</span>
+<span class="sd">    - `observed_outputs`: observed outputs</span>
+<span class="sd">    - `device`: device to use for the computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sample parameters and scatter them across devices</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">params_list_comm</span><span class="p">,</span> <span class="n">logprobs_list</span> <span class="o">=</span> <span class="n">_sample_and_scatter_parameters</span><span class="p">(</span>
+        <span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">n_samples</span>
+    <span class="p">)</span>
+    <span class="c1"># make each rank compute the loss for its parameters</span>
+    <span class="n">loss_per_parameter</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># need to keep track of which parameter has which loss</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mpi_rank</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">params_list_comm</span><span class="p">),</span> <span class="n">mpi_size</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">params_list_comm</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">loss_i</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">observed_outputs</span><span class="p">)</span>
+        <span class="n">loss_per_parameter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_i</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="n">indices_per_rank</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="c1"># gather the losses from all ranks</span>
+    <span class="k">if</span> <span class="n">mpi_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">loss_per_parameter</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">loss_per_parameter</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">indices_per_rank</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loss_per_parameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">loss_per_parameter</span><span class="p">]</span>
+        <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices_per_rank</span><span class="p">]</span>
+    <span class="c1"># compute the loss times the logprob of each parameter in rank 0</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">loss_per_parameter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">loss_per_parameter</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">indices_per_rank</span><span class="p">))</span>
+        <span class="n">logprobs_list</span> <span class="o">=</span> <span class="n">logprobs_list</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">params_list_comm</span> <span class="o">=</span> <span class="n">params_list_comm</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">to_backprop</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">n_samples_non_nan</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">loss_i</span><span class="p">,</span> <span class="n">param_logprob</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">params_list_comm</span><span class="p">,</span> <span class="n">loss_per_parameter</span><span class="p">,</span> <span class="n">logprobs_list</span>
+        <span class="p">):</span>
+            <span class="n">loss_i</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">loss_i</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_i</span><span class="p">):</span>  <span class="c1"># no parameter was non-nan</span>
+                <span class="k">continue</span>
+            <span class="n">lp</span> <span class="o">=</span> <span class="n">posterior_estimator</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">to_backprop</span> <span class="o">+=</span> <span class="n">loss_i</span> <span class="o">*</span> <span class="n">lp</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss_i</span>
+            <span class="n">n_samples_non_nan</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">to_backprop</span> <span class="o">=</span> <span class="n">to_backprop</span> <span class="o">/</span> <span class="n">n_samples_non_nan</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="n">n_samples_non_nan</span>
+        <span class="c1"># differentiate through the posterior estimator</span>
+        <span class="n">to_backprop</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">total_loss</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="blackbirds.infer.vi.compute_loss_and_jacobian_pathwise" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">compute_loss_and_jacobian_pathwise</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">,</span> <span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">observed_outputs</span><span class="p">,</span> <span class="n">diff_mode</span><span class="o">=</span><span class="s1">&#39;reverse&#39;</span><span class="p">,</span> <span class="n">jacobian_chunk_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.compute_loss_and_jacobian_pathwise" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute</p>
+<div class="arithmatex">\[
+\eta = \nabla_\psi \mathbb{E}_{p(\theta | \psi)} \left[ \mathcal{L}(\theta) \right],
+\]</div>
+<p>by performing the pathwise gradient (reparameterization trick),</p>
+<div class="arithmatex">\[
+\eta \approx \frac{1}{N} \sum_{i=1}^N \nabla_\psi \mathcal{L}(\theta_i(\psi)).
+\]</div>
+<p>The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized
+across the available devices.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>loss_fn</code>: loss function</li>
+<li><code>posterior_estimator</code>: Object that implements the <code>sample</code> method computing a parameter and its log_prob</li>
+<li><code>n_samples</code>: number of samples</li>
+<li><code>observed_outputs</code>: observed outputs</li>
+<li><code>diff_mode</code>: differentiation mode can be "reverse" or "forward"</li>
+<li><code>jacobian_chunk_size</code>: chunk size for the Jacobian computation (set None to get maximum chunk size)</li>
+<li><code>device</code>: device to use for the computation</li>
+</ul>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_loss_and_jacobian_pathwise</span><span class="p">(</span>
+    <span class="n">loss_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">posterior_estimator</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">observed_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">diff_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reverse&quot;</span><span class="p">,</span>
+    <span class="n">jacobian_chunk_size</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \eta = \nabla_\psi \mathbb{E}_{p(\theta | \psi)} \left[ \mathcal{L}(\theta) \right],</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    by performing the pathwise gradient (reparameterization trick),</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \eta \approx \frac{1}{N} \sum_{i=1}^N \nabla_\psi \mathcal{L}(\theta_i(\psi)).</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    The jacobian is computed using the forward or reverse mode differentiation and the computation is parallelized</span>
+<span class="sd">    across the available devices.</span>
+
+<span class="sd">    **Arguments:**</span>
+
+<span class="sd">    - `loss_fn`: loss function</span>
+<span class="sd">    - `posterior_estimator`: Object that implements the `sample` method computing a parameter and its log_prob</span>
+<span class="sd">    - `n_samples`: number of samples</span>
+<span class="sd">    - `observed_outputs`: observed outputs</span>
+<span class="sd">    - `diff_mode`: differentiation mode can be &quot;reverse&quot; or &quot;forward&quot;</span>
+<span class="sd">    - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)</span>
+<span class="sd">    - `device`: device to use for the computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sample parameters and scatter them across devices</span>
+    <span class="n">params_list</span><span class="p">,</span> <span class="n">params_list_comm</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_sample_and_scatter_parameters</span><span class="p">(</span>
+        <span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">n_samples</span>
+    <span class="p">)</span>
+    <span class="c1"># select forward or reverse jacobian calculator</span>
+    <span class="k">if</span> <span class="n">diff_mode</span> <span class="o">==</span> <span class="s2">&quot;reverse&quot;</span><span class="p">:</span>
+        <span class="n">jacobian_diff_mode</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">jacrev</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jacobian_diff_mode</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">jacfwd</span><span class="p">(</span><span class="n">randomness</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># define loss to differentiate</span>
+    <span class="k">def</span> <span class="nf">loss_aux</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="n">loss_v</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">observed_outputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss_v</span><span class="p">,</span> <span class="n">loss_v</span>  <span class="c1"># need double return for jacobian calculation.</span>
+
+    <span class="n">jacobian_calculator</span> <span class="o">=</span> <span class="n">jacobian_diff_mode</span><span class="p">(</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">loss_aux</span><span class="p">,</span>
+        <span class="n">argnums</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">has_aux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">chunk_size</span><span class="o">=</span><span class="n">jacobian_chunk_size</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># make each rank compute the loss for its parameters</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">jacobians_per_rank</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># need to keep track of which parameter has which jacobian</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mpi_rank</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">params_list_comm</span><span class="p">),</span> <span class="n">mpi_size</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">params_list_comm</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">jacobian</span><span class="p">,</span> <span class="n">loss_i</span> <span class="o">=</span> <span class="n">jacobian_calculator</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_i</span><span class="p">)</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">jacobian</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">loss</span> <span class="o">+=</span> <span class="n">loss_i</span>
+        <span class="n">jacobians_per_rank</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+        <span class="n">indices_per_rank</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="c1"># gather the jacobians and parameters from all ranks</span>
+    <span class="k">if</span> <span class="n">mpi_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">jacobians_per_rank</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">jacobians_per_rank</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">indices_per_rank</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jacobians_per_rank</span> <span class="o">=</span> <span class="p">[</span><span class="n">jacobians_per_rank</span><span class="p">]</span>
+        <span class="n">indices_per_rank</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices_per_rank</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mpi_comm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">losses</span> <span class="k">if</span> <span class="n">l</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">jacobians</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">jacobians_per_rank</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">indices_per_rank</span><span class="p">))</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">params_list</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">jacobians</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="blackbirds.infer.vi.compute_regularisation_loss" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">compute_regularisation_loss</span><span class="p">(</span><span class="n">posterior_estimator</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span></code>
+
+<a href="#blackbirds.infer.vi.compute_regularisation_loss" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Estimates the KL divergence between the posterior and the prior using n_samples through Monte Carlo using</p>
+<div class="arithmatex">\[
+\mathbb{E}_{q(z|x)}[\log q(z|x) - \log p(z)] \approx \frac{1}{N} \sum_{i=1}^N \left(\log q(z_i|x) - \log p(z_i)\right)
+\]</div>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>posterior_estimator</code>: The posterior distribution.</li>
+<li><code>prior</code>: The prior distribution.</li>
+<li><code>n_samples</code>: The number of samples to use for the Monte Carlo estimate.</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><pre><span></span><code>    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">from</span> <span class="nn">blackbirds.regularisation</span> <span class="kn">import</span> <span class="n">compute_regularisation</span>
+    <span class="c1"># define two normal distributions</span>
+    <span class="n">dist1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dist2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">compute_regularisation</span><span class="p">(</span><span class="n">dist1</span><span class="p">,</span> <span class="n">dist2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="c1"># tensor(0.)</span>
+    <span class="n">dist1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dist2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">compute_regularisation</span><span class="p">(</span><span class="n">dist1</span><span class="p">,</span> <span class="n">dist2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="c1"># tensor(0.5)</span>
+</code></pre></div>
+</div>
+
+          <details class="quote">
+            <summary>Source code in <code>blackbirds/infer/vi.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_regularisation_loss</span><span class="p">(</span>
+    <span class="n">posterior_estimator</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+    <span class="n">prior</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Estimates the KL divergence between the posterior and the prior using n_samples through Monte Carlo using</span>
+
+<span class="sd">    $$</span>
+<span class="sd">    \mathbb{E}_{q(z|x)}[\log q(z|x) - \log p(z)] \approx \frac{1}{N} \sum_{i=1}^N \left(\log q(z_i|x) - \log p(z_i)\right)</span>
+<span class="sd">    $$</span>
+
+<span class="sd">    **Arguments**:</span>
+
+<span class="sd">    - `posterior_estimator`: The posterior distribution.</span>
+<span class="sd">    - `prior`: The prior distribution.</span>
+<span class="sd">    - `n_samples`: The number of samples to use for the Monte Carlo estimate.</span>
+
+<span class="sd">    !!! example</span>
+<span class="sd">        ```python</span>
+<span class="sd">            import torch</span>
+<span class="sd">            from blackbirds.regularisation import compute_regularisation</span>
+<span class="sd">            # define two normal distributions</span>
+<span class="sd">            dist1 = torch.distributions.Normal(0, 1)</span>
+<span class="sd">            dist2 = torch.distributions.Normal(0, 1)</span>
+<span class="sd">            compute_regularisation(dist1, dist2, 1000)</span>
+<span class="sd">            # tensor(0.)</span>
+<span class="sd">            dist1 = torch.distributions.Normal(0, 1)</span>
+<span class="sd">            dist2 = torch.distributions.Normal(1, 1)</span>
+<span class="sd">            compute_regularisation(dist1, dist2, 1000)</span>
+<span class="sd">            # tensor(0.5)</span>
+<span class="sd">        ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sample from the posterior</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">log_prob_posterior</span> <span class="o">=</span> <span class="n">posterior_estimator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
+    <span class="c1"># compute the log probability of the samples under the prior</span>
+    <span class="c1"># log_prob_posterior = posterior_estimator.log_prob(z)</span>
+    <span class="n">log_prob_prior</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="c1"># compute the Monte Carlo estimate of the KL divergence</span>
+    <span class="n">kl_divergence</span> <span class="o">=</span> <span class="p">(</span><span class="n">log_prob_posterior</span> <span class="o">-</span> <span class="n">log_prob_prior</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="c1"># kl_divergence = torch.clamp(kl_divergence, min=0.0, max=1)</span>
+    <span class="k">return</span> <span class="n">kl_divergence</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.sections", "toc.integrate", "header.autohide"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      
+        <script src="../../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
