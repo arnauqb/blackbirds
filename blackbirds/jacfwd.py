@@ -40,6 +40,7 @@ def jacfwd(
         Valid values are “different”, “same”, “error”.
     - `chunk_size`: An integer specifying the chunk size for vmap.
     """
+
     @wraps(func)
     def wrapper_fn(*args):
         primals = args if argnums is None else _slice_argnums(args, argnums)

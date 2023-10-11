@@ -60,8 +60,8 @@ class TestUnivariateMMDLoss:
         params = torch.Tensor([mu, sigma])
         loss_value = mmd_loss(params, y)
         # MMD between distributions of hould be close to 0
-        assert not np.isclose(loss_value, 0.)
-        assert loss_value > 0.
+        assert not np.isclose(loss_value, 0.0)
+        assert loss_value > 0.0
 
 
 class TestMMDLoss:
@@ -72,7 +72,7 @@ class TestMMDLoss:
         loss_calc = loss._pairwise_distance(x, y)
         x_cdist = x.view(1, 100, 2)
         y_cdist = y.view(1, 50, 2)
-        torch_calc = torch.cdist(x_cdist, y_cdist)[0,:,:]
+        torch_calc = torch.cdist(x_cdist, y_cdist)[0, :, :]
         assert torch.allclose(torch_calc, loss_calc)
 
     def test__mmd_loss(self):
@@ -98,6 +98,3 @@ class TestMMDLoss:
         loss.backward()
         grad_1d = p.grad.item()
         assert np.isclose(grad, grad_1d, rtol=1e-2)
-
-
-

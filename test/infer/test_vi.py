@@ -179,5 +179,5 @@ class TestVI:
         )
         vi.run(data, 100, max_epochs_without_improvement=np.inf)
         posterior_estimator.load_state_dict(vi.best_estimator_state_dict)
-        assert np.isclose(posterior_estimator.mu.item(), 3, atol=1) #1 sigma away
+        assert np.isclose(posterior_estimator.mu.item(), 3, atol=1)  # 1 sigma away
         assert np.isclose(posterior_estimator.sigma.item(), 1)

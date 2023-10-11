@@ -104,6 +104,7 @@ class SingleOutput_SimulateAndMMD:
     - `model`: An instance of a Model.
     - `gradient_horizon`: An integer or None. Sets horizon over which gradients are retained. If None, infinite horizon used.
     """
+
     def __init__(
         self, y: torch.Tensor, model: Model, gradient_horizon: Union[int, None] = None
     ):
@@ -143,7 +144,7 @@ class MMDLoss:
 
     def _gaussian_kernel(self, x, y, sigma):
         dist = self._pairwise_distance(x, y)
-        kernel_matrix = torch.exp(-dist**2 / sigma) #(2 * sigma**2))
+        kernel_matrix = torch.exp(-(dist**2) / sigma)  # (2 * sigma**2))
         return kernel_matrix
 
     def _estimate_sigma(self, y):
@@ -155,7 +156,7 @@ class MMDLoss:
         nx = x.shape[0]
         kernel_xx = self._gaussian_kernel(x, x, self.sigma)
         # substract diagonal elements
-        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0], device=self.device)        
+        kernel_xx = kernel_xx - torch.eye(kernel_xx.shape[0], device=self.device)
         kernel_xy = self._gaussian_kernel(x, self.y, self.sigma)
         loss = (
             1 / (nx * (nx - 1)) * kernel_xx.sum()

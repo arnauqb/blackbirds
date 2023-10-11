@@ -5,9 +5,9 @@ import torch
 from blackbirds.models.model import Model
 from blackbirds.utils import soft_maximum, soft_minimum
 
+
 @njit
 def _count_infected_neighbours(x, i, j):
-
     N = x.shape[0]
     total = 0
     up = x[i - 1, j]
@@ -24,40 +24,41 @@ def _count_infected_neighbours(x, i, j):
         total += 1
     return total
 
+
 @njit
 def _update_cell(alpha, beta, gamma, x, i, j):
-
     cell_state = x[i, j]
     if cell_state == 0:
         n_infected_neighbours = _count_infected_neighbours(x, i, j)
-        prob_infected = 1. - (1. - alpha)**n_infected_neighbours
-        #prob_infected = alpha * n_infected_neighbours / 4.
-        #prob_infected = 1. - np.exp(-n_infected_neighbours / 4. * alpha)
-        #if n_infected_neighbours > 0:
+        prob_infected = 1.0 - (1.0 - alpha) ** n_infected_neighbours
+        # prob_infected = alpha * n_infected_neighbours / 4.
+        # prob_infected = 1. - np.exp(-n_infected_neighbours / 4. * alpha)
+        # if n_infected_neighbours > 0:
         #    print(n_infected_neighbours, prob_infected)
         if np.random.random() < prob_infected:
             return 1
         return 0
     elif cell_state == 1:
         if np.random.random() < beta:
-        #if np.random.random() < 1. - np.exp(-beta):
+            # if np.random.random() < 1. - np.exp(-beta):
             return 2
         return 1
     elif cell_state == 2:
         if np.random.random() < gamma:
-        #if np.random.random() < 1. - np.exp(-gamma):
+            # if np.random.random() < 1. - np.exp(-gamma):
             return 0
         return 2
 
+
 @njit
 def _update(alpha, beta, gamma, new_array, current_state):
-
     N = current_state.shape[0]
     for i in range(N):
         for j in range(N):
-            #print(i, j)
+            # print(i, j)
             new_array[i, j] = _update_cell(alpha, beta, gamma, current_state, i, j)
     return new_array
+
 
 class SIRS(Model):
     r"""Non-differentiable implementation of a spatial SIRS model on regular grid and periodic boundaries.
@@ -83,18 +84,18 @@ class SIRS(Model):
         state = torch.zeros((1, self._N, self._N))
 
         # Initialise uniformly at random
-        idx = torch.randperm(self._N**2)[:int(self._i0 * self._N**2)]
+        idx = torch.randperm(self._N**2)[: int(self._i0 * self._N**2)]
         x_idx = idx // self._N
         y_idx = idx % self._N
         state[0, x_idx, y_idx] = 1
 
-        #width = self._i0 * self._N
-        #half_width = int(width / 2)
-        #N_over_2 = int(self._N / 2)
-        #state[0, 
-        #      N_over_2 - half_width:N_over_2 + half_width, 
-        #      N_over_2 - half_width:N_over_2 + half_width] = 1 
-        
+        # width = self._i0 * self._N
+        # half_width = int(width / 2)
+        # N_over_2 = int(self._N / 2)
+        # state[0,
+        #      N_over_2 - half_width:N_over_2 + half_width,
+        #      N_over_2 - half_width:N_over_2 + half_width] = 1
+
         self._t = 0
         return state
 
@@ -115,15 +116,15 @@ class SIRS(Model):
         assert (beta > 0) & (beta < 1)
         assert (gamma > 0) & (gamma < 1)
 
-        #print("==== t = {0} ====".format(self._t))
+        # print("==== t = {0} ====".format(self._t))
         self._t += 1
-        #print(x)
+        # print(x)
         x_t = x.numpy().copy()[-1]
         # Because of this, the gradients aren't going to be right if we differentiate through the simulator
         x_t = _update(alpha.numpy(), beta.numpy(), gamma.numpy(), x_t, x.numpy()[-1])
         x_t = torch.from_numpy(x_t).unsqueeze(0)
-        #print(x_t, x_t.shape)
-        #print()
+        # print(x_t, x_t.shape)
+        # print()
         return x_t
 
     def observe(self, x):

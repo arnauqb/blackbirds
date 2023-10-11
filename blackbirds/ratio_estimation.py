@@ -26,43 +26,25 @@ class RatioEstimator(nn.Module):
     """
 
     def __init__(
-        self, 
-        classifier_network: nn.Module,
-        summary_network: nn.Module = nn.Identity()
+        self, classifier_network: nn.Module, summary_network: nn.Module = nn.Identity()
     ):
-
         super().__init__()
 
         self._sn = summary_network
         self._cn = classifier_network
-        self._spn = nn.Softplus(beta=-1.)
+        self._spn = nn.Softplus(beta=-1.0)
 
-    def sn_forward(
-        self, 
-        x: torch.Tensor
-    ):
-
+    def sn_forward(self, x: torch.Tensor):
         return self._sn(x)
 
-    def log_ratio(
-        self,
-        sx: torch.Tensor,
-        theta: torch.Tensor
-    ):
-
+    def log_ratio(self, sx: torch.Tensor, theta: torch.Tensor):
         if not len(theta.shape) == 2:
             theta = theta.unsqueeze(0)
         data = torch.cat((theta, sx), dim=-1)
         data = self._cn(data).reshape(-1)
         return data
 
-    def forward(
-        self, 
-        sx: torch.Tensor, 
-        theta: torch.Tensor, 
-        prior=False
-    ):
-
+    def forward(self, sx: torch.Tensor, theta: torch.Tensor, prior=False):
         data = self.log_ratio(sx, theta)
         this_loss = -self._spn(data)
         if prior:
@@ -81,14 +63,13 @@ def train(
     ratio_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
     batch_size: int = 50,
     max_num_epochs: int = 200,
-    best_loss: float = float('inf'),
+    best_loss: float = float("inf"),
     max_iterations_without_val_loss_improvement: int = 20,
     outloc: str | None = None,
-    stop_at_loss: float = 0.,
+    stop_at_loss: float = 0.0,
     tensorboard_log_dir: str | None = None,
-    gradient_clipping_norm: float | None = None
-    ):
-
+    gradient_clipping_norm: float | None = None,
+):
     """
     Training script for binary ratio estimator given by RatioEstimator class.
 
@@ -104,7 +85,7 @@ def train(
        rate scheduler to use, if any. Default None.
     - `batch_size`: Integer denoting the batch size used for training.
     - `max_num_epochs`: An integer denoting the maximum number of epochs to train for.
-    - `max_iterations_without_val_loss_improvement`: Integer specifying the maximum number 
+    - `max_iterations_without_val_loss_improvement`: Integer specifying the maximum number
        of epochs to train for without any improvement in the validation loss. (This is a
        form of early stopping.)
     - `outloc`: A string specifying the location at which the best ratio estimator is to be
@@ -124,10 +105,9 @@ def train(
 
     for epoch in iterator:
         idx = 0
-        epoch_train_loss = 0.
-        epoch_val_loss = 0.
+        epoch_train_loss = 0.0
+        epoch_val_loss = 0.0
         while idx < N_TRAIN:
-
             ratio_optimiser.zero_grad()
             end_idx = idx + batch_size
 
@@ -135,42 +115,50 @@ def train(
             joint_sx = ratio_estimator.sn_forward(joint_x)
             joint_loss = ratio_estimator.forward(joint_sx, joint_theta, prior=False)
 
-            THIS_N = joint_x.shape[0] # In case we're at the last batch and there are fewer than batch_size elements
+            THIS_N = joint_x.shape[
+                0
+            ]  # In case we're at the last batch and there are fewer than batch_size elements
 
-            product_loss = 0.
+            product_loss = 0.0
             for i in range(1, THIS_N):
                 rolled_thetas = torch.roll(joint_theta, i, 0)
-                product_loss += ratio_estimator.forward(joint_sx, rolled_thetas, prior=True)
+                product_loss += ratio_estimator.forward(
+                    joint_sx, rolled_thetas, prior=True
+                )
             loss = product_loss / (THIS_N - 1) + joint_loss
 
-            #rolled_thetas = torch.roll(joint_theta, torch.randint(low=1, high=THIS_N, size=(1,)).item(), 0)
-            #product_loss = ratio_estimator.forward(joint_sx, rolled_thetas, prior=True)
-            #loss = product_loss + joint_loss
+            # rolled_thetas = torch.roll(joint_theta, torch.randint(low=1, high=THIS_N, size=(1,)).item(), 0)
+            # product_loss = ratio_estimator.forward(joint_sx, rolled_thetas, prior=True)
+            # loss = product_loss + joint_loss
 
             epoch_train_loss += loss.item()
             logger.info("Loss = {0}".format(loss.item()))
 
             loss.backward()
             if gradient_clipping_norm is not None:
-                torch.nn.utils.clip_grad_norm_(ratio_estimator.parameters(), gradient_clipping_norm)
-            #print([p.grad for p in ratio_estimator.parameters()])
+                torch.nn.utils.clip_grad_norm_(
+                    ratio_estimator.parameters(), gradient_clipping_norm
+                )
+            # print([p.grad for p in ratio_estimator.parameters()])
             ratio_optimiser.step()
             idx += batch_size
         with torch.no_grad():
             # Compute val_joint_loss and product
             val_sx = ratio_estimator.sn_forward(val_x)
             val_joint_loss = ratio_estimator.forward(val_sx, val_theta, prior=False)
-            val_product_loss = 0.
+            val_product_loss = 0.0
 
             for i in range(1, N_VAL):
                 rolled_thetas = torch.roll(val_theta, i, 0)
-                val_product_loss += ratio_estimator.forward(val_sx, rolled_thetas, prior=True)
+                val_product_loss += ratio_estimator.forward(
+                    val_sx, rolled_thetas, prior=True
+                )
             val_loss = val_product_loss / (N_VAL - 1) + val_joint_loss
             epoch_val_loss += val_loss.item()
 
-            #rolled_thetas = torch.roll(val_theta, torch.randint(low=1, high=N_VAL, size=(1,)).item(), 0)
-            #val_product_loss = ratio_estimator.forward(val_sx, rolled_thetas, prior=True)
-            #val_loss = val_product_loss + val_joint_loss
+            # rolled_thetas = torch.roll(val_theta, torch.randint(low=1, high=N_VAL, size=(1,)).item(), 0)
+            # val_product_loss = ratio_estimator.forward(val_sx, rolled_thetas, prior=True)
+            # val_loss = val_product_loss + val_joint_loss
 
             loss_hist.append(val_loss.item())
             m += 1
@@ -183,10 +171,14 @@ def train(
             if val_loss < stop_at_loss:
                 logger.info("Training stopped – best loss surpassed.")
                 return best_ratio_estimator, loss_hist
-            iterator.set_postfix({"train_loss": loss.item(), 
-                                  "best_val_loss": best_loss, 
-                                  "current_val_loss":val_loss.item(),
-                                  "steps since last improvement":m})
+            iterator.set_postfix(
+                {
+                    "train_loss": loss.item(),
+                    "best_val_loss": best_loss,
+                    "current_val_loss": val_loss.item(),
+                    "steps since last improvement": m,
+                }
+            )
             if m >= max_iterations_without_val_loss_improvement:
                 logger.info("Training stopped - converged.")
                 return best_ratio_estimator, loss_hist

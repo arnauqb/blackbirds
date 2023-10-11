@@ -3,7 +3,7 @@ import torch
 
 class TrainableGaussian(torch.nn.Module):
     """
-    A multivariate Gaussian distribution with trainable mean and covariance 
+    A multivariate Gaussian distribution with trainable mean and covariance
     matrix.
 
     **Arguments:**
@@ -14,6 +14,7 @@ class TrainableGaussian(torch.nn.Module):
         value on the diagonal.
     - `device`: str, the device to use for the distribution.
     """
+
     def __init__(self, mu=[0.0], sigma=1.0, device="cpu"):
         super().__init__()
         self.mu = torch.nn.Parameter(torch.tensor(mu, device=device))

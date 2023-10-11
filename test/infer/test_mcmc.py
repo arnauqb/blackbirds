@@ -145,7 +145,6 @@ class TestMALA:
         assert np.isclose(kl, 0.0, atol=2e-2)
 
     def test_random_walk(self):
-
         """
         Test MALA on discrete random walk example.
         """

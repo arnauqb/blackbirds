@@ -7,6 +7,7 @@ from typing import Callable, Union
 
 logger = logging.getLogger("mcmc")
 
+
 class MCMCKernel(ABC):
 
     """
@@ -54,15 +55,9 @@ class MCMCKernel(ABC):
         return self.prior.sample((1,)).shape[-1]
 
     @abstractmethod
-    def step(
-        self,
-        current_state: torch.Tensor,
-        data: torch.Tensor,
-        *args,
-        **kwargs
-    ):
+    def step(self, current_state: torch.Tensor, data: torch.Tensor, *args, **kwargs):
         pass
-        
+
 
 class MALA(MCMCKernel):
     """
@@ -81,12 +76,7 @@ class MALA(MCMCKernel):
     - `discretisation_method`: How to discretise the overdamped Langevin diffusion. Default 'e-m' for Euler-Maruyama
     """
 
-    def __init__(
-        self,
-        *args,
-        discretisation_method: str = "e-m",
-        **kwargs
-    ):
+    def __init__(self, *args, discretisation_method: str = "e-m", **kwargs):
         super().__init__(*args, **kwargs)
         self.discretisation_method = discretisation_method
         self._previous_log_density = None
@@ -227,14 +217,13 @@ class MCMC:
 
     def run(
         self,
-        initial_state: torch.Tensor, 
-        data: torch.Tensor, 
-        *args, 
+        initial_state: torch.Tensor,
+        data: torch.Tensor,
+        *args,
         seed: int = 0,
-        T: int = 1, 
-        **kwargs
+        T: int = 1,
+        **kwargs,
     ):
-
         """
         Runs the MCMC chain.
 
@@ -245,12 +234,16 @@ class MCMC:
         - `seed`: An integer specifying the initial random state of the RNG.
         - `T`: An integer specifying the number of steps between updates of the progress info (if shown).
 
-        Additional arguments and keyword arguments can be passed, which will be passed to the kernel 
+        Additional arguments and keyword arguments can be passed, which will be passed to the kernel
         .step() method.
         """
 
-        assert isinstance(initial_state, torch.Tensor), "Initial state of the MCMC chain must be a torch.Tensor"
-        assert isinstance(data, torch.Tensor), "The data must be passed as a torch.Tensor"
+        assert isinstance(
+            initial_state, torch.Tensor
+        ), "Initial state of the MCMC chain must be a torch.Tensor"
+        assert isinstance(
+            data, torch.Tensor
+        ), "The data must be passed as a torch.Tensor"
 
         if seed is not None:
             torch.manual_seed(seed)
