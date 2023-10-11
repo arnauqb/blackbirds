@@ -69,7 +69,36 @@ vi.run(true_data, 1000, max_epochs_without_improvement=100)
 
 ```
 
+# 3. Tests
 
-# 3. Citation
+To run the unit tests of the code, you need to have pytest installed,
 
-TODO. add after JOSS review.
+```bash
+pip install pytest pytest-cov
+```
+
+and run the command
+
+```bash
+pytest test
+```
+
+# 4. Contributing
+
+See [CONTRIBUTING.md](https://github.com/arnauqb/blackbirds/blob/main/CONTRIBUTING.md) for the contribution guidelines.
+
+# 5. Citation
+
+```
+@article{Quera-Bofarull2023, 
+    doi = {10.21105/joss.05776}, 
+    url = {https://doi.org/10.21105/joss.05776}, 
+    year = {2023}, 
+    publisher = {The Open Journal}, 
+    volume = {8}, 
+    number = {89}, 
+    pages = {5776}, 
+    author = {Arnau Quera-Bofarull and Joel Dyer and Anisoara Calinescu and J. Doyne Farmer and Michael Wooldridge}, 
+    title = {BlackBIRDS: Black-Box Inference foR Differentiable Simulators}, 
+    journal = {Journal of Open Source Software} }
+```

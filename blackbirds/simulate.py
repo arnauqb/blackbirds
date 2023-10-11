@@ -1,7 +1,7 @@
 import torch
 import warnings
 from tqdm import tqdm
-from typing import Callable
+from typing import Callable, Union
 
 from blackbirds.mpi_setup import mpi_rank, mpi_size, mpi_comm
 
@@ -9,7 +9,7 @@ from blackbirds.mpi_setup import mpi_rank, mpi_size, mpi_comm
 def simulate_and_observe_model(
     model: torch.nn.Module,
     params: torch.Tensor,
-    gradient_horizon: int | None = None,
+    gradient_horizon: Union[int, None] = None,
 ):
     """Runs the simulator for the given parameters and calls the model's observe method.
     To avoid gradient instabilities, the `gradient_horizon` argument limits the number of past time-steps
@@ -91,10 +91,10 @@ def generate_training_data(
     simulator: Callable,
     prior: torch.distributions.Distribution,
     n_training_samples: int = 1_000,
-    progress_bar = True
-    ):
+    progress_bar=True,
+):
     """
-    Generates training data pairs (theta, x) where theta are the 
+    Generates training data pairs (theta, x) where theta are the
     model parameters and x the model output. Supports MPI parallelilsation
     for multi-gpu calculation.
 
@@ -129,11 +129,11 @@ def generate_training_data(
     for i in prange:
         theta = thetas[i]
         x = simulator(theta)
-        x = torch.cat([t[:,None] for t in x], dim=-1)
-        xs.append(x[None,:])
+        x = torch.cat([t[:, None] for t in x], dim=-1)
+        xs.append(x[None, :])
     # concatenate xs into tensor for size N x T x F
     # where N is number of samples, T is number of timesteps and F is number of features
-    xs 
+    xs
     xs = torch.cat(xs, dim=0)
     # gather all parameters and outputs to rank 0
     if mpi_comm is not None and mpi_size > 1:
@@ -146,4 +146,3 @@ def generate_training_data(
         return thetas, xs
     else:
         return [], []
-

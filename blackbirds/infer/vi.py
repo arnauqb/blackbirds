@@ -4,8 +4,12 @@ import logging
 from tqdm import tqdm
 from copy import deepcopy
 from itertools import chain
+<<<<<<< HEAD
 from typing import Callable, List
 from pathlib import Path
+=======
+from typing import Callable, List, Union
+>>>>>>> main
 from collections import defaultdict
 from torch.utils.tensorboard import SummaryWriter
 
@@ -99,8 +103,14 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     device = parameters.device
     to_diff = torch.zeros(1, device=device)
     for i in range(len(jacobians)):
+<<<<<<< HEAD
         jacobian = torch.tensor(jacobians[i], device=device)
         to_diff += torch.matmul(jacobian, parameters[i, :])
+=======
+        # Note: It is necessary to use F64 here otherwise it can cause nan due to overflow...
+        #to_diff += torch.dot(jacobians[i].to(device).to(torch.float64), parameters[i, :].to(torch.float64))
+        to_diff += torch.dot(jacobians[i].to(device).to(torch.float), parameters[i, :].to(torch.float))
+>>>>>>> main
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
@@ -111,8 +121,7 @@ def compute_loss_and_jacobian_pathwise(
     n_samples: int,
     observed_outputs: list[torch.Tensor],
     diff_mode: str = "reverse",
-    jacobian_chunk_size: int | None = None,
-    gradient_horizon: int = 0,
+    jacobian_chunk_size: Union[int, None] = None,
     device: str = "cpu",
 ):
     r"""Computes the loss and the jacobian of the loss for each sample using a differentiable simulator. That is, we compute
@@ -138,7 +147,6 @@ def compute_loss_and_jacobian_pathwise(
     - `observed_outputs`: observed outputs
     - `diff_mode`: differentiation mode can be "reverse" or "forward"
     - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
-    - `gradient_horizon`: horizon for the gradient computation
     - `device`: device to use for the computation
     """
     # sample parameters and scatter them across devices
@@ -171,8 +179,13 @@ def compute_loss_and_jacobian_pathwise(
         jacobian, loss_i = jacobian_calculator(params)
         if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
+<<<<<<< HEAD
         loss += loss_i.item()
         jacobians_per_rank.append(jacobian.cpu().to(torch.float).numpy())
+=======
+        loss += loss_i
+        jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
+>>>>>>> main
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
@@ -278,8 +291,7 @@ def compute_and_differentiate_loss(
     observed_outputs: list[torch.Tensor],
     diff_mode: str = "reverse",
     gradient_estimation_method: str = "pathwise",
-    jacobian_chunk_size: int | None = None,
-    gradient_horizon: int = 0,
+    jacobian_chunk_size: Union[int, None] = None,
     device: str = "cpu",
 ):
     r"""Computes and differentiates the loss according to the chosen gradient estimation method
@@ -293,7 +305,6 @@ def compute_and_differentiate_loss(
     - `diff_mode`: differentiation mode can be "reverse" or "forward"
     - `gradient_estimation_method`: gradient estimation method can be "pathwise" or "score"
     - `jacobian_chunk_size`: chunk size for the Jacobian computation (set None to get maximum chunk size)
-    - `gradient_horizon`: horizon for the gradient computation
     - `device`: device to use for the computation
     """
     if gradient_estimation_method == "pathwise":
@@ -309,7 +320,6 @@ def compute_and_differentiate_loss(
             diff_mode=diff_mode,
             device=device,
             jacobian_chunk_size=jacobian_chunk_size,
-            gradient_horizon=gradient_horizon,
         )
         if mpi_rank == 0:
             _differentiate_loss_pathwise(parameters, jacobians)
@@ -347,7 +357,6 @@ class VI:
     - `diff_mode`: The differentiation mode to use. Can be either 'reverse' or 'forward'.
     - `gradient_estimation_method`: The method to use for estimating the gradients of the loss. Can be either 'pathwise' or 'score'.
     - `jacobian_chunk_size` : The number of rows computed at a time for the model Jacobian. Set to None to compute the full Jacobian at once.
-    - `gradient_horizon`: The number of timesteps to use for the gradient horizon. Set 0 to use the full trajectory.
     - `device`: The device to use for training.
     - `progress_bar`: Whether to display a progress bar during training.
     - `progress_info` : Whether to display loss data during training.
@@ -364,20 +373,27 @@ class VI:
         initialize_estimator_to_prior: bool = False,
         initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
+<<<<<<< HEAD
         optimizer: torch.optim.Optimizer | None = None,
         scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
+=======
+        optimizer: Union[torch.optim.Optimizer, None] = None,
+>>>>>>> main
         n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
-        jacobian_chunk_size: int | None = None,
-        gradient_horizon: int | float = np.inf,
+        jacobian_chunk_size: Union[int,  None] = None,
         device: str = "cpu",
         progress_bar: bool = True,
         progress_info: bool = True,
         log_tensorboard: bool = False,
+<<<<<<< HEAD
         tensorboard_log_dir: str | None = None,
         save_path=None,
+=======
+        tensorboard_log_dir: Union[str, None] = None,
+>>>>>>> main
     ):
         self.loss = loss
         self.prior = prior
@@ -397,7 +413,6 @@ class VI:
         self.diff_mode = diff_mode
         self.gradient_estimation_method = gradient_estimation_method
         self.jacobian_chunk_size = jacobian_chunk_size
-        self.gradient_horizon = gradient_horizon
         self.device = device
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
@@ -422,7 +437,6 @@ class VI:
             diff_mode=self.diff_mode,
             gradient_estimation_method=self.gradient_estimation_method,
             jacobian_chunk_size=self.jacobian_chunk_size,
-            gradient_horizon=self.gradient_horizon,
             device=self.device,
         )
         # compute and differentiate regularisation loss

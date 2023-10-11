@@ -23,6 +23,23 @@ def jacfwd(
     randomness: str = "error",
     chunk_size=None
 ):
+    """
+    Wrapper around torch._functorch.jacfwd that accepts chunk size.
+    See the original torch documentation for more details on the arguments.
+
+    **Arguments:**
+
+    - `func`: A Python function that takes one or more arguments, one of which
+        must be a Tensor, and returns one or more Tensors
+    - `argnums`: An integer or a tuple of integers specifying which positional
+        argument(s) to differentiate with respect to.
+    - `has_aux`: If `True`, `func` is assumed to return a pair where the first
+        element is considered the output of the original function to be
+        differentiated and the second element is auxiliary data.
+    - `randomness`: A string specifying how to handle randomness in `func`.
+        Valid values are “different”, “same”, “error”.
+    - `chunk_size`: An integer specifying the chunk size for vmap.
+    """
     @wraps(func)
     def wrapper_fn(*args):
         primals = args if argnums is None else _slice_argnums(args, argnums)

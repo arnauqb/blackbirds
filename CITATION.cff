@@ -1,0 +1,57 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Quera-Bofarull
+  given-names: Arnau
+  orcid: "https://orcid.org/0000-0001-5055-9863"
+- family-names: Dyer
+  given-names: Joel
+  orcid: "https://orcid.org/0000-0002-8304-8450"
+- family-names: Calinescu
+  given-names: Anisoara
+  orcid: "https://orcid.org/0000-0003-2082-734X"
+- family-names: Farmer
+  given-names: J. Doyne
+  orcid: "https://orcid.org/0000-0001-7871-073X"
+- family-names: Wooldridge
+  given-names: Michael
+  orcid: "https://orcid.org/0000-0002-9329-8410"
+contact:
+- family-names: Quera-Bofarull
+  given-names: Arnau
+  orcid: "https://orcid.org/0000-0001-5055-9863"
+- family-names: Dyer
+  given-names: Joel
+  orcid: "https://orcid.org/0000-0002-8304-8450"
+doi: 10.5281/zenodo.8377044
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Quera-Bofarull
+    given-names: Arnau
+    orcid: "https://orcid.org/0000-0001-5055-9863"
+  - family-names: Dyer
+    given-names: Joel
+    orcid: "https://orcid.org/0000-0002-8304-8450"
+  - family-names: Calinescu
+    given-names: Anisoara
+    orcid: "https://orcid.org/0000-0003-2082-734X"
+  - family-names: Farmer
+    given-names: J. Doyne
+    orcid: "https://orcid.org/0000-0001-7871-073X"
+  - family-names: Wooldridge
+    given-names: Michael
+    orcid: "https://orcid.org/0000-0002-9329-8410"
+  date-published: 2023-09-28
+  doi: 10.21105/joss.05776
+  issn: 2475-9066
+  issue: 89
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5776
+  title: "BlackBIRDS: Black-Box Inference foR Differentiable Simulators"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05776"
+  volume: 8
+title: "BlackBIRDS: Black-Box Inference foR Differentiable Simulators"
