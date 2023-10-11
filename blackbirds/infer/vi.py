@@ -4,12 +4,8 @@ import logging
 from tqdm import tqdm
 from copy import deepcopy
 from itertools import chain
-<<<<<<< HEAD
-from typing import Callable, List
 from pathlib import Path
-=======
 from typing import Callable, List, Union
->>>>>>> main
 from collections import defaultdict
 from torch.utils.tensorboard import SummaryWriter
 
@@ -103,14 +99,13 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     device = parameters.device
     to_diff = torch.zeros(1, device=device)
     for i in range(len(jacobians)):
-<<<<<<< HEAD
-        jacobian = torch.tensor(jacobians[i], device=device)
-        to_diff += torch.matmul(jacobian, parameters[i, :])
-=======
         # Note: It is necessary to use F64 here otherwise it can cause nan due to overflow...
-        #to_diff += torch.dot(jacobians[i].to(device).to(torch.float64), parameters[i, :].to(torch.float64))
-        to_diff += torch.dot(jacobians[i].to(device).to(torch.float), parameters[i, :].to(torch.float))
->>>>>>> main
+        # to_diff += torch.dot(jacobians[i].to(device).to(torch.float64), parameters[i, :].to(torch.float64))
+        if type(jacobians[i]) != torch.Tensor:
+            jacobian = torch.tensor(jacobians[i], device=device, dtype=torch.float)
+        else:
+            jacobian = jacobians[i].to(device).to(torch.float)
+        to_diff += torch.matmul(jacobian, parameters[i, :].to(torch.float))
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
@@ -179,13 +174,11 @@ def compute_loss_and_jacobian_pathwise(
         jacobian, loss_i = jacobian_calculator(params)
         if torch.isnan(loss_i) or torch.isnan(jacobian).any():
             continue
-<<<<<<< HEAD
-        loss += loss_i.item()
-        jacobians_per_rank.append(jacobian.cpu().to(torch.float).numpy())
-=======
-        loss += loss_i
-        jacobians_per_rank.append(torch.tensor(jacobian.cpu().numpy()))
->>>>>>> main
+        loss += float(loss_i)
+        if type(jacobian) == torch.Tensor:
+            jacobians_per_rank.append(jacobian.cpu().numpy())
+        else:
+            jacobians_per_rank.append(jacobian)
         indices_per_rank.append(i)
     # gather the jacobians and parameters from all ranks
     if mpi_size > 1:
@@ -271,7 +264,9 @@ def compute_and_differentiate_loss_score(
         ):
             if np.isnan(loss_i):  # no parameter was non-nan
                 continue
-            lp = posterior_estimator.log_prob(torch.tensor(param.reshape(1, -1), device=device))
+            lp = posterior_estimator.log_prob(
+                torch.tensor(param.reshape(1, -1), device=device)
+            )
             loss_i = float(loss_i)
             to_backprop += loss_i * lp
             total_loss += loss_i
@@ -373,27 +368,19 @@ class VI:
         initialize_estimator_to_prior: bool = False,
         initialization_lr: float = 1e-3,
         gradient_clipping_norm: float = np.inf,
-<<<<<<< HEAD
-        optimizer: torch.optim.Optimizer | None = None,
-        scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
-=======
         optimizer: Union[torch.optim.Optimizer, None] = None,
->>>>>>> main
+        scheduler: Union[torch.optim.lr_scheduler.LRScheduler, None] = None,
         n_samples_per_epoch: int = 10,
         n_samples_regularisation: int = 10_000,
         diff_mode: str = "reverse",
         gradient_estimation_method: str = "pathwise",
-        jacobian_chunk_size: Union[int,  None] = None,
+        jacobian_chunk_size: Union[int, None] = None,
         device: str = "cpu",
         progress_bar: bool = True,
         progress_info: bool = True,
         log_tensorboard: bool = False,
-<<<<<<< HEAD
-        tensorboard_log_dir: str | None = None,
-        save_path=None,
-=======
         tensorboard_log_dir: Union[str, None] = None,
->>>>>>> main
+        save_path=None,
     ):
         self.loss = loss
         self.prior = prior
