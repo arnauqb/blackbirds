@@ -176,7 +176,7 @@ def compute_loss_and_jacobian_pathwise(
             continue
         loss += float(loss_i)
         if type(jacobian) == torch.Tensor:
-            jacobians_per_rank.append(jacobian.cpu().numpy())
+            jacobians_per_rank.append(jacobian.detach().cpu().numpy())
         else:
             jacobians_per_rank.append(jacobian)
         indices_per_rank.append(i)
