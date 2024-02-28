@@ -57,8 +57,8 @@ def compute_regularisation_loss(
     diffs = log_prob_posterior - log_prob_prior
     # ignore nan or inf values
     diffs = diffs[~torch.isnan(diffs)]
+    diffs = diffs[~torch.isinf(diffs)]
     kl_divergence = diffs.mean()
-    print(f"z : {z}, log_prob_posterior {log_prob_posterior}, log_prob_prior {log_prob_prior}, kl_divergence {kl_divergence}")
     return kl_divergence
 
 
