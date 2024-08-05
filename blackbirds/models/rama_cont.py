@@ -35,7 +35,7 @@ class RamaCont(Model):
     def step(self, params, x):
         # draw epsilon_t from normal distribution
         sigma = params[2]
-        epsilon_t = torch.distributions.Normal(0, sigma).rsample((self.n_agents,))
+        epsilon_t = torch.distributions.Normal(0, sigma).rsample()
         # compute order
         nu_t = x[-1, 0, :]
         order = self.compute_order(epsilon_t, nu_t)
