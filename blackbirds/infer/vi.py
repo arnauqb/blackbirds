@@ -507,8 +507,8 @@ class VI:
                         "Loss/regularisation", regularisation_loss, epoch
                     )
                 torch.save(self.best_estimator_state_dict, "last_estimator.pt")
-                if loss < self.best_loss:
-                    self.best_loss = loss
+                if total_loss < self.best_loss:
+                    self.best_loss = total_loss
                     self.best_estimator_state_dict = deepcopy(
                         self.posterior_estimator.state_dict()
                     )
