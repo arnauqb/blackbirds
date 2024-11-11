@@ -101,12 +101,7 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     for i in range(len(jacobians)):
         # Note: It is necessary to use F64 here otherwise it can cause nan due to overflow...
         #to_diff += torch.dot(jacobians[i].to(device).to(torch.float64), parameters[i, :].to(torch.float64))
-        if (len(jacobians[i].shape) > 1):
-            if (jacobians[i].shape[0] > 1):
-                raise RuntimeError("Jacobian first dim = {0}".format(jacobians[i].shape[0]))
-            else:
-                jacobians[i] = jacobians[i].to(device).to(torch.float)[0]
-        to_diff += torch.dot(jacobians[i], parameters[i, :].to(torch.float))
+        to_diff += torch.dot(jacobians[i].to(device).to(torch.float), parameters[i, :].to(torch.float))
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
@@ -399,6 +394,10 @@ class VI:
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
 
+    def _check_loss_scalar(self, data):
+        _ = self.loss(self.posterior_estimator.sample(2), data)
+        assert len(_.shape) == 1, "Loss should be a scalar torch.tensor (i.e., a 0D torch.tensor)"
+
     def step(self, data):
         """
         Performs one training step.
@@ -485,6 +484,7 @@ class VI:
         - `n_epochs`: The number of epochs to run the calibrator for.
         - `max_epochs_without_improvement`: The number of epochs without improvement after which the calibrator stops.
         """
+        self._check_loss_scalar(data)
         if mpi_rank == 0 and self.log_tensorboard:
             self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         if self.initialize_estimator_to_prior:
