@@ -394,6 +394,11 @@ class VI:
         self.tensorboard_log_dir = tensorboard_log_dir
         self.log_tensorboard = log_tensorboard
 
+    def _check_loss_scalar(self, data):
+        one_sample = self.loss(self.posterior_estimator.sample(1), data)
+        multiple_samples = self.loss(self.posterior_estimator.sample(2), data)
+        assert one_sample.dim() == 0 and multiple_samples.dim() == 1, "Loss should be a scalar value (i.e., a 0D torch.tensor)"
+
     def step(self, data):
         """
         Performs one training step.
@@ -480,6 +485,7 @@ class VI:
         - `n_epochs`: The number of epochs to run the calibrator for.
         - `max_epochs_without_improvement`: The number of epochs without improvement after which the calibrator stops.
         """
+        self._check_loss_scalar(data)
         if mpi_rank == 0 and self.log_tensorboard:
             self.writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
         if self.initialize_estimator_to_prior:
