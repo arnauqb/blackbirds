@@ -101,7 +101,12 @@ def _differentiate_loss_pathwise(parameters, jacobians):
     for i in range(len(jacobians)):
         # Note: It is necessary to use F64 here otherwise it can cause nan due to overflow...
         #to_diff += torch.dot(jacobians[i].to(device).to(torch.float64), parameters[i, :].to(torch.float64))
-        to_diff += torch.dot(jacobians[i].to(device).to(torch.float), parameters[i, :].to(torch.float))
+        if (len(jacobians[i].shape) > 1):
+            if (jacobians[i].shape[0] > 1):
+                raise RuntimeError("Jacobian first dim = {0}".format(jacobians[i].shape[0]))
+            else:
+                jacobians[i] = jacobians[i].to(device).to(torch.float)[0]
+        to_diff += torch.dot(jacobians[i], parameters[i, :].to(torch.float))
     to_diff = to_diff / len(jacobians)
     to_diff.backward()
 
